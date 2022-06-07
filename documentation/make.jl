@@ -64,7 +64,7 @@ for (relationship_class, name, default, value_list, description) in
 end
 
 # Write the `system_string` into a markdown file.
-open("docs/src/$(filename)", "w") do file
+open("documentation/src/$(filename)", "w") do file
     write(file, join(system_string))
 end
 
