@@ -78,8 +78,10 @@ data used via the module within the `data/` folder in the repository for the mom
 
 ## Documentation
 
-The source for the documentation is included in the repository under the `documentation/` folder,
-but is not hosted online at the moment.
+[Online documentation can be found here](https://vttresearch.github.io/ArchetypeBuildingModel/),
+but I haven't bothered to set up automatic workflow for keeping it up to date.
+Thus, for accessing the latest documentation, one has to build it locally.
+
 In order to build and read the documentation locally,
 start a Julia REPL from the root folder of this module and perform the following steps:
 
