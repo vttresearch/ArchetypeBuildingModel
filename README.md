@@ -101,7 +101,7 @@ julia> include("docs/make.jl")
 
 ## License
 
-All rights reserved for now.
+MIT, see `LICENSE` for more information.
 
 
 ## Acknowledgements
