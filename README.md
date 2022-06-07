@@ -78,25 +78,25 @@ data used via the module within the `data/` folder in the repository for the mom
 
 ## Documentation
 
-The source for the documentation is included in the repository under the `docs` folder,
+The source for the documentation is included in the repository under the `documentation/` folder,
 but is not hosted online at the moment.
 In order to build and read the documentation locally,
 start a Julia REPL from the root folder of this module and perform the following steps:
 
-1. Activate the `docs` environment from the Julia Package manager
+1. Activate the `documentation` environment from the Julia Package manager
 ```julia
 julia> ]
-(ArchetypeBuildingModel) pkg> Activate docs
+(ArchetypeBuildingModel) pkg> Activate documentation
 (docs) pkg> ]
 julia>
 ```
 
-2. Run the `docs/make.jl` script to build the documentation.
+2. Run the `documentation/make.jl` script to build the documentation.
 ```julia
-julia> include("docs/make.jl")
+julia> include("documentation/make.jl")
 ```
 
-3. Open the newly built `docs/build/index.html` to start browsing the documentation.
+3. Open the newly built `documentation/build/index.html` to start browsing the documentation.
 
 
 ## License
