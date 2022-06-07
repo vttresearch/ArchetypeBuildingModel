@@ -1,0 +1,154 @@
+{
+    "objects": [
+        [
+            "building_fabrics",
+            "IAaF_EM_IM",
+            "A 3-node model with interior air and furniture, envelope structure mass, and interior structure mass in separate nodes."
+        ],
+        [
+            "building_node",
+            "envelope_mass",
+            "A temperature node representing all envelope structure thermal mass of the building."
+        ],
+        [
+            "building_node",
+            "interior_air_and_furniture",
+            "A temperature node representing the interior air and furniture."
+        ],
+        [
+            "building_node",
+            "internal_mass",
+            "A temperature node representing all internal structure thermal mass of the building."
+        ],
+        [
+            "structure_type",
+            "base_floor",
+            "Base floor of the building, part of the building envelope."
+        ],
+        [
+            "structure_type",
+            "exterior_wall",
+            "Load-bearing exterior (envelope) walls of the building."
+        ],
+        [
+            "structure_type",
+            "light_exterior_wall",
+            "Non-load-bearing exterior (envelope) walls of the building."
+        ],
+        [
+            "structure_type",
+            "light_partition_wall",
+            "Non-load-bearing partition walls inside the envelope of the building."
+        ],
+        [
+            "structure_type",
+            "partition_wall",
+            "Load-bearing partition walls inside the envelope of the building."
+        ],
+        [
+            "structure_type",
+            "roof",
+            "Roof and ceiling of the building, part of the building envelope."
+        ],
+        [
+            "structure_type",
+            "separating_floor",
+            "Separating floors inside the envelope of the building."
+        ]
+    ],
+    "relationships": [
+        [
+            "building_fabrics__building_node",
+            [
+                "IAaF_EM_IM",
+                "envelope_mass"
+            ]
+        ],
+        [
+            "building_fabrics__building_node",
+            [
+                "IAaF_EM_IM",
+                "interior_air_and_furniture"
+            ]
+        ],
+        [
+            "building_fabrics__building_node",
+            [
+                "IAaF_EM_IM",
+                "internal_mass"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "envelope_mass",
+                "base_floor"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "envelope_mass",
+                "exterior_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "envelope_mass",
+                "light_exterior_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "envelope_mass",
+                "roof"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "internal_mass",
+                "light_partition_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "internal_mass",
+                "partition_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "internal_mass",
+                "separating_floor"
+            ]
+        ]
+    ],
+    "object_parameter_values": [
+        [
+            "building_node",
+            "interior_air_and_furniture",
+            "interior_air_and_furniture_weight",
+            1.0,
+            "Base"
+        ],
+        [
+            "building_node",
+            "interior_air_and_furniture",
+            "maximum_permitted_temperature_K",
+            300.15,
+            "Base"
+        ],
+        [
+            "building_node",
+            "interior_air_and_furniture",
+            "minimum_permitted_temperature_K",
+            294.15,
+            "Base"
+        ]
+    ]
+}

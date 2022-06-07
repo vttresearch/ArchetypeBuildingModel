@@ -1,0 +1,928 @@
+{
+    "object_classes": [
+        [
+            "building_archetype",
+            "Represents a portion of the building stock, aggregated based on the related elements. Results in a lumped-capacitance thermal model of the defined archetype building.",
+            281470681804821
+        ],
+        [
+            "building_fabrics",
+            "Represents the building fabrics like walls, floors, ceilings, interior air, etc., as well as how they are represented as a network of lumped-capacitance nodes.",
+            281473533931813
+        ],
+        [
+            "building_loads",
+            "Contains information about the internal heat loads and demands of buildings.",
+            281473533932236
+        ],
+        [
+            "building_node",
+            "Represents individual lumped-capacitances for building fabrics, as well as for building technical systems.",
+            280378333984066
+        ],
+        [
+            "building_period",
+            "Represents a period of time between a start year and an end year for the statistical data.",
+            280375465144914
+        ],
+        [
+            "building_process",
+            "Represents energy conversion and transfer processes between lumped-capacitances in the building technical systems.",
+            280378333982836
+        ],
+        [
+            "building_scope",
+            "Defines aggregation for the building stock over time, geographical location, building type, and heat source.",
+            281473533931692
+        ],
+        [
+            "building_stock",
+            "Represents a particular building stock dataset.",
+            280375465145935
+        ],
+        [
+            "building_systems",
+            "Represents building technical systems via processes and lumped-capacitance nodes.",
+            281473533931653
+        ],
+        [
+            "building_type",
+            "Classification for different types of buildings.",
+            280375465145887
+        ],
+        [
+            "building_weather",
+            "Represents weather for the archetype buildings.",
+            280378333984452
+        ],
+        [
+            "direction",
+            "Direction of process commodity flows, either into or from nodes.",
+            280953247691575
+        ],
+        [
+            "heat_source",
+            "Classification for primary energy sources for heating/cooling systems.",
+            280375465144429
+        ],
+        [
+            "location_id",
+            "Geographical location identifier.",
+            280375465145285
+        ],
+        [
+            "structure_type",
+            "Classification for different building envelope structures.",
+            280375465144364
+        ]
+    ],
+    "relationship_classes": [
+        [
+            "building_archetype__building_fabrics",
+            [
+                "building_archetype",
+                "building_fabrics"
+            ],
+            "Defines which building fabric representation is used for the chosen archetype building.",
+            null
+        ],
+        [
+            "building_archetype__building_loads",
+            [
+                "building_archetype",
+                "building_loads"
+            ],
+            "Defines the internal heat loads for the archetype building.",
+            null
+        ],
+        [
+            "building_archetype__building_scope",
+            [
+                "building_archetype",
+                "building_scope"
+            ],
+            "Defines the statistical scope of the archetype building.",
+            null
+        ],
+        [
+            "building_archetype__building_systems",
+            [
+                "building_archetype",
+                "building_systems"
+            ],
+            "Defines the heating/cooling systems used by the archetype building.",
+            null
+        ],
+        [
+            "building_archetype__building_weather",
+            [
+                "building_archetype",
+                "building_weather"
+            ],
+            "Defines the weather for the archetype building.",
+            null
+        ],
+        [
+            "building_archetype__system_link_node",
+            [
+                "building_archetype",
+                "building_node"
+            ],
+            "Defines how the archetype building is connected to overarching models using the reserved `@system_link_node`s.",
+            null
+        ],
+        [
+            "building_fabrics__building_node",
+            [
+                "building_fabrics",
+                "building_node"
+            ],
+            "Defines which nodes make up the representation of the building fabrics.",
+            null
+        ],
+        [
+            "building_node__building_node",
+            [
+                "building_node",
+                "building_node"
+            ],
+            "Allows configuring heat transfer coefficients between building nodes by hand. Useful for e.g. heating/cooling system definitions.",
+            null
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "building_node",
+                "structure_type"
+            ],
+            "Defines which structures are included in which nodes, as well as their weights within those nodes.",
+            null
+        ],
+        [
+            "building_process__direction__building_node",
+            [
+                "building_process",
+                "direction",
+                "building_node"
+            ],
+            "Defines how processes interact with building nodes, as well as sets process-flow specific technical parameters.",
+            null
+        ],
+        [
+            "building_scope__building_stock",
+            [
+                "building_scope",
+                "building_stock"
+            ],
+            "Defines which `building_stock` datasets are used in the statistical scope, as well as their weights.",
+            null
+        ],
+        [
+            "building_scope__building_type",
+            [
+                "building_scope",
+                "building_type"
+            ],
+            "Defines the building types included in the statistical scope, as well as their weights.",
+            null
+        ],
+        [
+            "building_scope__heat_source",
+            [
+                "building_scope",
+                "heat_source"
+            ],
+            "Defines the heat sources included in the statistical scope, as well as their weights.",
+            null
+        ],
+        [
+            "building_scope__location_id",
+            [
+                "building_scope",
+                "location_id"
+            ],
+            "Defines the geographical locations included in a statistical scope, as well as their weights.",
+            null
+        ],
+        [
+            "building_stock_statistics",
+            [
+                "building_stock",
+                "building_type",
+                "building_period",
+                "location_id",
+                "heat_source"
+            ],
+            "Contains the statistical data about the composition of the building stock.",
+            null
+        ],
+        [
+            "building_systems__building_node",
+            [
+                "building_systems",
+                "building_node"
+            ],
+            "Defines which lumped-capacitance nodes are included in the building systems.",
+            null
+        ],
+        [
+            "building_systems__building_process",
+            [
+                "building_systems",
+                "building_process"
+            ],
+            "Defines which processes are included in the building systems.",
+            null
+        ],
+        [
+            "structure_statistics",
+            [
+                "building_type",
+                "building_period",
+                "location_id",
+                "structure_type"
+            ],
+            "Contains statistics about the properties of different structure types.",
+            null
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            [
+                "building_type",
+                "building_period",
+                "location_id"
+            ],
+            "Contains statistics about thje properties of fenestration and ventilation.",
+            null
+        ]
+    ],
+    "parameter_value_lists": [
+        [
+            "COP_modes",
+            "cooling"
+        ],
+        [
+            "COP_modes",
+            "heating"
+        ]
+    ],
+    "object_parameters": [
+        [
+            "building_archetype",
+            "building_frame_depth_m",
+            10.4,
+            null,
+            "Assumed average depth of the building. Default value based on an industry rule-of-thumb regarding natural light conditions (Rakenteellinen energiatehokkuus - Opas, 2015)."
+        ],
+        [
+            "building_archetype",
+            "effective_thermal_capacity_of_interior_air_and_furniture_J_m2K",
+            10000.0,
+            null,
+            "Assumed effective thermal capacity [J/m2K gross-floor area]  of interior air and furniture. Default value based on SFS-EN ISO 52016-1:2017 Table B.17."
+        ],
+        [
+            "building_archetype",
+            "external_shading_coefficient",
+            0.5,
+            null,
+            "Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based on SFS-EN ISO 5216-1:2017 Table B.18 due to lack of a better source."
+        ],
+        [
+            "building_archetype",
+            "external_wall_load_bearing_fraction",
+            0.5,
+            null,
+            "Assumed average fraction of external walls that are load-bearing. Default value guesstimated."
+        ],
+        [
+            "building_archetype",
+            "indoor_air_cooling_set_point_override_K",
+            null,
+            null,
+            "Option for overriding nodal maximum indoor air temperature on an archetype level in K."
+        ],
+        [
+            "building_archetype",
+            "indoor_air_heating_set_point_override_K",
+            null,
+            null,
+            "Option for overriding nodal minimum indoor air temperature on an archetype level in K."
+        ],
+        [
+            "building_archetype",
+            "internal_heat_gain_convective_fraction",
+            0.4,
+            null,
+            "Assumed fraction of convective over radiative internal heat gains. Convective heat gains are applied directly to the interior air and furniture, while radiative heat gains are applied to surrounding structures. Default value based on SFS-EN ISO 52016-1:2017 Table B.11."
+        ],
+        [
+            "building_archetype",
+            "number_of_storeys",
+            2.0,
+            null,
+            "Assumed average number of storeys."
+        ],
+        [
+            "building_archetype",
+            "partition_wall_length_ratio_to_external_walls_m_m",
+            0.5,
+            null,
+            "Assumed average length ratio of internal partition walls compared to the external walls [m/m]."
+        ],
+        [
+            "building_archetype",
+            "partition_wall_load_bearing_fraction",
+            0.5,
+            null,
+            "Assumed average fraction of internal partition walls that are load-bearing."
+        ],
+        [
+            "building_archetype",
+            "room_height_m",
+            2.5,
+            null,
+            "Assumed average room height in metres."
+        ],
+        [
+            "building_archetype",
+            "solar_heat_gain_convective_fraction",
+            0.6,
+            null,
+            "Assumed fraction of convective over radiative solar heat gains. Convective heat gains are applied directly to the interior air and furniture, while radiative heat gains are applied to surrounding structures. Default value based on IDA ESBO calibrations."
+        ],
+        [
+            "building_archetype",
+            "volumetric_heat_capacity_of_interior_air_J_m3K",
+            1210.0,
+            null,
+            "Isobaric volumetric heat capacity of air at approximately room temperature ~20C. Default value based on Wikipedia."
+        ],
+        [
+            "building_archetype",
+            "weather_year",
+            null,
+            null,
+            "The year for which weather data will be processed, unless a `building_weather` object is connected to the archetype manually."
+        ],
+        [
+            "building_archetype",
+            "window_area_distribution_towards_cardinal_directions",
+            {
+                "type": "map",
+                "index_type": "str",
+                "data": [
+                    [
+                        "north",
+                        0.25
+                    ],
+                    [
+                        "east",
+                        0.25
+                    ],
+                    [
+                        "south",
+                        0.25
+                    ],
+                    [
+                        "west",
+                        0.25
+                    ]
+                ],
+                "index_name": "cardinal_direction"
+            },
+            null,
+            "Assumed distribution of window area towards the cardinal directions. By default, window area is assumed to be distributed equally towards all cardinal directions."
+        ],
+        [
+            "building_archetype",
+            "window_area_to_external_wall_ratio_m2_m2",
+            0.2,
+            null,
+            "Assumed average ratio between external wall surface area and the surface area of windows [m2/m2]."
+        ],
+        [
+            "building_archetype",
+            "window_non_perpendicularity_correction_factor",
+            0.9,
+            null,
+            "A correction factor for estimating the total solar energy transmittance of windows from the normal solar energy transmittance. Default value based on SFS-EN ISO 52016-1:2017 Table B.43."
+        ],
+        [
+            "building_loads",
+            "domestic_hot_water_demand_base_W",
+            0.0,
+            null,
+            "Base component of total domestic hot water demand [W]."
+        ],
+        [
+            "building_loads",
+            "domestic_hot_water_demand_gfa_scaling_W_m2",
+            0.0,
+            null,
+            "Gross-floor-area-scaling component of total domestic hot water demand [W/m2 gross-floor area]."
+        ],
+        [
+            "building_loads",
+            "internal_heat_loads_base_W",
+            0.0,
+            null,
+            "Base component of total internal heat loads [W]."
+        ],
+        [
+            "building_loads",
+            "internal_heat_loads_gfa_scaling_W_m2",
+            0.0,
+            null,
+            "Gross-floor-area-scaling component of total internal heat loads [W/m2 gross-floor area]."
+        ],
+        [
+            "building_node",
+            "domestic_hot_water_demand_weight",
+            0.0,
+            null,
+            "Weight for how much of the domestic hot water demand is allocated for this node."
+        ],
+        [
+            "building_node",
+            "effective_thermal_mass_base_J_K",
+            0.0,
+            null,
+            "Define the base component of total effective thermal mass of the node by hand [J/K]."
+        ],
+        [
+            "building_node",
+            "effective_thermal_mass_gfa_scaling_J_m2K",
+            0.0,
+            null,
+            "Define the gross-floor-area-scaling component of total effective thermal mass of the node by hand [J/m2K]"
+        ],
+        [
+            "building_node",
+            "interior_air_and_furniture_weight",
+            0.0,
+            null,
+            "Weight for how much of the interior air and furniture is included in this node."
+        ],
+        [
+            "building_node",
+            "maximum_permitted_temperature_K",
+            400.0,
+            null,
+            "Maximum allowed temperature for the node [K]."
+        ],
+        [
+            "building_node",
+            "minimum_permitted_temperature_K",
+            200.0,
+            null,
+            "Minimum allowed temperature for the node [K]."
+        ],
+        [
+            "building_node",
+            "self_discharge_rate_base_W_K",
+            0.0,
+            null,
+            "Define the base component of total self-discharge rate of the node [W/K], where energy is lost outside the model scope."
+        ],
+        [
+            "building_node",
+            "self_discharge_rate_gfa_scaling_W_m2K",
+            0.0,
+            null,
+            "Define the gross-floor-area-scaling component of total self-discharge rate of the node [W/m2K], where energy is lost outside the model scope."
+        ],
+        [
+            "building_period",
+            "period_end",
+            null,
+            null,
+            null
+        ],
+        [
+            "building_period",
+            "period_start",
+            null,
+            null,
+            null
+        ],
+        [
+            "building_process",
+            "coefficient_of_performance_base",
+            1.0,
+            null,
+            "The base coefficient of performance for the `building_process`. For temperature-dependent COPs, this parameter needs to be the COP at known reference temperatures, divided by the Carnot COP at those same temperatures."
+        ],
+        [
+            "building_process",
+            "coefficient_of_performance_minimum_temperature_delta",
+            5.0,
+            null,
+            "The minimum assumed temperature raise/decrease in the heat pump process, limiting the maximum Carnot COP of the process. This parameter matters only if source and sink temperatures are defined."
+        ],
+        [
+            "building_process",
+            "coefficient_of_performance_mode",
+            "heating",
+            "COP_modes",
+            "The mode of the heat pump process, affecting how the source and sink temperatures are interpreted. Set to `cooling` for heat pumpts used for cooling."
+        ],
+        [
+            "building_process",
+            "coefficient_of_performance_sink_temperature_K",
+            {
+                "type": "map",
+                "index_type": "str",
+                "data": [
+                    [
+                        "temperature_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_control_temperature_min_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_control_temperature_max_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_output_temperature_min_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_output_temperature_max_K",
+                        null
+                    ]
+                ],
+                "index_name": "property"
+            },
+            null,
+            "The sink temperature for the heat pump process, defined as a `Map`. Use `ambient` and `ground` for weather dependent `temperature_K`, while the rest of the properties can be used to tweak the assumed heating curve."
+        ],
+        [
+            "building_process",
+            "coefficient_of_performance_source_temperature_K",
+            {
+                "type": "map",
+                "index_type": "str",
+                "data": [
+                    [
+                        "temperature_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_control_temperature_min_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_control_temperature_max_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_output_temperature_min_K",
+                        null
+                    ],
+                    [
+                        "heating_curve_output_temperature_max_K",
+                        null
+                    ]
+                ],
+                "index_name": "property"
+            },
+            null,
+            "The source temperature for the heat pump process, defined as a `Map`. Use `ambient` and `ground` for weather dependent `temperature_K`, while the rest of the properties can be used to tweak the assumed heating curve."
+        ],
+        [
+            "building_scope",
+            "scope_period_end_year",
+            null,
+            null,
+            "Last year [y] of the construction time period to be included in the statistical scope."
+        ],
+        [
+            "building_scope",
+            "scope_period_start_year",
+            null,
+            null,
+            "First year [y] of the construction time period to be included in the statistical scope."
+        ],
+        [
+            "building_stock",
+            "building_stock_year",
+            null,
+            null,
+            "The year this `building_stock` is supposed to represent, like a snapshot of the building stock during this year."
+        ],
+        [
+            "building_stock",
+            "raster_weight_path",
+            null,
+            null,
+            "An optional filepath to a geographical raster data file containing weighting information for the weather data, e.g. population density or the like."
+        ],
+        [
+            "building_stock",
+            "shapefile_path",
+            null,
+            null,
+            "The filepath to a shapefile containing the geographical information about the building stock. Required for weather data processing."
+        ],
+        [
+            "building_weather",
+            "ambient_temperature_K",
+            null,
+            null,
+            "Ambient air temperature [K]."
+        ],
+        [
+            "building_weather",
+            "diffuse_solar_irradiation_W_m2",
+            null,
+            null,
+            "Diffuse solar irradiation [W/m2]."
+        ],
+        [
+            "building_weather",
+            "direct_solar_irradiation_W_m2",
+            {
+                "type": "map",
+                "index_type": "str",
+                "data": [
+                    [
+                        "north",
+                        0.0
+                    ],
+                    [
+                        "east",
+                        0.0
+                    ],
+                    [
+                        "south",
+                        0.0
+                    ],
+                    [
+                        "west",
+                        0.0
+                    ]
+                ],
+                "index_name": "cardinal_direction"
+            },
+            null,
+            "Direct solar irradiation on walls facing towards the cardinal directions [W/m2]."
+        ],
+        [
+            "location_id",
+            "location_name",
+            null,
+            null,
+            "Name of the location corresponding to the identifier, e.g. the name of the municipality, region, country, etc."
+        ],
+        [
+            "structure_type",
+            "exterior_resistance_m2K_W",
+            null,
+            null,
+            "Exterior surface thermal resistance of a structure [m2K/W]."
+        ],
+        [
+            "structure_type",
+            "interior_resistance_m2K_W",
+            null,
+            null,
+            "Interior surface thermal resistance of a structure [m2K/W]."
+        ],
+        [
+            "structure_type",
+            "is_internal",
+            null,
+            null,
+            "A boolean flag for whether a structure type is internal, meaning inside the building envelope and not directly in contact with ambient conditions."
+        ],
+        [
+            "structure_type",
+            "is_load_bearing",
+            true,
+            null,
+            "A boolean flag for whether a structure type is load-bearing, meaning it is designed to bear the weight of structures on top of it."
+        ],
+        [
+            "structure_type",
+            "linear_thermal_bridge_W_mK",
+            null,
+            null,
+            "Linear thermal bridges for the structure type [W/mK] caused by seams between structures."
+        ],
+        [
+            "structure_type",
+            "structure_type_notes",
+            null,
+            null,
+            "Generic notes about the different structure types."
+        ]
+    ],
+    "relationship_parameters": [
+        [
+            "building_archetype__system_link_node",
+            "grid_name",
+            null,
+            null,
+            "Name of the Backbone `grid` this `@system_link_node` is included in."
+        ],
+        [
+            "building_archetype__system_link_node",
+            "node_name",
+            null,
+            null,
+            "Name of the node this `@system_link_node` is representing in the overarching large-scale energy system model."
+        ],
+        [
+            "building_node__building_node",
+            "heat_transfer_coefficient_base_W_K",
+            0.0,
+            null,
+            "Set the base heat transfer coefficient between two nodes [W/K] by hand."
+        ],
+        [
+            "building_node__building_node",
+            "heat_transfer_coefficient_gfa_scaling_W_m2K",
+            0.0,
+            null,
+            "Set the gross-floor-area-scaling heat transfer coefficient between two nodes [W/m2K] by hand."
+        ],
+        [
+            "building_node__structure_type",
+            "structure_type_weight",
+            1.0,
+            null,
+            "Weight or share of the structure type to be included in this node."
+        ],
+        [
+            "building_process__direction__building_node",
+            "maximum_power_base_W",
+            0.0,
+            null,
+            "Maximum base power of the process flow [W]."
+        ],
+        [
+            "building_process__direction__building_node",
+            "maximum_power_gfa_scaling_W_m2",
+            0.0,
+            null,
+            "Gross-floor-area-scaling maximum power of a process flow [W/m2]."
+        ],
+        [
+            "building_scope__building_stock",
+            "building_stock_weight",
+            1.0,
+            null,
+            "Weight for sampling the `building_stock` within the `building_scope`."
+        ],
+        [
+            "building_scope__building_type",
+            "building_type_weight",
+            1.0,
+            null,
+            "Weight for sampling the `building_type` within the `building_scope`."
+        ],
+        [
+            "building_scope__heat_source",
+            "heat_source_weight",
+            1.0,
+            null,
+            "Weight for sampling the `heat_source` within the `building_scope`."
+        ],
+        [
+            "building_scope__location_id",
+            "location_id_weight",
+            1.0,
+            null,
+            "Weight for sampling the `location_id` within the `building_scope`."
+        ],
+        [
+            "building_stock_statistics",
+            "average_gross_floor_area_m2_per_building",
+            null,
+            null,
+            "Statistical average gross-floor-area per building [m2]."
+        ],
+        [
+            "building_stock_statistics",
+            "number_of_buildings",
+            null,
+            null,
+            "Statistical number of buildings."
+        ],
+        [
+            "structure_statistics",
+            "design_U_value_W_m2K",
+            null,
+            null,
+            "Mean original design U-value [W/m2K] of the structures corresponding to the statistics."
+        ],
+        [
+            "structure_statistics",
+            "effective_thermal_mass_J_m2K",
+            null,
+            null,
+            "Mean calculated effective thermal mass [J/m2K] of the structures corresponding to the statistics, per area of the structure."
+        ],
+        [
+            "structure_statistics",
+            "external_U_value_to_ambient_air_W_m2K",
+            0.0,
+            null,
+            "Mean calculated U-value [W/m2K] from the structure into the ambient air."
+        ],
+        [
+            "structure_statistics",
+            "external_U_value_to_ground_W_m2K",
+            0.0,
+            null,
+            "Mean calculated effective U-value [W/m2K] from the structure into the ground, according to KissockK2013."
+        ],
+        [
+            "structure_statistics",
+            "internal_U_value_to_structure_W_m2K",
+            null,
+            null,
+            "Mean calculated U-value [W/m2K] from the structure into the interior air."
+        ],
+        [
+            "structure_statistics",
+            "linear_thermal_bridges_W_mK",
+            null,
+            null,
+            "Mean linear thermal bridges [W/mK] of the seams between structures."
+        ],
+        [
+            "structure_statistics",
+            "total_U_value_W_m2K",
+            null,
+            null,
+            "Mean total effective U-value [W/m2K] of the structure, from the interior air into the ambient air/ground."
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            "HRU_efficiency",
+            null,
+            null,
+            "Mean heat-recovery efficiency of ventilation heat-recovery units corresponding to the statistics."
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            "infiltration_rate_1_h",
+            null,
+            null,
+            "Mean infiltration air change rate [1/h] corresponding to the statistics."
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            "total_normal_solar_energy_transmittance",
+            null,
+            null,
+            "Mean total normal solar energy transmittance of windows corresponding to the statistics, already including the effect of the frame-area fraction."
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            "ventilation_rate_1_h",
+            null,
+            null,
+            "Mean ventilation air change rate [1/h] corresponding to the statistics."
+        ],
+        [
+            "ventilation_and_fenestration_statistics",
+            "window_U_value_W_m2K",
+            null,
+            null,
+            "Mean window U-value [W/m2K] corresponding to the statistics."
+        ]
+    ],
+    "objects": [
+        [
+            "building_node",
+            "@system_link_node_1",
+            "Reserved special node intended to be used to link the archetype building systems to the desired connection point in the overarching energy system model, defined using the `building_archetype__system_link_node` relationship class."
+        ],
+        [
+            "building_node",
+            "@system_link_node_2",
+            "Reserved special node intended to be used to link the archetype building systems to the desired connection point in the overarching energy system model, defined using the `building_archetype__system_link_node` relationship class."
+        ],
+        [
+            "building_node",
+            "@system_link_node_3",
+            "Reserved special node intended to be used to link the archetype building systems to the desired connection point in the overarching energy system model, defined using the `building_archetype__system_link_node` relationship class."
+        ],
+        [
+            "direction",
+            "from_node",
+            "Direction of energy flow from a node into a process."
+        ],
+        [
+            "direction",
+            "to_node",
+            "Direction of energy flow from a process and into a node."
+        ]
+    ]
+}

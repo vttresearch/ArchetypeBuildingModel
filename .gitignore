@@ -1,0 +1,8 @@
+.vscode/
+Manifest.toml
+data/
+src/archetypebuildingweather/__pycache__/
+__pycache__/
+ArchetypeBuildingWeather.egg-info/
+figs/
+docs/src/archetype_definitions.md

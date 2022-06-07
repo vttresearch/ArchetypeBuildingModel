@@ -1,0 +1,117 @@
+# Library
+
+Automatically generated documentation based on the docstrings in the codebase.
+
+
+## Index
+
+```@index
+```
+
+
+## Public
+
+This section lists all types and functions exported by the module.
+
+
+### Types
+
+```@docs
+ArchetypeBuilding
+ArchetypeBuildingResults
+BackboneInput
+BuildingProcessData
+EnvelopeData
+LoadsData
+ScopeData
+SpineOptInput
+WeatherData
+```
+
+
+### Functions
+
+```@docs
+archetype_building_processing
+create_abstract_node_network
+create_building_node_network
+create_building_weather
+run_input_data_tests
+run_object_class_tests
+run_parameter_tests
+run_structure_type_tests
+solve_archetype_building_hvac_demand
+write_to_url
+```
+
+
+## Internals
+
+This section lists all the internal types and functions not exported by the module.
+
+
+### Types
+
+```@docs
+ArchetypeBuildingModel.AbstractNode
+ArchetypeBuildingModel.AbstractNodeNetwork
+ArchetypeBuildingModel.AbstractProcess
+ArchetypeBuildingModel.BuildingDataType
+ArchetypeBuildingModel.BuildingNodeData
+ArchetypeBuildingModel.BuildingNodeNetwork
+ArchetypeBuildingModel.StructureData
+```
+
+
+### Functions
+
+```@docs
+ArchetypeBuildingModel._building_period_weight
+ArchetypeBuildingModel._pyseries_to_timeseries
+ArchetypeBuildingModel.add_archetype_to_input!
+ArchetypeBuildingModel.aggregate_gfa_weights
+ArchetypeBuildingModel.calculate_base_floor_dimensions
+ArchetypeBuildingModel.calculate_cop
+ArchetypeBuildingModel.calculate_convective_internal_heat_gains
+ArchetypeBuildingModel.calculate_convective_solar_gains
+ArchetypeBuildingModel.calculate_effective_ground_temperature
+ArchetypeBuildingModel.calculate_exterior_wall_dimensions
+ArchetypeBuildingModel.calculate_gross_floor_area_weights
+ArchetypeBuildingModel.calculate_interior_air_and_furniture_thermal_mass
+ArchetypeBuildingModel.calculate_linear_thermal_bridge_heat_transfer_coefficient
+ArchetypeBuildingModel.calculate_partition_wall_dimensions
+ArchetypeBuildingModel.calculate_radiative_internal_heat_gains
+ArchetypeBuildingModel.calculate_radiative_solar_gains
+ArchetypeBuildingModel.calculate_roof_dimensions
+ArchetypeBuildingModel.calculate_separating_floor_dimensions
+ArchetypeBuildingModel.calculate_structural_exterior_heat_transfer_coefficient
+ArchetypeBuildingModel.calculate_structural_ground_heat_transfer_coefficient
+ArchetypeBuildingModel.calculate_structural_interior_heat_transfer_coefficient
+ArchetypeBuildingModel.calculate_structural_thermal_mass
+ArchetypeBuildingModel.calculate_total_dhw_demand
+ArchetypeBuildingModel.calculate_total_internal_heat_loads
+ArchetypeBuildingModel.calculate_total_solar_gains
+ArchetypeBuildingModel.calculate_ventilation_and_infiltration_heat_transfer_coefficient
+ArchetypeBuildingModel.calculate_vertical_envelope_surface_area
+ArchetypeBuildingModel.calculate_window_dimensions
+ArchetypeBuildingModel.calculate_window_heat_transfer_coefficient
+ArchetypeBuildingModel.determine_temporal_structure
+ArchetypeBuildingModel.form_and_invert_dynamics_matrix
+ArchetypeBuildingModel.form_and_invert_hvac_matrix
+ArchetypeBuildingModel.initialize_temperatures
+ArchetypeBuildingModel.initialize_rhs
+ArchetypeBuildingModel.process_abstract_node
+ArchetypeBuildingModel.process_abstract_system
+ArchetypeBuildingModel.process_building_envelope
+ArchetypeBuildingModel.process_building_loads
+ArchetypeBuildingModel.process_building_node
+ArchetypeBuildingModel.process_building_stock_scope
+ArchetypeBuildingModel.process_building_system
+ArchetypeBuildingModel.process_structure_scope
+ArchetypeBuildingModel.process_ventilation_and_fenestration_scope
+ArchetypeBuildingModel.process_weather
+ArchetypeBuildingModel.solve_consumption
+ArchetypeBuildingModel.solve_heating_demand
+ArchetypeBuildingModel.solve_heating_demand_loop
+ArchetypeBuildingModel.timeseries_to_backbone_map
+```

@@ -1,0 +1,14 @@
+{
+    "name": "process_archetype_buildings",
+    "tooltype": "julia",
+    "includes": [
+        "process_archetype_buildings.jl"
+    ],
+    "description": "Process archetype building data and definitions into SpineOpt and Backbone input data.",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "execute_in_work": false,
+    "includes_main_path": "."
+}
