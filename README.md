@@ -7,7 +7,7 @@ simplified lumped-capacitance thermal models representing the flexible
 heating/cooling demand of the underlying building stock for large-scale
 energy system models like [Backbone](https://cris.vtt.fi/en/publications/backbone)
 or [SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
-Requires building stock data processed by e.g. [FinnishBuildingStockData.jl](https://vttgit.vtt.fi/flexib/FinnishBuildingStockData) or similar,
+Requires building stock data processed by e.g. [FinnishBuildingStockData.jl](https://github.com/vttresearch/FinnishBuildingStockData) or similar,
 as well as archetype building definitions according to the template provided in `archetype_definitions.json` as input.
 For automatic weather data processing, this module uses the Python sub-module `archetypebuildingweather`.
 
@@ -39,7 +39,7 @@ Essentially, the operating workflow of the module goes as follows:
 1. Load a *shapefile* defining the scope of weather data for `atlite`, and fetch the data.
 2. Assign the given *weights* to the *shapefile*, and include the optional *raster* data if defined.
 3. Downsample and normalize the *weight raster* generated above to match ERA5 resolution.
-4. Calculate the aggregated weather parameters required by [`ArchetypeBuildingModel.jl`](https://vttgit.vtt.fi/flexib/archetypebuildingmodel).
+4. Calculate the aggregated weather parameters required by `ArchetypeBuildingModel.jl`.
 
 
 ## Installation
@@ -64,7 +64,7 @@ Here's a rough sketch of how I got it working:
 This module is intended to be used as a part of a [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox) workflow,
 with the following rough steps:
 
-1. Create a Spine Datastore with building stock data processed by e.g. [FinnishBuildingStockData.jl](https://vttgit.vtt.fi/flexib/FinnishBuildingStockData).
+1. Create a Spine Datastore with building stock data processed by e.g. [FinnishBuildingStockData.jl](https://github.com/vttresearch/FinnishBuildingStockData).
 2. Import `archetype_definitions.json` on top of the processed building stock data.
 3. Define the desired `building_archetype` objects, and connect them to the relevant `building_fabrics`, `building_loads`, `building_scope`, and `building_system` objects. *(`building_weather` is optional, and will be automatically generated if missing.)*
 4. Use the `process_archetype_buildings.json` tool to process the data and definitions into the desired energy system model input.
@@ -112,9 +112,7 @@ MIT, see `LICENSE` for more information.
 <td valign="middle" width=100px>
 <img src=https://www.aka.fi/globalassets/vanhat/y_kuvat/aka_logo_en.svg alt="AKA emblem" width=100%></td>
 <td valign="middle">
-This module was built for the [Academy of Finland](https://www.aka.fi/en) project
-[*"Integration of building flexibility into future energy systems (FlexiB)"*](https://cris.vtt.fi/en/projects/integration-of-building-flexibility-into-future-energy-systems)
-under grant agreement No 332421.
+This module was built for the Academy of Finland project "Integration of building flexibility into future energy systems (FlexiB)" under grant agreement No 332421.
 </td>
 </table>
 </center>
