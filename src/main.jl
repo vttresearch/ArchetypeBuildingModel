@@ -143,46 +143,83 @@ function solve_archetype_building_hvac_demand(
         for (archetype, archetype_building) in archetype_dictionary
     )
 
-    # Create the relationship class for storing node results in a Spine Datastore.
-    results = values(archetype_results_dictionary)
+    # Return the results dictionary
+    return archetype_results_dictionary
+end
+
+
+"""
+    initialize_result_relationship_classes()
+
+Initialize `RelationshipClass`es for storing heating and HVAC demand results.
+"""
+function initialize_result_relationship_classes()
+    # Initialize node results
     results__building_archetype__building_node = RelationshipClass(
         :results__building_archetype__building_node,
         [:building_archetype, :building_node],
-        [
-            (building_archetype = r.archetype.archetype, building_node = node) for
-            r in results for node in keys(r.temperatures)
-        ],
-        Dict(
-            (r.archetype.archetype, node) => Dict(
-                :initial_temperature_K => parameter_value(r.initial_temperatures[node]),
-                :temperature_K => parameter_value(r.temperatures[node]),
-                :hvac_demand_W => parameter_value(r.hvac_demand[node]),
-            ) for r in results for node in keys(r.temperatures)
-        ),
+        Array{RelationshipLike,1}(),
+        Dict(),
         Dict(
             param => parameter_value(nothing) for
             param in [:initial_temperature_K, :temperature_K, :hvac_demand_W]
         ),
     )
 
-    # Create the relationship class for storing the process results
+    # Initialize process results
     results__building_archetype__building_process = RelationshipClass(
         :results__building_archetype__building_process,
         [:building_archetype, :building_process],
-        [
-            (building_archetype = r.archetype.archetype, building_process = process) for
-            r in results for process in keys(r.hvac_consumption)
-        ],
-        Dict(
-            (r.archetype.archetype, process) => Dict(
-                :hvac_consumption_MW => parameter_value(r.hvac_consumption[process]),
-            ) for r in results for process in keys(r.hvac_consumption)
-        ),
+        Array{RelationshipLike,1}(),
+        Dict(),
         Dict(:hvac_consumption_MW => parameter_value(nothing)),
     )
 
-    # Return the stuff of interest
-    return archetype_results_dictionary,
-    results__building_archetype__building_node,
+    return results__building_archetype__building_node,
+    results__building_archetype__building_process
+end
+
+
+"""
+    add_results!(
+        results__building_archetype__building_node::RelationshipClass,
+        results__building_archetype__building_process::RelationshipClass,
+        results_dictionary::Dict{Object,ArchetypeBuildingResults},
+    )
+
+    Add results from `results_dictionary` into the result `RelationshipClass`es.
+"""
+function add_results!(
+    results__building_archetype__building_node::RelationshipClass,
+    results__building_archetype__building_process::RelationshipClass,
+    results_dictionary::Dict{Object,ArchetypeBuildingResults},
+)
+    # Collect `ArchetypeBuildingResults`
+    results = values(results_dictionary)
+
+    # Add `results__building_archetype__building_node` results.
+    add_relationship_parameter_values!(
+        results__building_archetype__building_node,
+        Dict(
+            (building_archetype = r.archetype.archetype, building_node = node) => Dict(
+                :initial_temperature_K => parameter_value(r.initial_temperatures[node]),
+                :temperature_K => parameter_value(r.temperatures[node]),
+                :hvac_demand_W => parameter_value(r.hvac_demand[node]),
+            ) for r in results for node in keys(r.temperatures)
+        ),
+    )
+
+    # Add `results__building_archetype__building_process` results.
+    add_relationship_parameter_values!(
+        results__building_archetype__building_process,
+        Dict(
+            (building_archetype = r.archetype.archetype, building_process = process) =>
+                Dict(:hvac_consumption_MW => parameter_value(r.hvac_consumption[process]))
+            for r in results for process in keys(r.hvac_consumption)
+        ),
+    )
+
+    # Return the results of interest
+    return results__building_archetype__building_node,
     results__building_archetype__building_process
 end
