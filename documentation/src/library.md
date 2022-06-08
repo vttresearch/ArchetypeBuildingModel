@@ -32,10 +32,12 @@ WeatherData
 ### Functions
 
 ```@docs
+add_results!
 archetype_building_processing
 create_abstract_node_network
 create_building_node_network
 create_building_weather
+initialize_result_relationship_classes
 run_input_data_tests
 run_object_class_tests
 run_parameter_tests
