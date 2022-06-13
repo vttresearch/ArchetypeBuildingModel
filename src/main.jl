@@ -120,10 +120,15 @@ end
 """
     solve_archetype_building_hvac_demand(
         archetype_dictionary::Dict{Object,ArchetypeBuilding};
-        free_dynamics::Bool = false
+        free_dynamics::Bool = false,
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
     )
 
 Solve the [`ArchetypeBuilding`](@ref) heating and cooling demand.
+
+The `free_dynamics` keyword can be used to ignore node temperature limits,
+while the `initial_temperatures` keyword can be used to set desired initial
+temperatures for the nodes.
 
 Essentially, performs the following steps:
 1. Create the `archetype_results_dictionary` by constructing the [`ArchetypeBuildingResults`](@ref) for each entry in the `archetype_dictionary`.
@@ -134,13 +139,16 @@ Essentially, performs the following steps:
 function solve_archetype_building_hvac_demand(
     archetype_dictionary::Dict{Object,ArchetypeBuilding};
     free_dynamics::Bool = false,
+    initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
     @time archetype_results_dictionary = Dict(
-        archetype =>
-            ArchetypeBuildingResults(archetype_building; free_dynamics = free_dynamics)
-        for (archetype, archetype_building) in archetype_dictionary
+        archetype => ArchetypeBuildingResults(
+            archetype_building;
+            free_dynamics = free_dynamics,
+            initial_temperatures = initial_temperatures,
+        ) for (archetype, archetype_building) in archetype_dictionary
     )
 
     # Return the results dictionary

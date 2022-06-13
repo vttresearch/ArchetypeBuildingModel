@@ -792,6 +792,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
         ArchetypeBuildingResults(
             archetype::ArchetypeBuilding;
             free_dynamics::Bool = false,
+            initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
             mod::Module = Main,
         )
 
@@ -805,10 +806,11 @@ struct ArchetypeBuildingResults <: BuildingDataType
     function ArchetypeBuildingResults(
         archetype::ArchetypeBuilding;
         free_dynamics::Bool = false,
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
         mod::Module = Main,
     )
         initial_temperatures, temperatures, hvac_demand =
-            solve_heating_demand(archetype, free_dynamics)
+            solve_heating_demand(archetype, free_dynamics, initial_temperatures)
         hvac_consumption = solve_consumption(archetype, hvac_demand; mod = mod)
         new(
             archetype,

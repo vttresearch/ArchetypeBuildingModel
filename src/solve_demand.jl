@@ -6,7 +6,11 @@ Functions for solving the heating/cooling demands of `ArchetypeBuilding`s.
 
 
 """
-    solve_heating_demand(archetype::ArchetypeBuilding, free_dynamics::Bool)
+    solve_heating_demand(
+        archetype::ArchetypeBuilding,
+        free_dynamics::Bool,
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}},
+    )
 
 Solve the heating/cooling demand of the `archetype`.
 
@@ -32,7 +36,11 @@ like Backbone or SpineOpt. In principle, I believe the system could be solved
 analytically similar to my Master's Thesis:
 *Energy Management in Households with Coupled Photovoltaics and Electric Vehicles, Topi Rasku, 2015, Aalto University School of Science*.
 """
-function solve_heating_demand(archetype::ArchetypeBuilding, free_dynamics::Bool)
+function solve_heating_demand(
+    archetype::ArchetypeBuilding,
+    free_dynamics::Bool,
+    initial_temperatures::Union{Nothing,Dict{Object,Float64}},
+)
     # Check that the external load data for the abstract nodes makes sense,
     # and determine the temporal scope and resolution for the simulation.
     indices, delta_t = determine_temporal_structure(archetype)
@@ -45,7 +53,7 @@ function solve_heating_demand(archetype::ArchetypeBuilding, free_dynamics::Bool)
     external_load_vector, thermal_mass_vector = initialize_rhs(archetype, indices, delta_t)
 
     # Initialize the temperature vector and the temperature limit vectors.
-    initial_temperatures, min_temperatures, max_temperatures = initialize_temperatures(
+    init_temperatures, min_temperatures, max_temperatures = initialize_temperatures(
         archetype,
         indices,
         dynamics_matrix,
@@ -53,6 +61,7 @@ function solve_heating_demand(archetype::ArchetypeBuilding, free_dynamics::Bool)
         external_load_vector,
         thermal_mass_vector,
         free_dynamics,
+        initial_temperatures,
     )
 
     # Solve the heating demand for the entire set of indices.
@@ -60,7 +69,7 @@ function solve_heating_demand(archetype::ArchetypeBuilding, free_dynamics::Bool)
         indices,
         dynamics_matrix,
         inverted_dynamics_matrix,
-        initial_temperatures,
+        init_temperatures,
         min_temperatures,
         max_temperatures,
         external_load_vector,
@@ -168,6 +177,7 @@ end
         external_load_vector::Vector{Vector{Float64}},
         thermal_mass_vector::Vector{Float64},
         free_dynamics::Bool,
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}},
     )
 
 Initialize the temperature and temperature limit vectors for the heating/cooling
@@ -178,7 +188,7 @@ until the end-result no longer changes.
 The initialization is abandoned if no stable initial temperatures are found
 within a thousand 24-hour solves.
 In this case, the minimum permitted temperatures are used as the initial
-temperatures for each node.
+temperatures for each node, unless otherwise specified via `initial_temperatures`.
 """
 function initialize_temperatures(
     archetype::ArchetypeBuilding,
@@ -188,15 +198,25 @@ function initialize_temperatures(
     external_load_vector::Vector{Vector{Float64}},
     thermal_mass_vector::Vector{Float64},
     free_dynamics::Bool,
+    initial_temperatures::Union{Nothing,Dict{Object,Float64}},
 )
-    # Initialize the temperature vector using minimum allowed temperatures.
-    initial_temperatures =
+    # Fetch the allowed temperature limits.
+    min_temperatures =
         float.([n.minimum_temperature_K for (k, n) in archetype.abstract_nodes])
-
-    # Form temperature limit vectors for convenience.
-    min_temperatures = deepcopy(initial_temperatures)
     max_temperatures =
         float.([n.maximum_temperature_K for (k, n) in archetype.abstract_nodes])
+
+    # Form the initial temperature vector.
+    # Based on minimum temperatures unless otherwise defined.
+    if !isnothing(initial_temperatures)
+        init_temperatures =
+            float.([
+                get(initial_temperatures, n, min_temperatures[i]) for
+                (i, n) in enumerate(keys(archetype.abstract_nodes))
+            ])
+    else
+        init_temperatures = deepcopy(min_temperatures)
+    end
 
     # Solve the initial temperatures via repeatedly solving the first 24 hours
     # until the temperatures converge, starting from the permitted minimums.
@@ -205,18 +225,18 @@ function initialize_temperatures(
             indices[1:24],
             dynamics_matrix,
             inverted_dynamics_matrix,
-            initial_temperatures,
+            init_temperatures,
             min_temperatures,
             max_temperatures,
             external_load_vector,
             thermal_mass_vector,
             free_dynamics,
         )
-        if isapprox(last(temps), initial_temperatures)
+        if isapprox(last(temps), init_temperatures)
             println("Stable initial temperatures found with $(i) iterations.")
             return last(temps), min_temperatures, max_temperatures
         end
-        initial_temperatures = last(temps)
+        init_temperatures = last(temps)
     end
     println("""
             No stable initial temperatures found!
