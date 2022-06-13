@@ -214,6 +214,10 @@ function initialize_temperatures(
                 get(initial_temperatures, n, min_temperatures[i]) for
                 (i, n) in enumerate(keys(archetype.abstract_nodes))
             ])
+        fixed_inds = findall(init_temperatures .!= min_temperatures)
+        max_temperatures[fixed_inds] = init_temperatures[fixed_inds]
+        min_temperatures = deepcopy(init_temperatures)
+
     else
         init_temperatures = deepcopy(min_temperatures)
     end
