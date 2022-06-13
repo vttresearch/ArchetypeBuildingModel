@@ -214,12 +214,14 @@ function initialize_temperatures(
                 get(initial_temperatures, n, min_temperatures[i]) for
                 (i, n) in enumerate(keys(archetype.abstract_nodes))
             ])
+        min_init_temperatures = deepcopy(init_temperatures)
+        max_init_temperatures = deepcopy(max_temperatures)
         fixed_inds = findall(init_temperatures .!= min_temperatures)
-        max_temperatures[fixed_inds] = init_temperatures[fixed_inds]
-        min_temperatures = deepcopy(init_temperatures)
-
+        max_init_temperatures[fixed_inds] = init_temperatures[fixed_inds]
     else
         init_temperatures = deepcopy(min_temperatures)
+        min_init_temperatures = deepcopy(min_temperatures)
+        max_init_temperatures = deepcopy(max_temperatures)
     end
 
     # Solve the initial temperatures via repeatedly solving the first 24 hours
@@ -230,8 +232,8 @@ function initialize_temperatures(
             dynamics_matrix,
             inverted_dynamics_matrix,
             init_temperatures,
-            min_temperatures,
-            max_temperatures,
+            min_init_temperatures,
+            max_init_temperatures,
             external_load_vector,
             thermal_mass_vector,
             free_dynamics,
