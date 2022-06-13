@@ -121,7 +121,10 @@ end
     solve_archetype_building_hvac_demand(
         archetype_dictionary::Dict{Object,ArchetypeBuilding};
         free_dynamics::Bool = false,
-        initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
+        initial_temperatures::Dict{Object,Dict{Object,Float64}} = Dict{
+            Object,
+            Dict{Object,Float64}
+        }(),
     )
 
 Solve the [`ArchetypeBuilding`](@ref) heating and cooling demand.
@@ -139,7 +142,10 @@ Essentially, performs the following steps:
 function solve_archetype_building_hvac_demand(
     archetype_dictionary::Dict{Object,ArchetypeBuilding};
     free_dynamics::Bool = false,
-    initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
+    initial_temperatures::Dict{Object,Dict{Object,Float64}} = Dict{
+        Object,
+        Dict{Object,Float64},
+    }(),
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
@@ -147,7 +153,7 @@ function solve_archetype_building_hvac_demand(
         archetype => ArchetypeBuildingResults(
             archetype_building;
             free_dynamics = free_dynamics,
-            initial_temperatures = initial_temperatures,
+            initial_temperatures = get(initial_temperatures, archetype, nothing),
         ) for (archetype, archetype_building) in archetype_dictionary
     )
 
