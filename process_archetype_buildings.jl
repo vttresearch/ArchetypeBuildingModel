@@ -42,8 +42,11 @@ else
         archetype_building_processing(url_in, import_weather)
 
     # Heating/cooling demand calculations.
-    archetype_results_dictionary =
-        solve_archetype_building_hvac_demand(archetype_dictionary; free_dynamics = false)
+    archetype_results_dictionary = solve_archetype_building_hvac_demand(
+        archetype_dictionary;
+        free_dynamics = false,
+        mod = Main,
+    )
 
     # Write the results back into the input datastore
     results__building_archetype__building_node,
