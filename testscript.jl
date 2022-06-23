@@ -14,6 +14,7 @@ Pkg.activate("test")
 using Test
 using Plots
 using ArchetypeBuildingModel
+m = Module()
 
 # Open database
 
@@ -24,7 +25,7 @@ url = "sqlite:///<REDACTED>"
 #output_url = <ADD OUTPUT URL IF DESIRED>
 
 @info "Opening database..."
-@time using_spinedb(url, Main)
+@time using_spinedb(url, m)
 
 
 ## Run tests
@@ -32,9 +33,9 @@ url = "sqlite:///<REDACTED>"
 lmt = Inf
 @info "Running input data and definition tests..."
 @testset begin
-    @time run_parameter_tests(; limit = lmt)
-    @time run_object_class_tests(; limit = lmt)
-    @time run_structure_type_tests()
+    @time run_parameter_tests(m; limit = lmt)
+    @time run_object_class_tests(m; limit = lmt)
+    @time run_structure_type_tests(m)
 end
 
 ## Test creating the `ScopeData` types automatically
@@ -186,15 +187,17 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 ## Test creating `ArchetypeBuilding`s
 
 @info "Processing `ArchetypeBuilding` objects..."
-@time archetype_dictionary =
-    Dict(archetype => ArchetypeBuilding(archetype) for archetype in building_archetype())
+@time archetype_dictionary = Dict(
+    archetype => ArchetypeBuilding(archetype; mod = m) for
+    archetype in m.building_archetype()
+)
 
 
 ## Test heating/cooling demand calculations.
 
 @info "Creating `ArchetypeBuildingResults`..."
 @time archetype_results = Dict(
-    archetype => ArchetypeBuildingResults(val; free_dynamics = false) for
+    archetype => ArchetypeBuildingResults(val; free_dynamics = false, mod = m) for
     (archetype, val) in archetype_dictionary
 )
 
@@ -202,14 +205,14 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 ## Test creating and writing SpineOpt input
 
 @info "Creating `SpineOptInput`..."
-@time spineopt = SpineOptInput(archetype_dictionary, archetype_results)
+@time spineopt = SpineOptInput(archetype_dictionary, archetype_results; mod = m)
 #write_to_url(output_url, spineopt)
 
 
 ## Test creating and writing Backbone input
 
 @info "Creating `BackboneInput`..."
-@time backbone = BackboneInput(archetype_dictionary, archetype_results)
+@time backbone = BackboneInput(archetype_dictionary, archetype_results; mod = m)
 #write_to_url(output_url, backbone)
 
 
