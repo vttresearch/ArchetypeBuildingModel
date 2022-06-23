@@ -108,7 +108,8 @@ function archetype_building_processing(
         archetype => ArchetypeBuilding(
             archetype,
             scope_data_dictionary[archetype],
-            weather_data_dictionary[archetype],
+            weather_data_dictionary[archetype];
+            mod = mod,
         ) for archetype in mod.building_archetype()
     )
 
