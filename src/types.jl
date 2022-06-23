@@ -684,14 +684,16 @@ struct ArchetypeBuilding
             @error "`$(archetype)` should have exactly one `building_weather` defined!"
         end
         weather_data = WeatherData(
-            first(mod.building_archetype__building_weather(building_archetype = archetype)),
+            first(mod.building_archetype__building_weather(building_archetype = archetype));
+            mod = mod,
         )
         if length(mod.building_archetype__building_scope(building_archetype = archetype)) !=
            1
             @error "`$(archetype)` should have exactly one `building_scope` defined!"
         end
         scope_data = ScopeData(
-            first(mod.building_archetype__building_scope(building_archetype = archetype)),
+            first(mod.building_archetype__building_scope(building_archetype = archetype));
+            mod = mod,
         )
 
         # Create the ArchetypeBuilding using the latter constructor

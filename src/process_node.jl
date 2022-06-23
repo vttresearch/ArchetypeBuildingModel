@@ -36,11 +36,11 @@ function create_building_node_network(
 )
     merge(
         Dict{Object,BuildingNodeData}(
-            node => BuildingNodeData(archetype, node, scope, envelope, loads) for
+            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod = mod) for
             node in mod.building_fabrics__building_node(building_fabrics = fabrics)
         ),
         Dict{Object,BuildingNodeData}(
-            node => BuildingNodeData(archetype, node, scope, envelope, loads) for
+            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod = mod) for
             node in mod.building_systems__building_node(building_systems = systems)
         ),
     )::BuildingNodeNetwork

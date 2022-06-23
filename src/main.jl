@@ -57,7 +57,7 @@ function archetype_building_processing(
     # Process relevant `ScopeData` objects.
     @info "Processing `building_scope` objects into `ScopeData` for `scope_data_dictionary`..."
     @time scope_data_dictionary = Dict(
-        archetype => ScopeData(scope) for
+        archetype => ScopeData(scope; mod = mod) for
         (archetype, scope) in mod.building_archetype__building_scope()
     )
 
@@ -95,7 +95,7 @@ function archetype_building_processing(
         end
         @info "Processing `building_weather` objects into `WeatherData` for `weather_data_dictionary`..."
         @time weather_data_dictionary = Dict(
-            archetype => WeatherData(weather) for
+            archetype => WeatherData(weather; mod = mod) for
             (archetype, weather) in mod.building_archetype__building_weather()
         )
     else
@@ -146,6 +146,7 @@ function solve_archetype_building_hvac_demand(
         Object,
         Dict{Object,Float64},
     }(),
+    mod::Module = Main,
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
@@ -154,6 +155,7 @@ function solve_archetype_building_hvac_demand(
             archetype_building;
             free_dynamics = free_dynamics,
             initial_temperatures = get(initial_temperatures, archetype, nothing),
+            mod = mod,
         ) for (archetype, archetype_building) in archetype_dictionary
     )
 
