@@ -184,6 +184,11 @@ function initialize_result_relationship_classes!(mod::Module)
             param in [:initial_temperature_K, :temperature_K, :hvac_demand_W]
         ),
     )
+    # Create the associated parameters
+    initial_temperature_K =
+        Parameter(:initial_temperature_K, [results__building_archetype__building_node])
+    temperature_K = Parameter(:temperature_K, [results__building_archetype__building_node])
+    hvac_demand_W = Parameter(:hvac_demand_W, [results__building_archetype__building_node])
 
     # Initialize process results
     results__building_archetype__building_process = RelationshipClass(
@@ -193,13 +198,20 @@ function initialize_result_relationship_classes!(mod::Module)
         Dict(),
         Dict(:hvac_consumption_MW => parameter_value(nothing)),
     )
+    # Create the associated parameter
+    hvac_consumption_MW =
+        Parameter(:hvac_consumption_MW, [results__building_archetype__building_process])
 
-    # Evaluate the relationship classes to the desired module.
+    # Evaluate the relationship classes and parameters to the desired module.
     @eval mod begin
         results__building_archetype__building_node =
             $results__building_archetype__building_node
         results__building_archetype__building_process =
             $results__building_archetype__building_process
+        initial_temperature_K = $initial_temperature_K
+        temperature_K = $temperature_K
+        hvac_demand_W = $hvac_demand_W
+        hvac_consumption_MW = $hvac_consumption_MW
     end
 
     # Return the handles for the relationship classes for future reference.
