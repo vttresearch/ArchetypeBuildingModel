@@ -50,7 +50,8 @@ else
 
     # Write the results back into the input datastore
     results__building_archetype__building_node,
-    results__building_archetype__building_process = initialize_result_relationship_classes()
+    results__building_archetype__building_process =
+        initialize_result_relationship_classes!(Main)
     add_results!(
         results__building_archetype__building_node,
         results__building_archetype__building_process,

@@ -166,11 +166,13 @@ end
 
 
 """
-    initialize_result_relationship_classes()
+    initialize_result_relationship_classes!(mod::Module)
 
-Initialize `RelationshipClass`es for storing heating and HVAC demand results.
+Initialize `RelationshipClass`es for storing heating and HVAC demand results in `mod`.
+
+Note that this function modifies `mod` directly!
 """
-function initialize_result_relationship_classes()
+function initialize_result_relationship_classes!(mod::Module)
     # Initialize node results
     results__building_archetype__building_node = RelationshipClass(
         :results__building_archetype__building_node,
@@ -192,6 +194,15 @@ function initialize_result_relationship_classes()
         Dict(:hvac_consumption_MW => parameter_value(nothing)),
     )
 
+    # Evaluate the relationship classes to the desired module.
+    @eval mod begin
+        results__building_archetype__building_node =
+            $results__building_archetype__building_node
+        results__building_archetype__building_process =
+            $results__building_archetype__building_process
+    end
+
+    # Return the handles for the relationship classes for future reference.
     return results__building_archetype__building_node,
     results__building_archetype__building_process
 end
