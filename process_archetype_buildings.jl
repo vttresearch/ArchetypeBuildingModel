@@ -8,6 +8,7 @@ using Pkg
 Pkg.activate(@__DIR__)
 using ArchetypeBuildingModel
 using Test
+m = ArchetypeBuildingModel
 
 # Check that the necessary input arguments are provided
 if length(ARGS) < 1
@@ -32,26 +33,23 @@ else
 
     # Open input database and run tests.
     @info "Opening input datastore at `$(url_in)`..."
-    @time using_spinedb(url_in, Main)
+    @time using_spinedb(url_in, m)
 
     # Run input data tests
-    run_input_data_tests()
+    run_input_data_tests(m)
 
     # Process ScopeData and WeatherData, and create the ArchetypeBuildings
     scope_data_dictionary, weather_data_dictionary, archetype_dictionary =
         archetype_building_processing(url_in, import_weather)
 
     # Heating/cooling demand calculations.
-    archetype_results_dictionary = solve_archetype_building_hvac_demand(
-        archetype_dictionary;
-        free_dynamics = false,
-        mod = Main,
-    )
+    archetype_results_dictionary =
+        solve_archetype_building_hvac_demand(archetype_dictionary; free_dynamics = false)
 
     # Write the results back into the input datastore
     results__building_archetype__building_node,
     results__building_archetype__building_process =
-        initialize_result_relationship_classes!(Main)
+        initialize_result_relationship_classes!(m)
     add_results!(
         results__building_archetype__building_node,
         results__building_archetype__building_process,
