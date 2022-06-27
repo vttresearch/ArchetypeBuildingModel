@@ -12,13 +12,13 @@ Contains functions for processing the properties of lumped-capacitance thermal n
         scope::ScopeData,
         envelope::EnvelopeData,
         loads::LoadsData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Map all `archetype` `building_nodes` to their [`BuildingNodeData`](@ref)s.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, loops over the `building_fabrics__building_node` and
 `building_systems__building_node` relationships for the desired `archetype`,
@@ -32,7 +32,7 @@ function create_building_node_network(
     scope::ScopeData,
     envelope::EnvelopeData,
     loads::LoadsData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     merge(
         Dict{Object,BuildingNodeData}(
@@ -53,13 +53,13 @@ end
         scope::ScopeData,
         envelope::EnvelopeData,
         loads::LoadsData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculates the properties of a `node` using the provided `scope`, `envelope`, and `loads` data.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Aggregates the properties of the allocated structures according to their `structure_type_weight` parameters.
 The fenestration and ventilation properties are allocated according to `interior_air_and_furniture_weight`.
@@ -97,7 +97,7 @@ function process_building_node(
     scope::ScopeData,
     envelope::EnvelopeData,
     loads::LoadsData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Fetch the interior weight of the node.
     interior_weight = mod.interior_air_and_furniture_weight(building_node = node)
@@ -280,13 +280,13 @@ end
         archetype::Object,
         scope::ScopeData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the effective thermal mass of interior air and furniture on `node` in [J/K].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, the calculation is based on the gross-floor area [m2] of the `archetype`
 building, the assumed `effective_thermal_capacity_of_interior_air_and_furniture_J_m2K`
@@ -299,7 +299,7 @@ function calculate_interior_air_and_furniture_thermal_mass(
     archetype::Object,
     scope::ScopeData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     scope.average_gross_floor_area_m2_per_building *
     mod.effective_thermal_capacity_of_interior_air_and_furniture_J_m2K(
@@ -314,13 +314,13 @@ end
         node::Object,
         scope::ScopeData,
         envelope::EnvelopeData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the effective thermal mass of the structures on `node` in [J/K].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, sums the total effective thermal mass of the structures
 attributed to this node, accounting for their `structure_type_weight`s.
@@ -332,7 +332,7 @@ function calculate_structural_thermal_mass(
     node::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     reduce(
         +,
@@ -351,13 +351,13 @@ end
         scope::ScopeData,
         envelope::EnvelopeData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the total interior heat transfer coefficient of the structures in `node` in [W/K].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, initializes the total heat transfer coefficient between
 the interior air node and the node containing the structures.
@@ -380,7 +380,7 @@ function calculate_structural_interior_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     reduce(
         +,
@@ -410,7 +410,7 @@ end
 Calculate the total exterior heat transfer coefficient of the structures in `node` in [W/K].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, calculates the total heat transfer coefficient between
 the ambient air and the node containing the structures.
@@ -429,7 +429,7 @@ function calculate_structural_exterior_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     reduce(
         +,
@@ -452,13 +452,13 @@ end
         node::Object,
         scope::ScopeData,
         envelope::EnvelopeData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the total ground heat transfer coefficient of the structures in `node` in [W/K].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, calculates the total heat transfer coefficient between
 the ground and the node containing the structures.
@@ -470,7 +470,7 @@ function calculate_structural_ground_heat_transfer_coefficient(
     node::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     reduce(
         +,
@@ -510,13 +510,13 @@ end
         archetype::Object,
         scope::ScopeData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
     
 Calculate ventilation and infiltration heat transfer coefficient.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Ventilation and infiltration are assumed to transfer heat directly between the
 interior and ambient air.
@@ -529,7 +529,7 @@ function calculate_ventilation_and_infiltration_heat_transfer_coefficient(
     archetype::Object,
     scope::ScopeData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     mod.room_height_m(building_archetype = archetype) *
     scope.average_gross_floor_area_m2_per_building *
@@ -548,13 +548,13 @@ end
         scope::ScopeData,
         envelope::EnvelopeData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate linear thermal bridge heat transfer coefficient.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Linear thermal bridges are assumed to bypass the temperature node within the structure,
 and act as direct heat transfer between the indoor air and ambient conditions.
@@ -566,7 +566,7 @@ function calculate_linear_thermal_bridge_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     reduce(
         +,
@@ -583,13 +583,13 @@ end
         archetype::Object
         loads::LoadsData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the convective internal heat gains on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, takes the given internal heat gain profile in `loads` and
 multiplies it with the share of interior air on this `node` as well as the
@@ -602,7 +602,7 @@ function calculate_convective_internal_heat_gains(
     archetype::Object,
     loads::LoadsData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     loads.internal_heat_gains_W *
     interior_weight *
@@ -617,13 +617,13 @@ end
         envelope::EnvelopeData,
         loads::LoadsData,
         total_structure_area_m2::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the radiative internal heat gains on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, takes the given internal heat gain profile in `loads`
 and multiplies it with the assumed radiative fraction of internal heat gains.
@@ -641,7 +641,7 @@ function calculate_radiative_internal_heat_gains(
     envelope::EnvelopeData,
     loads::LoadsData,
     total_structure_area_m2::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     loads.internal_heat_gains_W *
     (1 - mod.internal_heat_gain_convective_fraction(building_archetype = archetype)) *
@@ -659,13 +659,13 @@ end
         archetype::Object
         loads::LoadsData,
         interior_weight::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the convective solar heat gains on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, takes the given solar heat gain profile in `loads` and
 multiplies it with the share of interior air on this `node` as well as the
@@ -678,7 +678,7 @@ function calculate_convective_solar_gains(
     archetype::Object,
     loads::LoadsData,
     interior_weight::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     loads.solar_heat_gains_W *
     interior_weight *
@@ -693,13 +693,13 @@ end
         envelope::EnvelopeData,
         loads::LoadsData,
         total_structure_area_m2::Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the radiative solar heat gains on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, takes the given solar heat gain profile in `loads`
 and multiplies it with the assumed radiative fraction of solar heat gains.
@@ -717,7 +717,7 @@ function calculate_radiative_solar_gains(
     envelope::EnvelopeData,
     loads::LoadsData,
     total_structure_area_m2::Real;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     loads.solar_heat_gains_W *
     (1 - mod.solar_heat_gain_convective_fraction(building_archetype = archetype)) *

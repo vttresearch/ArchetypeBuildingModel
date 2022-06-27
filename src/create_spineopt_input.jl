@@ -47,13 +47,13 @@ end
     SpineOptInput(
         archetypes::Dict{Object,ArchetypeBuilding},
         results::Dict{Object,ArchetypeBuildingResults};
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Create [`SpineOptInput`](@ref) based on given archetype building results.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, performs the following steps:
 1. Initialize an empty [`SpineOptInput`](@ref).
@@ -62,7 +62,7 @@ Essentially, performs the following steps:
 function SpineOptInput(
     archetypes::Dict{Object,ArchetypeBuilding},
     results::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     spineopt = SpineOptInput()
     for archetype in keys(archetypes)
@@ -82,13 +82,13 @@ end
         spineopt::SpineOptInput,
         archetype::ArchetypeBuilding,
         result::ArchetypeBuildingResults;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Process and add the desired `archetype` building with `result` into the `spineopt` input.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 This is a very long and rather complicated function,
 which essentially translates the information contained in the `archetype` [`ArchetypeBuilding`](@ref)
@@ -107,7 +107,7 @@ function add_archetype_to_input!(
     spineopt::SpineOptInput,
     archetype::ArchetypeBuilding,
     result::ArchetypeBuildingResults;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Map `building_node` objects to unique `node` objects.
     n_map = Dict(

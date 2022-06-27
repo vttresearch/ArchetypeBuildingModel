@@ -6,12 +6,12 @@ Contains functions for processing weather data.
 
 
 """
-    process_weather(weather::Object; mod::Module = Main)
+    process_weather(weather::Object; mod::Module = @__MODULE__)
 
 Process `weather` data for the [`WeatherData`](@ref) constructor.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, performs the following steps:
 1. Fetch the ambient temperature data for `weather`.
@@ -19,7 +19,7 @@ Essentially, performs the following steps:
 3. Fetch diffuse and direct solar irradiation data.
 4. Return the components for the [`WeatherData`](@ref) constructor.
 """
-function process_weather(weather::Object; mod::Module = Main)
+function process_weather(weather::Object; mod::Module = @__MODULE__)
     # Fetch ambient temperature data and check that it's ok.
     ambient_temp_K = mod.ambient_temperature_K(building_weather = weather)
     all(values(ambient_temp_K) .>= 0) || @warn """
@@ -152,13 +152,13 @@ calculate_effective_ground_temperature(ambient_temp_K::Real; coeff::Real = 1.7) 
         ignore_year::Bool = false,
         repeat::Bool = true,
         save_layouts::Bool = true,
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Try to create `building_weather` automatically using `ArchetypeBuildingWeather`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially tries to automatically fetch weather data from ERA5 using the
 `PYPSA/atlite` python library, and aggregate it according to the GIS data
@@ -183,7 +183,7 @@ function create_building_weather(
     ignore_year::Bool = false,
     repeat::Bool = true,
     save_layouts::Bool = true,
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Import `ArchetypeBuildingWeather`, doesn't work outside the function for some reason...
     abw = pyimport("archetypebuildingweather")

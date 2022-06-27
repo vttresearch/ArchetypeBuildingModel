@@ -6,12 +6,12 @@ as well as the necessary input data, are valid.
 =#
 
 """
-    run_parameter_tests(mod::Module = Main; limit::Real = Inf)
+    run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
 
 Run tests for archetype building model definition `Parameters` for module `mod`.
 The `limit` keyword can be used to limit the number of tests run.
 """
-function run_parameter_tests(mod::Module = Main; limit::Real = Inf)
+function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
     params_for_testing = [ # Object parameters
         mod.building_frame_depth_m => (type = Real, min = 0),
         mod.effective_thermal_capacity_of_interior_air_and_furniture_J_m2K =>
@@ -108,12 +108,12 @@ end
 
 
 """
-    run_object_class_tests(mod::Module = Main; limit::Real = Inf)
+    run_object_class_tests(mod::Module = @__MODULE__; limit::Real = Inf)
 
 Run tests for archetype building model definition `ObjectClasses` for module `mod`.
 The `limit` keyword can be used to limit the number of tests run.
 """
-function run_object_class_tests(mod::Module = Main; limit::Real = Inf)
+function run_object_class_tests(mod::Module = @__MODULE__; limit::Real = Inf)
     obj_classes_for_testing = [
         mod.building_archetype =>
             (rel = mod.building_archetype__building_fabrics, min = 1, max = 1),
@@ -152,11 +152,11 @@ end
 
 
 """
-    run_structure_type_tests(mod::Module = Main)
+    run_structure_type_tests(mod::Module = @__MODULE__)
 
 Ensure that `structure_type` contains the correct objects.
 """
-function run_structure_type_tests(mod::Module = Main)
+function run_structure_type_tests(mod::Module = @__MODULE__)
     valid_structure_type_names =
         Symbol.([
             "base_floor",

@@ -5,16 +5,16 @@ Contains functions for the main program `process_archetype_buildings.jl`.
 =#
 
 """
-    run_input_data_tests(; mod::Module = Main)
+    run_input_data_tests(mod::Module = @__MODULE__)
 
-Runs input data tests for the Datastore loaded to module `mod`, `Main` by default.
+Runs input data tests for the Datastore loaded to module `mod`, `@__MODULE__` by default.
 
 Essentially performs the following steps:
 1. Call [`run_object_class_tests`](@ref)
 2. Call [`run_parameter_tests`](@ref)
 3. Call [`run_structure_type_tests`](@ref)
 """
-function run_input_data_tests(mod::Module = Main)
+function run_input_data_tests(mod::Module = @__MODULE__)
     @time @testset "Datastore tests" begin
         run_object_class_tests(mod)
         run_parameter_tests(mod)
@@ -28,7 +28,7 @@ end
         url_in::String,
         import_weather::Bool;
         weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Process the [`ScopeData`](@ref), [`WeatherData`](@ref), and [`ArchetypeBuilding`](@ref) objects.
@@ -40,7 +40,7 @@ If `import_weather == true`, the automatically generated [building_weather](@ref
 objects will be imported back into the database at `url_in`.
 The `weather_data_dictionary` keyword can be used to bypass weather data processing
 if a pre-existing dictionary is provided.
-The `mod` keyword changes from which Module data is accessed from, `Main` by default.
+The `mod` keyword changes from which Module data is accessed from, `@__MODULE__` by default.
 
 This function performs the following steps:
 1. Construct the [`ScopeData`](@ref) for each defined [building\\_archetype\\_\\_building_scope](@ref), and store in the `scope_data_dictionary`.
@@ -52,7 +52,7 @@ function archetype_building_processing(
     url_in::String,
     import_weather::Bool;
     weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Process relevant `ScopeData` objects.
     @info "Processing `building_scope` objects into `ScopeData` for `scope_data_dictionary`..."
@@ -147,7 +147,7 @@ function solve_archetype_building_hvac_demand(
         Object,
         Dict{Object,Float64},
     }(),
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."

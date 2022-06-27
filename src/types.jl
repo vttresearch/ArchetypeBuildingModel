@@ -89,12 +89,12 @@ struct ScopeData <: BuildingDataType
     shapefile_path::String
     raster_weight_path::Union{String,Nothing}
     """
-        ScopeData(scope::Object; mod::Module = Main)
+        ScopeData(scope::Object; mod::Module = @__MODULE__)
 
     Construct a new `ScopeData` based on the given `scope`.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor essentially performs the following steps:
     1. Process building stock statistics using the [`process_building_stock_scope`](@ref) function.
@@ -103,7 +103,7 @@ struct ScopeData <: BuildingDataType
     4. Check that the values make sense.
     5. Create the `ScopeData`.
     """
-    function ScopeData(scope::Object; mod::Module = Main)
+    function ScopeData(scope::Object; mod::Module = @__MODULE__)
         (
             avg_gfa_m2_per_building,
             num_buildings,
@@ -192,17 +192,17 @@ struct WeatherData <: BuildingDataType
     diffuse_solar_irradiation_W_m2::SpineDataType
     direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
     """
-        WeatherData(weather::Object; mod::Module = Main)
+        WeatherData(weather::Object; mod::Module = @__MODULE__)
 
     Construct a new `WeatherData` based on the given `weather` object.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     Essentially, the constructor calls the [`process_weather`](@ref) function,
     and checks that the resulting values are sensible.
     """
-    function WeatherData(weather::Object; mod::Module = Main)
+    function WeatherData(weather::Object; mod::Module = @__MODULE__)
         WeatherData(weather, process_weather(weather; mod = mod)...)
     end
     function WeatherData(weather::Object, args...)
@@ -268,17 +268,17 @@ struct EnvelopeData <: BuildingDataType
         Tuple{Float64,Float64},
     }
     """
-        EnvelopeData(archetype::Object, data::ScopeData; mod::Module = Main)
+        EnvelopeData(archetype::Object, data::ScopeData; mod::Module = @__MODULE__)
 
     Construct a new `EnvelopeData` based on the `archetype` and `data`.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor calls the [`process_building_envelope`](@ref) function
     and checks that the results are sensible.
     """
-    function EnvelopeData(archetype::Object, data::ScopeData; mod::Module = Main)
+    function EnvelopeData(archetype::Object, data::ScopeData; mod::Module = @__MODULE__)
         EnvelopeData(archetype, process_building_envelope(archetype, data; mod = mod)...)
     end
     function EnvelopeData(archetype::Object, args...)
@@ -314,13 +314,13 @@ struct LoadsData <: BuildingDataType
             scope::ScopeData,
             envelope::EnvelopeData,
             weather::WeatherData;
-            mod::Module = Main,
+            mod::Module = @__MODULE__,
         )
 
     Construct a new `LoadsData` for the `archetype` based on the given data structs.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor calls the [`process_building_loads`](@ref) function and checks
     that the results are sensible.
@@ -330,7 +330,7 @@ struct LoadsData <: BuildingDataType
         scope::ScopeData,
         envelope::EnvelopeData,
         weather::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
         dhw_demand, int_gains, sol_gains =
             process_building_loads(archetype, scope, envelope, weather; mod = mod)
@@ -414,13 +414,13 @@ struct BuildingNodeData <: BuildingDataType
             scope::ScopeData,
             envelope::EnvelopeData,
             loads::LoadsData;
-            mod::Module = Main,
+            mod::Module = @__MODULE__,
         )
 
     Construct a new `BuildingNodeData` for `archetype` and `node`.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor calls the [`process_building_node`](@ref) function,
     and checks the values are sensible.
@@ -431,7 +431,7 @@ struct BuildingNodeData <: BuildingDataType
         scope::ScopeData,
         envelope::EnvelopeData,
         loads::LoadsData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
         BuildingNodeData(
             node,
@@ -492,13 +492,13 @@ struct BuildingProcessData <: BuildingDataType
             process::Object,
             scope::ScopeData,
             weather::WeatherData;
-            mod::Module = Main,
+            mod::Module = @__MODULE__,
         )
 
     Constructs a new `BuildingProcessData` for `archetype` and `process`.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor calls the [`process_building_system`](@ref) function.
     """
@@ -507,7 +507,7 @@ struct BuildingProcessData <: BuildingDataType
         process::Object,
         scope::ScopeData,
         weather::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
         new(
             process,
@@ -597,13 +597,13 @@ struct AbstractProcess <: BuildingDataType
     coefficient_of_performance::SpineDataType
     maximum_flows_W::Dict{Tuple{Object,Object},SpineDataType}
     """
-        AbstractProcess(process_data::BuildingProcessData; mod::Module = Main)
+        AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__)
 
     Creates a new `AbstractProcess` based on `process_data`.
 
     The constructor calls the [`process_abstract_system`](@ref) function.
     """
-    function AbstractProcess(process_data::BuildingProcessData; mod::Module = Main)
+    function AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__)
         new(
             process_data.building_process,
             process_abstract_system(process_data; mod = mod)...,
@@ -658,12 +658,12 @@ struct ArchetypeBuilding
     abstract_nodes::AbstractNodeNetwork
     abstract_processes::Dict{Object,AbstractProcess}
     """
-        ArchetypeBuilding(archetype::Object; mod::Module = Main)
+        ArchetypeBuilding(archetype::Object; mod::Module = @__MODULE__)
 
     Create a new `ArchetypeBuilding` for the given `archetype`.
 
     NOTE! The `mod` keyword changes from which Module data is accessed from,
-    `Main` by default.
+    `@__MODULE__` by default.
 
     The constructor performs the following steps:
     1. Fetch and create the corresponding [`WeatherData`](@ref).
@@ -676,7 +676,7 @@ struct ArchetypeBuilding
     8. Create the [`AbstractProcess`](@ref)es corresponding to the [`BuildingProcessData`](@ref)s.
     9. Construct the final `ArchetypeBuilding`.
     """
-    function ArchetypeBuilding(archetype::Object; mod::Module = Main)
+    function ArchetypeBuilding(archetype::Object; mod::Module = @__MODULE__)
         # Fetch and process the scope and weather data related to the archetype.
         if length(
             mod.building_archetype__building_weather(building_archetype = archetype),
@@ -703,7 +703,7 @@ struct ArchetypeBuilding
         archetype::Object,
         scope_data::ScopeData,
         weather_data::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
         # Fetch the definitions related to the archetype.
         scope = scope_data.building_scope
@@ -795,7 +795,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
             archetype::ArchetypeBuilding;
             free_dynamics::Bool = false,
             initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
-            mod::Module = Main,
+            mod::Module = @__MODULE__,
         )
 
     Construct a new `ArchetypeBuildingResults` by solving the HVAC demand.    
@@ -809,7 +809,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
         archetype::ArchetypeBuilding;
         free_dynamics::Bool = false,
         initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
         initial_temperatures, temperatures, hvac_demand =
             solve_heating_demand(archetype, free_dynamics, initial_temperatures)
