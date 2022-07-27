@@ -26,7 +26,8 @@ end
 """
     archetype_building_processing(
         url_in::String,
-        import_weather::Bool;
+        import_weather::Bool,
+        save_layouts::Bool;
         weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
         mod::Module = @__MODULE__,
     )
@@ -38,6 +39,7 @@ creation, and returns the `scope_data_dictionary`, `weather_data_dictionary`,
 and `archetype_dictionary` for examining the processed data.
 If `import_weather == true`, the automatically generated [building_weather](@ref)
 objects will be imported back into the database at `url_in`.
+If `save_layouts == true`, diagnostic figures of the layouts are saved into `figs/`.
 The `weather_data_dictionary` keyword can be used to bypass weather data processing
 if a pre-existing dictionary is provided.
 The `mod` keyword changes from which Module data is accessed from, `@__MODULE__` by default.
@@ -50,7 +52,8 @@ This function performs the following steps:
 """
 function archetype_building_processing(
     url_in::String,
-    import_weather::Bool;
+    import_weather::Bool,
+    save_layouts::Bool;
     weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
     mod::Module = @__MODULE__,
 )

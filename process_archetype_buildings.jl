@@ -40,7 +40,7 @@ else
 
     # Process ScopeData and WeatherData, and create the ArchetypeBuildings
     scope_data_dictionary, weather_data_dictionary, archetype_dictionary =
-        archetype_building_processing(url_in, import_weather)
+        archetype_building_processing(url_in, import_weather, save_layouts)
 
     # Heating/cooling demand calculations.
     archetype_results_dictionary =
