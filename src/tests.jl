@@ -16,6 +16,7 @@ function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
         mod.building_frame_depth_m => (type = Real, min = 0),
         mod.effective_thermal_capacity_of_interior_air_and_furniture_J_m2K =>
             (type = Real, min = 0),
+        mod.energy_efficiency_override_coefficient => (type = Real, min = 0),
         mod.external_shading_coefficient => (type = Real, min = 0, max = 1),
         mod.internal_heat_gain_convective_fraction => (type = Real, min = 0, max = 1),
         mod.number_of_storeys => (type = Real, min = 0),
