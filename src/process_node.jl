@@ -109,8 +109,11 @@ function process_building_node(
         mod.effective_thermal_mass_gfa_scaling_J_m2K(building_node = node)
 
     # Fetch user-defined self-discharge rates.
-    self_discharge_base_W_K = mod.self_discharge_rate_base_W_K(building_node = node)
+    self_discharge_base_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
+        mod.self_discharge_rate_base_W_K(building_node = node)
     self_discharge_gfa_scaled_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         scope.average_gross_floor_area_m2_per_building *
         mod.self_discharge_rate_gfa_scaling_W_m2K(building_node = node)
 
@@ -175,6 +178,7 @@ function process_building_node(
             mod = mod,
         )
     heat_transfer_coefficient_structures_exterior_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         calculate_structural_exterior_heat_transfer_coefficient(
             node,
             scope,
@@ -183,6 +187,7 @@ function process_building_node(
             mod = mod,
         )
     heat_transfer_coefficient_structures_ground_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         calculate_structural_ground_heat_transfer_coefficient(
             node,
             scope,
@@ -192,8 +197,10 @@ function process_building_node(
 
     # Calculate the heat transfer coefficients for fenestration, ventilation, and thermal bridges
     heat_transfer_coefficient_windows_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         calculate_window_heat_transfer_coefficient(scope, envelope, interior_weight)
     heat_transfer_coefficient_ventilation_and_infiltration_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         calculate_ventilation_and_infiltration_heat_transfer_coefficient(
             archetype,
             scope,
@@ -201,6 +208,7 @@ function process_building_node(
             mod = mod,
         )
     heat_transfer_coefficient_thermal_bridges_W_K =
+        mod.energy_efficiency_override_coefficient(building_archetype = archetype) *
         calculate_linear_thermal_bridge_heat_transfer_coefficient(
             scope,
             envelope,
