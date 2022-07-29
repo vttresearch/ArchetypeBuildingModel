@@ -5,16 +5,16 @@ Contains functions for the main program `process_archetype_buildings.jl`.
 =#
 
 """
-    run_input_data_tests(; mod::Module = Main)
+    run_input_data_tests(mod::Module = @__MODULE__)
 
-Runs input data tests for the Datastore loaded to module `mod`, `Main` by default.
+Runs input data tests for the Datastore loaded to module `mod`, `@__MODULE__` by default.
 
 Essentially performs the following steps:
 1. Call [`run_object_class_tests`](@ref)
 2. Call [`run_parameter_tests`](@ref)
 3. Call [`run_structure_type_tests`](@ref)
 """
-function run_input_data_tests(mod::Module = Main)
+function run_input_data_tests(mod::Module = @__MODULE__)
     @time @testset "Datastore tests" begin
         run_object_class_tests(mod)
         run_parameter_tests(mod)
@@ -26,9 +26,10 @@ end
 """
     archetype_building_processing(
         url_in::String,
-        import_weather::Bool;
+        import_weather::Bool,
+        save_layouts::Bool;
         weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Process the [`ScopeData`](@ref), [`WeatherData`](@ref), and [`ArchetypeBuilding`](@ref) objects.
@@ -38,9 +39,10 @@ creation, and returns the `scope_data_dictionary`, `weather_data_dictionary`,
 and `archetype_dictionary` for examining the processed data.
 If `import_weather == true`, the automatically generated [building_weather](@ref)
 objects will be imported back into the database at `url_in`.
+If `save_layouts == true`, diagnostic figures of the layouts are saved into `figs/`.
 The `weather_data_dictionary` keyword can be used to bypass weather data processing
 if a pre-existing dictionary is provided.
-The `mod` keyword changes from which Module data is accessed from, `Main` by default.
+The `mod` keyword changes from which Module data is accessed from, `@__MODULE__` by default.
 
 This function performs the following steps:
 1. Construct the [`ScopeData`](@ref) for each defined [building\\_archetype\\_\\_building_scope](@ref), and store in the `scope_data_dictionary`.
@@ -50,14 +52,15 @@ This function performs the following steps:
 """
 function archetype_building_processing(
     url_in::String,
-    import_weather::Bool;
+    import_weather::Bool,
+    save_layouts::Bool;
     weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Process relevant `ScopeData` objects.
     @info "Processing `building_scope` objects into `ScopeData` for `scope_data_dictionary`..."
     @time scope_data_dictionary = Dict(
-        archetype => ScopeData(scope) for
+        archetype => ScopeData(scope; mod = mod) for
         (archetype, scope) in mod.building_archetype__building_scope()
     )
 
@@ -95,7 +98,7 @@ function archetype_building_processing(
         end
         @info "Processing `building_weather` objects into `WeatherData` for `weather_data_dictionary`..."
         @time weather_data_dictionary = Dict(
-            archetype => WeatherData(weather) for
+            archetype => WeatherData(weather; mod = mod) for
             (archetype, weather) in mod.building_archetype__building_weather()
         )
     else
@@ -108,7 +111,8 @@ function archetype_building_processing(
         archetype => ArchetypeBuilding(
             archetype,
             scope_data_dictionary[archetype],
-            weather_data_dictionary[archetype],
+            weather_data_dictionary[archetype];
+            mod = mod,
         ) for archetype in mod.building_archetype()
     )
 
@@ -120,10 +124,18 @@ end
 """
     solve_archetype_building_hvac_demand(
         archetype_dictionary::Dict{Object,ArchetypeBuilding};
-        free_dynamics::Bool = false
+        free_dynamics::Bool = false,
+        initial_temperatures::Dict{Object,Dict{Object,Float64}} = Dict{
+            Object,
+            Dict{Object,Float64}
+        }(),
     )
 
 Solve the [`ArchetypeBuilding`](@ref) heating and cooling demand.
+
+The `free_dynamics` keyword can be used to ignore node temperature limits,
+while the `initial_temperatures` keyword can be used to set desired initial
+temperatures for the nodes.
 
 Essentially, performs the following steps:
 1. Create the `archetype_results_dictionary` by constructing the [`ArchetypeBuildingResults`](@ref) for each entry in the `archetype_dictionary`.
@@ -134,13 +146,21 @@ Essentially, performs the following steps:
 function solve_archetype_building_hvac_demand(
     archetype_dictionary::Dict{Object,ArchetypeBuilding};
     free_dynamics::Bool = false,
+    initial_temperatures::Dict{Object,Dict{Object,Float64}} = Dict{
+        Object,
+        Dict{Object,Float64},
+    }(),
+    mod::Module = @__MODULE__,
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
     @time archetype_results_dictionary = Dict(
-        archetype =>
-            ArchetypeBuildingResults(archetype_building; free_dynamics = free_dynamics)
-        for (archetype, archetype_building) in archetype_dictionary
+        archetype => ArchetypeBuildingResults(
+            archetype_building;
+            free_dynamics = free_dynamics,
+            initial_temperatures = get(initial_temperatures, archetype, nothing),
+            mod = mod,
+        ) for (archetype, archetype_building) in archetype_dictionary
     )
 
     # Return the results dictionary
@@ -149,11 +169,13 @@ end
 
 
 """
-    initialize_result_relationship_classes()
+    initialize_result_relationship_classes!(mod::Module)
 
-Initialize `RelationshipClass`es for storing heating and HVAC demand results.
+Initialize `RelationshipClass`es for storing heating and HVAC demand results in `mod`.
+
+Note that this function modifies `mod` directly!
 """
-function initialize_result_relationship_classes()
+function initialize_result_relationship_classes!(mod::Module)
     # Initialize node results
     results__building_archetype__building_node = RelationshipClass(
         :results__building_archetype__building_node,
@@ -165,6 +187,11 @@ function initialize_result_relationship_classes()
             param in [:initial_temperature_K, :temperature_K, :hvac_demand_W]
         ),
     )
+    # Create the associated parameters
+    initial_temperature_K =
+        Parameter(:initial_temperature_K, [results__building_archetype__building_node])
+    temperature_K = Parameter(:temperature_K, [results__building_archetype__building_node])
+    hvac_demand_W = Parameter(:hvac_demand_W, [results__building_archetype__building_node])
 
     # Initialize process results
     results__building_archetype__building_process = RelationshipClass(
@@ -174,7 +201,23 @@ function initialize_result_relationship_classes()
         Dict(),
         Dict(:hvac_consumption_MW => parameter_value(nothing)),
     )
+    # Create the associated parameter
+    hvac_consumption_MW =
+        Parameter(:hvac_consumption_MW, [results__building_archetype__building_process])
 
+    # Evaluate the relationship classes and parameters to the desired module.
+    @eval mod begin
+        results__building_archetype__building_node =
+            $results__building_archetype__building_node
+        results__building_archetype__building_process =
+            $results__building_archetype__building_process
+        initial_temperature_K = $initial_temperature_K
+        temperature_K = $temperature_K
+        hvac_demand_W = $hvac_demand_W
+        hvac_consumption_MW = $hvac_consumption_MW
+    end
+
+    # Return the handles for the relationship classes for future reference.
     return results__building_archetype__building_node,
     results__building_archetype__building_process
 end

@@ -290,6 +290,13 @@
         ],
         [
             "building_archetype",
+            "energy_efficiency_override_multiplier",
+            1.0,
+            null,
+            "A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients."
+        ],
+        [
+            "building_archetype",
             "external_wall_load_bearing_fraction",
             0.5,
             null,

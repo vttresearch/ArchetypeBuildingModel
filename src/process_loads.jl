@@ -12,13 +12,13 @@ and solar gains for the archetype buildings.
         scope::ScopeData,
         envelope::EnvelopeData,
         weather::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the domestic hot water demand, internal and solar heat gains for the archetype building.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, performs the following steps:
 1. Finds the `building_loads` object corresponding to the `building_archetype`.
@@ -32,7 +32,7 @@ function process_building_loads(
     scope::ScopeData,
     envelope::EnvelopeData,
     weather::WeatherData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Find the `building_loads` connected to the `archetype`
     loads = first(mod.building_archetype__building_loads(building_archetype = archetype))
@@ -48,12 +48,12 @@ end
 
 
 """
-    calculate_total_dhw_demand(loads::Object, scope::ScopeData; mod::Module = Main)
+    calculate_total_dhw_demand(loads::Object, scope::ScopeData; mod::Module = @__MODULE__)
 
 Calculate the total domestic hot water (DHW) demand.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, simply adds the fixed base DHW demand and
 the gross-floor-area-scaling DHW demand together
@@ -62,7 +62,11 @@ for the given `loads` and `scope`.
 \\Phi_\\text{DHW} = \\Phi_\\text{DHW,base} + \\phi_\\text{DHW,gfa} A_\\text{gfa}
 ```
 """
-function calculate_total_dhw_demand(loads::Object, scope::ScopeData; mod::Module = Main)
+function calculate_total_dhw_demand(
+    loads::Object,
+    scope::ScopeData;
+    mod::Module = @__MODULE__,
+)
     mod.domestic_hot_water_demand_base_W(building_loads = loads) +
     scope.average_gross_floor_area_m2_per_building *
     mod.domestic_hot_water_demand_gfa_scaling_W_m2(building_loads = loads)
@@ -73,13 +77,13 @@ end
     calculate_total_internal_heat_loads(
         loads::Object,
         scope::ScopeData;
-        mod::Module = Main
+        mod::Module = @__MODULE__
     )
 
 Calculate the total internal heat gains.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, simply adds the fixed base internal gains and
 the gross-floor-area-scaling DHW demand together
@@ -91,7 +95,7 @@ for the given `loads` and `scope`.
 function calculate_total_internal_heat_loads(
     loads::Object,
     scope::ScopeData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     mod.internal_heat_loads_base_W(building_loads = loads) +
     scope.average_gross_floor_area_m2_per_building *
@@ -105,13 +109,13 @@ end
         scope::ScopeData,
         envelope::EnvelopeData,
         weather::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the total solar heat gains through the windows.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Loosely based on EN ISO 52016-1:2017 6.5.13.2,
 accounting for the solar heat gains through the windows of the building.
@@ -129,7 +133,7 @@ function calculate_total_solar_gains(
     scope::ScopeData,
     envelope::EnvelopeData,
     weather::WeatherData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     mod.window_non_perpendicularity_correction_factor(building_archetype = archetype) *
     scope.total_normal_solar_energy_transmittance *

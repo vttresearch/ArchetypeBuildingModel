@@ -6,12 +6,12 @@ Contains functions for processing the data for `building_scope` database objects
 
 
 """
-    process_building_stock_scope(scope::Object; mod::Module = Main)
+    process_building_stock_scope(scope::Object; mod::Module = @__MODULE__)
 
 Process the aggregated `building_stock_statistic` properties of a `scope`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Returns the gross-floor area weighted total `number_of_buildings` and
 `average_gross_floor_area_m2_per_building` defined by the `building_scope` and its associated relationships.
@@ -24,7 +24,7 @@ Essentially, performs the following steps:
 3. Aggregate the gross-floor area weights using [`aggregate_gfa_weights`](@ref).
 4. Return the necessary pieces to construct a [`ScopeData`](@ref).
 """
-function process_building_stock_scope(scope::Object; mod::Module = Main)
+function process_building_stock_scope(scope::Object; mod::Module = @__MODULE__)
     # Find the relevant building stock statistics with all `building_periods`.
     relevant_building_stock_statistics = mod.building_stock_statistics(
         building_stock = mod.building_scope__building_stock(building_scope = scope),
@@ -78,12 +78,12 @@ end
 
 
 """
-    _building_period_weight(building_period::Object, building_scope::Object; mod::Module = Main)
+    _building_period_weight(building_period::Object, building_scope::Object; mod::Module = @__MODULE__)
 
 Calculate the weight of a `building_period` within a `building_scope`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, represents whether the `building_period` is contained within `scope_period_start_year`--`scope_period_end_year`
 in its entirety [1], only partially (0,1), or if at all [0].
@@ -91,7 +91,7 @@ in its entirety [1], only partially (0,1), or if at all [0].
 w_\\text{bp} = \\text{max}\\left( \\text{min} \\left( \\frac{\\text{end}_\\text{scope} - \\text{start}_\\text{bp}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, \\frac{\\text{end}_\\text{bp} - \\text{start}_\\text{scope}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, 1 \\right), 0 \\right)
 ```
 """
-function _building_period_weight(period::Object, scope::Object; mod::Module = Main)
+function _building_period_weight(period::Object, scope::Object; mod::Module = @__MODULE__)
     # Fetch period and scope years.
     bp_start = mod.period_start(building_period = period)
     bp_end = mod.period_end(building_period = period)
@@ -127,13 +127,13 @@ end
         scope::Object,
         relevant_building_stock_statistics::Vector,
         building_period_weights::Dict{Object,T} where T <: Real;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the gross-floor area weights for the `relevant_building_stock_statistics`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, returns a normalized weight for each relevant entry in the input
 data statistics, corresponding to how impactful it is when aggregating
@@ -150,7 +150,7 @@ function calculate_gross_floor_area_weights(
     scope::Object,
     relevant_building_stock_statistics::Vector,
     building_period_weights::Dict{Object,T} where {T<:Real};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Initialize gross-floor area weights by calculating the weighted number of buildings.
     gross_floor_area_weights = [
@@ -262,13 +262,13 @@ end
 """
     process_ventilation_and_fenestration_scope(
         aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Aggregate `ventilation_and_fenestration_statistics` using gross-floor area weights.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, this function calculates the aggregate properties of
 ventilation and fenestration based on the aggregated gross-floor area weights
@@ -283,7 +283,7 @@ where `p` is any of the above listed properties to be aggregated.
 """
 function process_ventilation_and_fenestration_scope(
     aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Calculate the aggregated ventilation and fenestration parameters.
     hru_efficiency, inf_rate, sol_transm, ven_rate, win_U = [
@@ -305,13 +305,13 @@ end
 """
     process_structure_scope(
         aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Aggregate `structure_statistics` using gross-floor area weights.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, this function calculates the aggregate properties of structures
 based on the aggregated gross floor area weights produced by
@@ -329,7 +329,7 @@ where `p` is any of the above listed properties to be aggregated.
 """
 function process_structure_scope(
     aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     structure_data = Dict{Object,StructureData}()
     for st in mod.structure_type()

@@ -9,14 +9,14 @@ not just the HVAC demand handled in `solve_demand.jl`.
     solve_consumption(
         archetype::ArchetypeBuilding,
         hvac_demand::Dict{Object,T} where {T<:SpineDataType};
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Solve the consumption of `abstract_process` included in the `archetype`,
 based on the `hvac_demand`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Currently produces only extremely simple estimates,
 where each `abstract_process` is assumed to handle the demand on their output
@@ -29,7 +29,7 @@ Heating and cooling are handled separately, though.
 function solve_consumption(
     archetype::ArchetypeBuilding,
     hvac_demand::Dict{Object,T} where {T<:SpineDataType};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Initialize a Dict for storing the results, and convert `hvac_demand`
     # into a parameter value for easier access.

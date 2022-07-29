@@ -108,13 +108,13 @@ end
     BackboneInput(
         archetypes::Dict{Object,ArchetypeBuilding},
         results::Dict{Object,ArchetypeBuildingResults};
-        mod::Module = Main
+        mod::Module = @__MODULE__
     )
 
 Create [`BackboneInput`](@ref) based on given archetype building results.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, performs the following steps:
 1. Initialize an empty [`BackboneInput`](@ref).
@@ -123,7 +123,7 @@ Essentially, performs the following steps:
 function BackboneInput(
     archetypes::Dict{Object,ArchetypeBuilding},
     results::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     backbone = BackboneInput()
     for archetype in keys(archetypes)
@@ -143,13 +143,13 @@ end
         backbone::BackboneInput,
         archetype::ArchetypeBuilding,
         result::archetypeBuildingResults;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Process and add the desired `archetype` building into the `backbone` input.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 This is a very long and rather complicated function,
 which essentially translates the information contained in the `archetype` [`ArchetypeBuilding`](@ref)
@@ -173,7 +173,7 @@ function add_archetype_to_input!(
     backbone::BackboneInput,
     archetype::ArchetypeBuilding,
     result::ArchetypeBuildingResults;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Map `direction` objects to `io` objects.
     io_map = Dict(

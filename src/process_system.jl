@@ -11,13 +11,13 @@ Contains functions for calculating the properties of HVAC systems.
         process::Object,
         scope::ScopeData,
         weather::WeatherData;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculates the properties required for creating a [`BuildingProcessData`](@ref).
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially performs the following steps:
 1. Fetch the `number_of_processes`, `system_link_nodes`, and `COP_mode` from the definitions.
@@ -30,7 +30,7 @@ function process_building_system(
     process::Object,
     scope::ScopeData,
     weather::WeatherData;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Record the number of processes and system link nodes for input/output scaling of AbstractProcess
     number_of_processes = scope.number_of_buildings
@@ -76,13 +76,13 @@ end
         weather::WeatherData,
         COP_mode::Symbol,
         process::Object;
-        mod::Module = Main,
+        mod::Module = @__MODULE__,
     )
 
 Calculate the potentially time-varying coefficient of performance.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Uses the given `COP_mode`, `sink_temperature_K`, and `source_temperature_K` to
 calculate a potentially weather-dependent coefficient of performance.
@@ -104,7 +104,7 @@ function calculate_cop(
     weather::WeatherData,
     COP_mode::Symbol,
     process::Object;
-    mod::Module = Main,
+    mod::Module = @__MODULE__,
 )
     # Check if source and sink temperatures are defined, return 1.0 if not.
     if (
@@ -215,12 +215,12 @@ end
 
 
 """
-    process_abstract_system(process::BuildingProcessData; mod::Module = Main)
+    process_abstract_system(process::BuildingProcessData; mod::Module = @__MODULE__)
 
 Process a [`BuildingProcessData`](@ref) into an [`AbstractProcess`](@ref).
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, combines the properties of a [`BuildingProcessData`](@ref)
 into the bare minimum parameters required to describe a "process"
@@ -231,7 +231,7 @@ Performs the following steps:
 3. Factor COP mode into the `maximum_flows_W` dictionary.
 4. Return the components for [`AbstractProcess`](@ref).
 """
-function process_abstract_system(process::BuildingProcessData; mod::Module = Main)
+function process_abstract_system(process::BuildingProcessData; mod::Module = @__MODULE__)
     # COP sign used to indicate heating (positive) or cooling (negative).
     if process.coefficient_of_performance_mode == :heating
         coefficient_of_performance = process.coefficient_of_performance

@@ -6,13 +6,13 @@ This file contains the functions for processing the building envelope.
 
 
 """
-    process_building_envelope(archetype::Object, data::ScopeData; mod::Module = Main)
+    process_building_envelope(archetype::Object, data::ScopeData; mod::Module = @__MODULE__)
 
 Calculate the dimensions of the `archetype` building envelope based on the assumptions and
 aggregated building stock data.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`Main` by default.
+`@__MODULE__` by default.
 
 Essentially, the archetype buildings are assumed to be rectangular in shape, with their external dimensions
 primarily governed by the `number_of_storeys`, `building_frame_depth_m`, and `room_height_m` parameters.
@@ -37,7 +37,11 @@ The building envelope calculations proceed as follows:
 6. Exterior wall dimensions using [`calculate_exterior_wall_dimensions`](@ref).
 7. Partition wall dimensions using [`calculate_partition_wall_dimensions`](@ref).
 """
-function process_building_envelope(archetype::Object, data::ScopeData; mod::Module = Main)
+function process_building_envelope(
+    archetype::Object,
+    data::ScopeData;
+    mod::Module = @__MODULE__,
+)
     # Calculate envelope dimensions
     base_floor = calculate_base_floor_dimensions(
         data,
