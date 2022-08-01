@@ -72,10 +72,10 @@ function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
         mod.structure_type_weight => (type = Real, min = 0, max = 1),
         mod.maximum_power_base_W => (type = Real, min = 0),
         mod.maximum_power_gfa_scaling_W_m2 => (type = Real, min = 0),
-        mod.building_stock_weight => (type = Real, min = 0, max = 2), # Building stock weight permitted to be used for upscaling to a degree.
-        mod.building_type_weight => (type = Real, min = 0, max = 1),
-        mod.heat_source_weight => (type = Real, min = 0, max = 1),
-        mod.location_id_weight => (type = Real, min = 0, max = 1),
+        mod.building_stock_weight => (type = Real, min = 0), # Building scope weights allow upscaling.
+        mod.building_type_weight => (type = Real, min = 0), # Building scope weights allow upscaling.
+        mod.heat_source_weight => (type = Real, min = 0), # Building scope weights allow upscaling.
+        mod.location_id_weight => (type = Real, min = 0), # Building scope weights allow upscaling.
         mod.average_gross_floor_area_m2_per_building => (type = Real, min = 0),
         mod.number_of_buildings => (type = Real, min = 0),
         mod.design_U_value_W_m2K => (type = Real, min = 0),
