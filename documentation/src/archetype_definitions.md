@@ -1,4 +1,4 @@
-# Archetype definition and data format
+# Input data reference
 
 This section contains automatically generated descriptions of the
 *Spine Datastore* structure used for the archetype definitions and building stock input data,
@@ -99,11 +99,21 @@ Value list: `nothing`
 
 ### `external_shading_coefficient`
 
->Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based on SFS-EN ISO 5216-1:2017 Table B.18 due to lack of a better source.
+>Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based *Final report - Average EU building heat load for HVAC equipment, Delft, 2014*.
 
 Object class: `building_archetype`
 
-Default value: `0.5`
+Default value: `0.65`
+
+Value list: `nothing`
+
+### `energy_efficiency_override_multiplier`
+
+>A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients.
+
+Object class: `building_archetype`
+
+Default value: `1.0`
 
 Value list: `nothing`
 

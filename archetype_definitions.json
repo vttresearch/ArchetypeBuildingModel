@@ -284,9 +284,9 @@
         [
             "building_archetype",
             "external_shading_coefficient",
-            0.5,
+            0.65,
             null,
-            "Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based on SFS-EN ISO 5216-1:2017 Table B.18 due to lack of a better source."
+            "Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based *Final report - Average EU building heat load for HVAC equipment, Delft, 2014*."
         ],
         [
             "building_archetype",
