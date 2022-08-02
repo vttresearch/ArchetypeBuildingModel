@@ -21,6 +21,12 @@ Then, now that we know the dimensions of the building envelope and the
 external loads on the building, we can proceed with
 [Calculating the properties of the lumped-capacitance thermal nodes](@ref),
 as well as with [Calculating the properties of the HVAC equipment](@ref).
+Finally, `ArchetypeBuildingModel.jl` also includes a very simple rule-based
+method for [Solving the heating demand and HVAC equipment consumption](@ref).
+While the main goal of this module is to provide input data for optimization
+models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl),
+having access to simple standalone baseline solutions is a quite helpful.
 
 
 ## Forming the building envelope
@@ -34,3 +40,5 @@ as well as with [Calculating the properties of the HVAC equipment](@ref).
 
 ## Calculating the properties of the HVAC equipment
 
+
+## Solving the heating demand and HVAC equipment consumption
