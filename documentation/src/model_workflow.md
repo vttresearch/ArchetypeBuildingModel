@@ -71,7 +71,7 @@ the next step is to process the [building\_weather](@ref) definitions into
 thermal models. However, since [The `building_weather` definition](@ref)
 isn't mandatory, the main program first checks which [building\_archetype](@ref)
 definitions lack a [building\_archetype\_\_building\_weather](@ref) definition,
-and tries to fetch it automatically using the [ArchetypeBuildingWeather](@ref)
+and tries to fetch it automatically using the [ArchetypeBuildingWeather.py](@ref)
 sub-module. Essentially, the automatic weather generation is handled via the
 [`create_building_weather`](@ref) function based on
 [The `building_archetype` definition](@ref) and the processed [`ScopeData`](@ref).

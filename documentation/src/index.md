@@ -23,7 +23,7 @@ buildings depicting the heating/cooling demand and HVAC energy consumption
 of a building stock,
 explained in the [Archetype building modelling](@ref) section.
 While weather data can be provided by the user if desired,
-the [ArchetypeBuildingWeather](@ref) python sub-module provides automatic
+the [ArchetypeBuildingWeather.py](@ref) python sub-module provides automatic
 fetching and processing of the necessary weather data based on the provided
 archetype building definitions.
 A baseline heating/cooling demand and HVAC consumption is also calculated
@@ -45,7 +45,7 @@ actually being done when aggregating the building stock data into the
 desired synthetic average archetype buildings.
 The [Archetype building modelling](@ref) section explains the lumped-capacitance
 thermal modelling approach used by this module in more detail,
-while the [ArchetypeBuildingWeather](@ref) section briefly explains
+while the [ArchetypeBuildingWeather.py](@ref) section briefly explains
 the logic and workings of the python sub-module handling the automatic
 weather data processing.
 Finally, the [Input data reference](@ref) and the [Library](@ref)

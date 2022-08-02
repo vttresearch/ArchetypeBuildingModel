@@ -26,7 +26,7 @@ For automatic weather data processing, this module uses the Python sub-module `a
 10. `figs/` contains automatically output diagnostic figures about the automatic weather data aggregation. 
 
 
-## ArchetypeBuildingWeather
+## ArchetypeBuildingWeather.py
 
 A Python sub-module for processing weather data.
 
@@ -55,7 +55,7 @@ Here's a rough sketch of how I got it working:
 1. Create a conda environment with python 3.8, e.g. `conda create -n toolboxatlite python=3.8` and activate it.
 2. Install [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox) from a local source via `pip install -r requirements.txt` in the Toolbox root folder.
 3. Install `PYPSA/atlite` via `conda install -c conda-forge atlite`
-4. Install the `ArchetypeBuildingWeather` sub-module via `pip install -e .` in the `src/` folder.
+4. Install the `ArchetypeBuildingWeather.py` sub-module via `pip install -e .` in the `src/` folder.
 5. Install JupyterLab via `conda install -c conda-forge jupyterlab`.
 
 
@@ -71,7 +71,7 @@ with the following rough steps:
 
 In case you need to familiarize yourself with the inner workings of this module,
 see `testscript.jl` for examples on how to use the `ArchetypeBuildingModel.jl`,
-and `testscript.ipynb` for examples on how to use the `ArchetypeBuildingWeather` sub-module.
+and `testscript.ipynb` for examples on how to use the `ArchetypeBuildingWeather.py` sub-module.
 Note that it is recommended to store the relevant geographical information system (GIS)
 data used via the module within the `data/` folder in the repository for the moment.
 
