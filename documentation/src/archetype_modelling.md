@@ -52,6 +52,41 @@ dedicated functions linked therein.
 
 ## Preparing the building loads
 
+The next step we need to do before we can really start forming
+the lumped-capacitance thermal nodes is to determine the total external heat
+loads for the archetype building.
+Essentially, this means forming the [`LoadsData`](@ref) struct,
+containing the total domestic hot water demand, internal heat gains,
+as well as solar heat gains for the building.
+
+The total building loads for the [`LoadsData`](@ref) are calculated by the
+[`ArchetypeBuildingModel.process_building_loads`](@ref) function,
+based on the input data provided via the connected [building\_loads](@ref) object.
+The calculations for the total domestic hot water demand and internal gains
+are extremely simple, and essentially only boil down to adding together
+the prodived `base` and `gfa_scaling` input data.
+See the [`ArchetypeBuildingModel.calculate_total_dhw_demand`](@ref)
+and [`ArchetypeBuildingModel.calculate_total_internal_heat_loads`](@ref)
+for the exact formulations.
+
+Calculating the total solar gains for the buildings is slightly more complicated,
+but it is still heavily simplified by the following key assumptions:
+
+- **The solar heat gains through the opaque parts of the building envelope, as well as the radiative heat losses of the building envelope, are neglected.**
+    - This considerably simplifies the lumped-capacitance thermal modelling of the envelope structures, as in order to reasonably capture the impact of solar irradiation on the opaque envelope structures and radiative heat losses, we would have to include a dedicated thermal node to represent the exterior *(surface)* temperature of the envelope structures.
+    - In essence, we're assuming that the solar heat gains and radiative heat losses from the exterior surface of the opaque envelope structures balance out enough as to not significantly impact the interior dynamics of the building.
+    - This used to be mentioned in section 11.3.4 in the old EN ISO 13790 standard as an acceptable assumption for the most part, but is no longer mentioned in the newer EN ISO 52016-1.
+- **For the purpose of solar heat gains, the building is assumed to aligned with the cardinal directions.**
+
+Thus, the only solar heat gains through the windows are accounted for by the model,
+as they have a direct impact on the interior of the building.
+The solar gains through the windows are impacted by the window properties in
+[`ScopeData`](@ref), the solar irradiation in [`WeatherData`](@ref),
+as well as estimated [external\_shading\_coefficient](@ref) and
+[window\_area\_distribution\_towards\_cardinal\_directions](@ref).
+See the [`ArchetypeBuildingModel.calculate_total_solar_gains`](@ref)
+for the exact formulation.
+
 
 ## Calculating the properties of the lumped-capacitance thermal nodes
 
