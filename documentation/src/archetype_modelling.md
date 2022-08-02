@@ -8,7 +8,7 @@ but instead reference the relevant docstrings in the [Library](@ref) section.
 
 Overall, the structure of this section more or less follows the
 [`ArchetypeBuilding`](@ref) constructor,
-as it is the key `struct` containing and calculating all the information 
+as it is the key struct containing and calculating all the information 
 necessary for modelling an archetype building.
 The [Process `ScopeData` structs](@ref), [Process `WeatherData` structs](@ref),
 and [ArchetypeBuildingWeather.py](@ref) sections already sufficiently explain
@@ -32,7 +32,7 @@ having access to simple standalone baseline solutions is a quite helpful.
 
 The first step in creating an archetype building is forming the building
 envelope by calculating the dimensions of the different structures,
-and storing the results in a corresponding [`EnvelopeData`](@ref) `struct`.
+and storing the results in a corresponding [`EnvelopeData`](@ref) struct.
 However, as `ArchetypeBuildingModel.jl` aims to remain useable on the building
 stock scale, the geometry of the archetype buildings is heavily simplified.
 The key assumptions for forming the archetype building envelope are as follows:
