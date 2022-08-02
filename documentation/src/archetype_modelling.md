@@ -5,7 +5,6 @@ modelling approach and the inherent assumptions used by this module in more deta
 aimed at a more expert audience interested in the inner workings of the module.
 However, a lot of the techical details are not reproduced here,
 but instead reference the relevant docstrings in the [Library](@ref) section.
-Thus, this section still 
 
 Overall, the structure of this section more or less follows the
 [`ArchetypeBuilding`](@ref) constructor,
