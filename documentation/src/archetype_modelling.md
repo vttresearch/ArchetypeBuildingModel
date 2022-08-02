@@ -37,8 +37,7 @@ However, as `ArchetypeBuildingModel.jl` aims to remain useable on the building
 stock scale, the geometry of the archetype buildings is heavily simplified.
 The key assumptions for forming the archetype building envelope are as follows:
 
-- The archetype buildings are assumed to be rectangular in shape, with an `average_gross_floor_area_m2_per_building` based on the appropriate [`ScopeData`](@ref).
-- The key [building\_archetype](@ref) parameters controlling the shape of the building are:
+- **The archetype buildings are assumed to be rectangular in shape, with an `average_gross_floor_area_m2_per_building` based on the appropriate [`ScopeData`](@ref).** The shape of the envelope is assumed to be primarily determined by the following [building\_archetype](@ref) parameters:
     - [number\_of\_storeys](@ref): The assumed average number of storeys of the archetype building. In case of non-integer values, only the topmost separating floor is assumed to differ from the rest. Essentially, the `average_gross_floor_area_m2_per_building` is divided into this many floors.
     - [building\_frame\_depth\_m](@ref): The assumed average depth of the archetype building. Since dwellings typically have requirements for natural light *(at least in Finland)*, there's a limit for how deep the building frame can reasonably be when fenestrated from both sides. Naturally, this varies from building to building depending on their age and exact shape, but in general, I find it more reliable than using e.g. some assumption about the width-to-depth ratio of the buildings.
     - [room\_height\_m](@ref): The assumed average height of the rooms. In combination with the [number\_of\_storeys](@ref), this parameter determines how tall the archetype buildings are. For simplicity, all storeys are assumed to be equally high, and non-integer [number\_of\_storeys](@ref) are rounded up for estimating the height of the building.
