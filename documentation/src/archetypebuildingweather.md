@@ -25,7 +25,7 @@ Pages = ["archetypebuildingweather.md"]
 ## Input data requirements for the automatic weather data aggregation
 
 The weather data aggregation is controlled by a few parameters in the 
-[Archetype definition and data format](@ref):
+[Input data reference](@ref):
 - [shapefile\_path](@ref): Filepath pointing to a shapefile describing the geographical shape of the [building\_stock](@ref) in question.
 - [weather\_year](@ref): The desired weather year for the [building\_archetype](@ref).
 - [raster\_weight\_path](@ref): An optional filepath to weighting raster data.

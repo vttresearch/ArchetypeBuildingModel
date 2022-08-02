@@ -15,7 +15,7 @@ in order to depict flexible heating/cooling demand of significant portions
 of the building stock.
 
 Essentially, this module takes input data and archetype building definitions
-in the format detailed in the [Archetype definition and data format](@ref)
+in the format detailed in the [Input data reference](@ref)
 section as input, processes them according to the workflow detailed in the
 [Overview of the model workflow](@ref) section, and produces
 lumped-capacitance thermal models of the desired synthetic average archetype
@@ -37,7 +37,7 @@ depicting the flexible heating/cooling demand of the depicted building stock.
 This documentation is organized as follows:
 The [Defining archetype buildings](@ref) section explains how the archetype
 buildings are defined, meaning the key components in the
-[Archetype definition and data format](@ref), and how to use them.
+[Input data reference](@ref), and how to use them.
 The [Overview of the model workflow](@ref) section goes through the
 `process_archetype_buildings.jl` main program file, explaining what is
 actually being done when aggregating the building stock data into the
@@ -45,7 +45,7 @@ desired synthetic average archetype buildings.
 Meanwhile, the [ArchetypeBuildingWeather](@ref) section briefly explains
 the logic and workings of the python sub-module handling the automatic
 weather data processing.
-Finally, the [Archetype definition and data format](@ref) and the [Library](@ref)
+Finally, the [Input data reference](@ref) and the [Library](@ref)
 sections provide comprehensive documentation of the definition/input
 data format and the modelling code respectively.
 

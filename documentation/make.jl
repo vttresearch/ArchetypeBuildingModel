@@ -8,7 +8,7 @@ using JSON
 filename = "archetype_definitions.md"
 definitions = JSON.parsefile("archetype_definitions.json")
 system_string = ["""
-# Archetype definition and data format
+# Input data reference
 
 This section contains automatically generated descriptions of the
 *Spine Datastore* structure used for the archetype definitions and building stock input data,

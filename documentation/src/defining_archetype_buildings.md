@@ -1,10 +1,10 @@
 # Defining archetype buildings
 
 This section aims to go over the key components of the
-[Archetype definition and data format](@ref) and explain how these components
+[Input data reference](@ref) and explain how these components
 are used to define the archetype building lumped-capacitance thermal models.
 The explanations remain at a pretty high level, but links to the
-appropriate sections of the [Archetype definition and data format](@ref)
+appropriate sections of the [Input data reference](@ref)
 and [Library](@ref) sections are provided for readers interested in the
 technical details.
 
