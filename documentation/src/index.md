@@ -20,7 +20,8 @@ section as input, processes them according to the workflow detailed in the
 [Overview of the model workflow](@ref) section, and produces
 lumped-capacitance thermal models of the desired synthetic average archetype
 buildings depicting the heating/cooling demand and HVAC energy consumption
-of a building stock.
+of a building stock,
+explained in the [Archetype building modelling](@ref) section.
 While weather data can be provided by the user if desired,
 the [ArchetypeBuildingWeather](@ref) python sub-module provides automatic
 fetching and processing of the necessary weather data based on the provided
@@ -42,7 +43,9 @@ The [Overview of the model workflow](@ref) section goes through the
 `process_archetype_buildings.jl` main program file, explaining what is
 actually being done when aggregating the building stock data into the
 desired synthetic average archetype buildings.
-Meanwhile, the [ArchetypeBuildingWeather](@ref) section briefly explains
+The [Archetype building modelling](@ref) section explains the lumped-capacitance
+thermal modelling approach used by this module in more detail,
+while the [ArchetypeBuildingWeather](@ref) section briefly explains
 the logic and workings of the python sub-module handling the automatic
 weather data processing.
 Finally, the [Input data reference](@ref) and the [Library](@ref)

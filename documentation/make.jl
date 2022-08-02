@@ -68,6 +68,7 @@ open("documentation/src/$(filename)", "w") do file
     write(file, join(system_string))
 end
 
+
 ## Make the documentation.
 
 makedocs(
@@ -78,6 +79,7 @@ makedocs(
         "index.md",
         "defining_archetype_buildings.md",
         "model_workflow.md",
+        "archetype_modelling.md",
         "archetypebuildingweather.md",
         "archetype_definitions.md",
         "library.md",
