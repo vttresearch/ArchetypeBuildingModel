@@ -32,6 +32,7 @@ WeatherData
 ### Functions
 
 ```@docs
+add_results!
 archetype_building_processing
 create_abstract_node_network
 create_building_node_network
