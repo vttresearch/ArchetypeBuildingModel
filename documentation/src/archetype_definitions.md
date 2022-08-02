@@ -117,16 +117,6 @@ Default value: `1.0`
 
 Value list: `nothing`
 
-### `energy_efficiency_override_multiplier`
-
->A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients.
-
-Object class: `building_archetype`
-
-Default value: `1.0`
-
-Value list: `nothing`
-
 ### `external_wall_load_bearing_fraction`
 
 >Assumed average fraction of external walls that are load-bearing. Default value guesstimated.
