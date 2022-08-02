@@ -90,6 +90,56 @@ for the exact formulation.
 
 ## Calculating the properties of the lumped-capacitance thermal nodes
 
+Now that we have the processed [`EnvelopeData`](@ref) and [`LoadsData`](@ref),
+we can finally start calculating the properties of the lumped-capacitance
+thermal nodes in earnest.
+First, the [`create_building_node_network`](@ref) function is called to form
+the [`ArchetypeBuildingModel.BuildingNodeNetwork`](@ref),
+which is essentially a dictionary containing
+the processed [`BuildingNodeData`](@ref) of all the relevant thermal nodes.
+However, it's actually the [`BuildingNodeData`](@ref) and the
+[`ArchetypeBuildingModel.process_building_node`](@ref) that are of primary
+interest, as they contain and calculate the properties of the thermal nodes.
+
+Because the [`BuildingNodeData`](@ref) has quite a few fields and the
+[`ArchetypeBuildingModel.process_building_node`](@ref) has quite a few steps,
+we won't be going through them thoroughly here.
+Instead, we'll focus on the idea behind the thermal node processing,
+hopefully giving you an understanding as to why and how the thermal nodes
+are processed the way they are.
+The processing of the thermal nodes relies entirely on
+[The `building_node` definition](@ref), as it contains the information about
+which [structure\_type](@ref)s are included in the node,
+whether the node represents the interior air
+*(via the [interior\_air\_and\_furniture\_weight](@ref) parameter)*,
+or domestic hot water demand
+*(via the [domestic\_hot\_water\_demand\_weight](@ref) parameter)*.
+The procedure for calculating the properties of each lumped-capacitance thermal
+node goes something like this:
+
+1. Calculate the total effective thermal mass of this node by summing the effective thermal masses of the included structures and/or interior air and furniture.
+    - The interior air node uses the [effective\_thermal\_capacity\_of\_interior\_air\_and\_furniture\_J\_m2K](@ref) parameter to estimate the impact of interior air and furniture.
+2. Calculate the total heat transfer coefficient between this node and the interior air node based on the properties and dimensions of the included structures.
+    - Relevant for structural nodes only.
+3. Calculate the total heat transfer coefficient between this node and the ambient air and/or ground.
+    - For structural nodes, this is again based on the properties and dimensions of the included structures.
+    - For the interior air node, this is includes the impact of windows, ventilation and infiltration, and thermal bridges.
+4. Calculate the total heat gains on this node, including internal and solar heat gains.
+    - The assumed convective fraction of the heat gains are applied to the interior air node, while the assumed radiative fraction of the heat gains are distributed among the structural nodes based on their relative total structural surface areas.
+    - Domestic hot water demand is applied as a "negative heat gain" on the domestic hot water node.
+
+There are a few important simplifications in the above [`BuildingNodeData`](@ref) processing:
+ - **Windows are treated separate from the rest of the structures, assumed to have negligible thermal mass, and act as a direct thermal resistance between the interior air and ambient air nodes.**
+ - **The structural nodes don't interact with each other directly, only via the interior air node.**
+     - Essentially, there's no approximation for heat transfer at the junctions of the different structures, nor for the radiative heat transfer between structures.
+ - **Thermal bridges are assumed to bypass the structural nodes entirely.** Thus, their contribution is included in the heat transfer coefficient between the interior air node and the ambient air node.
+     - In principle, it would be possible to split the effect of the thermal bridges between the interior and exterior heat transfer coefficients of the structural nodes. However, treating them separately in this manner is simpler.
+
+For readers interested in the technical details and exact formulations,
+please refer to the documentation of the
+[`ArchetypeBuildingModel.process_building_node`](@ref) function,
+and the functions linked therein.
+
 
 ## Calculating the properties of the HVAC equipment
 
