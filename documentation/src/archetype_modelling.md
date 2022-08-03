@@ -157,9 +157,15 @@ node, making it easier to interface with different energy system models.
 Unfortunately, this process of abstraction loses a lot of intuitive information,
 and it can be nigh impossible to meaningfully interpret some of the fields in the
 [`AbstractNode`](@ref).
-As such, we won't discuss them further here, but further details can be found
-in the documentation for [`AbstractNode`](@ref) and
-[`ArchetypeBuildingModel.process_abstract_node`](@ref).
+The most important difference to note is:
+
+ - **The effect of ambient air and ground temperatures are implemented using a mathematically equivalent combination of self-discharge and external "ambient" heat loads.**
+    - The main motivation for this is the lack of support for ambient temperature parameters in large scale energy system models. Implementing ambient heat losses in such models via using the ambient temperatures directly would required changes to the model code, which is not always desireable or even possible.
+    - However, self-discharge of storages and energy demand/gains are often supported natively by energy system models, allowing us to "misuse" them in order to achieve the desired effect.
+
+We won't discuss the peculiarities of [`AbstractNode`](@ref)s further here,
+but further details can be found in their documentation, as well as the 
+[`ArchetypeBuildingModel.process_abstract_node`](@ref) function.
 
 
 ## Calculating the properties of the HVAC equipment
