@@ -170,5 +170,33 @@ but further details can be found in their documentation, as well as the
 
 ## Calculating the properties of the HVAC equipment
 
+The properties of the HVAC equipment are based on
+[The `building_process` definition](@ref), and processed into [`BuildingProcessData`](@ref).
+Overall, the process is pretty simple, roughly consisting of the following steps:
+
+1. Fetch the user-defined properties of the HVAC equipment, most important of which are the input/output capacities.
+2. Calculate the potentially weather-dependent coefficient of performance.
+
+For the exact formulations, see the documentation for the
+[`ArchetypeBuildingModel.process_building_system`](@ref) function and the
+functions linked therein.
+
+
+### Processing HVAC equipment into `AbstractProcess`es
+
+Similar to [`AbstractNode`](@ref)s, the [`AbstractProcess`](@ref)es are
+essentially model-agnostic abstractions of the underlying [`BuildingProcessData`](@ref),
+useful for creating the input data for energy system
+models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
+Overall, the abstraction is pretty straightforward,
+but there is one important difference:
+
+ - **The coefficient of performance in the [`AbstractNode`](@ref) accounts for the `number_of_processes` and watts into megawatts conversion.**
+     - Essentially, this means that the COP in the [`AbstractNode`](@ref) is no longer representative of the COP of an individual heating device. Instead, it represents the overall conversion from the energy system scale into the archetype building scale.
+
+For more details, see the documentation for the
+[`ArchetypeBuildingModel.process_abstract_system`](@ref) function.
+
 
 ## Solving the heating demand and HVAC equipment consumption
