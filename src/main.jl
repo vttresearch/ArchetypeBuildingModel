@@ -46,7 +46,7 @@ The `mod` keyword changes from which Module data is accessed from, `@__MODULE__`
 
 This function performs the following steps:
 1. Construct the [`ScopeData`](@ref) for each defined [building\\_archetype\\_\\_building_scope](@ref), and store in the `scope_data_dictionary`.
-2. Try to construct the [`WeatherData`](@ref) for each defined [building\\_archetype\\_\\_building_weather](@ref), and attempt automatic weather processing using [ArchetypeBuildingWeather](@ref) if no definition found. Results stored in `weather_data_dictionary`.
+2. Try to construct the [`WeatherData`](@ref) for each defined [building\\_archetype\\_\\_building_weather](@ref), and attempt automatic weather processing using [ArchetypeBuildingWeather.py](@ref) if no definition found. Results stored in `weather_data_dictionary`.
 3. Use the `scope_data_dictionary` and `weather_data_dictionary` to construct the [`ArchetypeBuilding`](@ref) for all defined archetypes, and store them in `archetype_dictionary`.
 4. Return `scope_data_dictionary`, `weather_data_dictionary`, and `archetype_dictionary`.
 """
@@ -72,7 +72,7 @@ function archetype_building_processing(
         )
         if !isempty(archetypes_missing_weather)
             @warn """
-            Creating missing `building_weather` objects using `ArchetypeBuildingWeather`.
+            Creating missing `building_weather` objects using `ArchetypeBuildingWeather.py`.
             CAUTION! This might take a while if the weather data isn't readily available.
             """
             @time for archetype in archetypes_missing_weather

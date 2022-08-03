@@ -28,13 +28,13 @@ using the appropriate relationship classes:
 - [building\_archetype\_\_building\_fabrics](@ref): Defines one [building\_fabrics](@ref) for the [building\_archetype](@ref). Determines how the different types of structures and the indoor air and furniture are aggregated into a lumped-capacitance thermal model depicting the archetype.
 - [building\_archetype\_\_building\_systems](@ref): Defines one [building\_systems](@ref) for the [building\_archetype](@ref). Determines the HVAC system of the archetype.
 - [building\_archetype\_\_building\_loads](@ref): Defines one [building\_loads](@ref) for the [building\_archetype](@ref). Determines the internal loads and domestic hot water demand for the archetype.
-- [building\_archetype\_\_building\_weather](@ref): Defines which [building\_weather](@ref) to use for the [building\_archetype](@ref). If left undefined, the [ArchetypeBuildingWeather](@ref) sub-module will be used to try and automatically fetch and process weather data based on the [building\_scope](@ref) and other parameters.
+- [building\_archetype\_\_building\_weather](@ref): Defines which [building\_weather](@ref) to use for the [building\_archetype](@ref). If left undefined, the [ArchetypeBuildingWeather.py](@ref) sub-module will be used to try and automatically fetch and process weather data based on the [building\_scope](@ref) and other parameters.
 - [building\_archetype\_\_system\_link\_node](@ref): Allows customizable definition of nodes intended to be used as the connection points between the lumped-capacitance thermal models and the overarching large-scale energy system models.
 
 The [building\_archetype](@ref) objects also houses most of the parameters
 defining assumptions regarding the archetype and how it's modelled.
 The only mandatory parameter is the [weather\_year](@ref), which is required
-for automatic weather data processing using [ArchetypeBuildingWeather](@ref),
+for automatic weather data processing using [ArchetypeBuildingWeather.py](@ref),
 while the rest of the parameters have set default values that kick in if not
 specified by the user.
 For example, the assumed shape of the building envelope can be tweaked using
@@ -193,7 +193,7 @@ The [building\_weather](@ref) objects are used for defining weather data for
 a [building\_archetype](@ref). Of all the definitions described in this section,
 it is the only non-required one. In case the relationship:
 - [building\_archetype\_\_building\_weather](@ref): Defines which [building\_weather](@ref) to use for the [building\_archetype](@ref).
-is left undefined, the [ArchetypeBuildingWeather](@ref) sub-module will be used
+is left undefined, the [ArchetypeBuildingWeather.py](@ref) sub-module will be used
 in an attempt to automatically fetch and process the weather data necessary for
 creating the archetype lumped-capacitance thermal model.
 

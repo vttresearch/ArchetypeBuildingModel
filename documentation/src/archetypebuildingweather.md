@@ -1,4 +1,4 @@
-# ArchetypeBuildingWeather
+# ArchetypeBuildingWeather.py
 
 A [`PyPSA/atlite`](https://github.com/PyPSA/atlite)-based Python sub-module for processing weather data.
 
@@ -10,7 +10,7 @@ Since the Julia documenter doesn't know how to automatically handle Python
 docstrings, interested readers unfortunately need to look into the code itself
 for the technical details.
 However, the following sections hope to at least give you a rough idea about what
-the `ArchetypeBuildingWeather` sub-module does.
+the `ArchetypeBuildingWeather.py` sub-module does.
 Furthermore, the `testscript.ipynb` *Jupyter Notebook* included in this
 repository provides and example how the weather data aggregation works.
 
@@ -47,7 +47,7 @@ function is called to attempt to automatically fetch and aggregate the desired
 weather data based on [The `building_scope` definition](@ref).
 Under the hood, the [`create_building_weather`](@ref) calls the
 `aggregate_weather` Python function, which could be called the *main function*
-of the `ArchetypeBuildingWeather` sub-module. The `aggregate_weather` function
+of the `ArchetypeBuildingWeather.py` sub-module. The `aggregate_weather` function
 essentially performs the following steps:
 
 1. Load the shapefile from [shapefile\_path].
