@@ -141,6 +141,27 @@ please refer to the documentation of the
 and the functions linked therein.
 
 
+### Processing thermal nodes into `AbstractNode`s
+
+While the [`BuildingNodeData`](@ref) structs and the related functions
+are key for understanding the inner workings of the `ArchetypeBuildingModel.jl`,
+it is important to note that for creating the input data for energy system
+models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl),
+the nodes are processed further into so-called [`AbstractNode`](@ref)s.
+As their name suggests, the [`AbstractNode`](@ref)s are essentially an abstraction
+of the [`BuildingNodeData`](@ref), condensing the information into a minimal
+set of model-agnostic fields required to describe the properties of a thermal
+node, making it easier to interface with different energy system models.
+
+Unfortunately, this process of abstraction loses a lot of intuitive information,
+and it can be nigh impossible to meaningfully interpret some of the fields in the
+[`AbstractNode`](@ref).
+As such, we won't discuss them further here, but further details can be found
+in the documentation for [`AbstractNode`](@ref) and
+[`ArchetypeBuildingModel.process_abstract_node`](@ref).
+
+
 ## Calculating the properties of the HVAC equipment
 
 
