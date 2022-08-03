@@ -104,8 +104,8 @@ end
 
 Calculate the base floor dimensions, assuming a rectangular building.
 
-Essentially, calculates the surface area of the base floor in [m2],
-as well as the thermal bridge length [m] based on the
+Essentially, calculates the surface area of the base floor in [m2] `A_bf`,
+as well as the thermal bridge length [m] `l_bf` based on the
 known gross-floor area (GFA), the assumed number of storeys,
 and the assumed frame depth of the building.
 The thermal bridge length is simply assumed to correspond to the
@@ -113,8 +113,11 @@ length of the perimeter of the base floor.
 
 ```math
 A_\\text{bf} = \\frac{A_\\text{GFA}}{n_\\text{storeys}}, \\\\
-l_\\text{bf} = 2 \\left( \\frac{A_\\text{bf}}{d_\\text{frame}} + d_\\text{frame} \\right)
+l_\\text{bf} = 2 \\left( \\frac{A_\\text{bf}}{d_\\text{frame}} + d_\\text{frame} \\right),
 ```
+where `A_GFA` is the gross-floor area of the building in [m2] based on the [`ScopeData`](@ref),
+`n_storeys` is the assumed [number\\_of\\_storeys](@ref), and `d_frame` is the
+assumed [building\\_frame\\_depth\\_m](@ref).
 """
 function calculate_base_floor_dimensions(
     data::ScopeData,
@@ -138,9 +141,9 @@ end
 
 Calculate the roof dimensions assuming a rectangular building.
 
-Essentially, calculates the surface area of the roof in [m2],
-as well as the thermal bridge length [m] based on the
-dimensions of the base floor ([`calculate_base_floor_dimensions`](@ref)).
+Essentially, calculates the surface area of the roof in [m2] `A_r`,
+as well as the thermal bridge length [m] `l_r` based on the
+dimensions of the base floor.
 The thermal bridge length is simply assumed to correspond to the
 length of the perimeter of the roof, and in case of a partial top floor,
 the roof is divided into two separate surfaces,
@@ -153,6 +156,11 @@ l_\\text{bf}, \\qquad n_\\text{storey} \\in \\mathbb{N} \\\\
 l_\\text{bf} + 2 d_\\text{frame}, \\qquad n_\\text{storey} \\notin \\mathbb{N}
 \\end{cases}
 ```
+where `A_bf` is the surface area of the base floor according to,
+`l_bf` is the thermal bridge *(perimeter)* length of the base floor,
+and `d_frame` is the assumed [building\\_frame\\_depth\\_m](@ref).
+See [`calculate_base_floor_dimensions`](@ref) for how
+the base floor dimensions are calculated.
 """
 function calculate_roof_dimensions(
     base_floor::NamedTuple,
@@ -177,9 +185,9 @@ end
 
 Calculate the separating floor dimensions assuming a rectangular building.
 
-Essentially, calculates the *one-sided* surface area of the separating floors in [m2],
-as well as the thermal bridge length [m] based on the known gross-floor area (GFA),
-the assumed number of storeys, and the dimensions of the base floor ([`calculate_base_floor_dimensions`](@ref)).
+Essentially, calculates the *one-sided* surface area of the separating floors in [m2] `A_sf`,
+as well as the thermal bridge length [m] `l_sf` based on the known gross-floor area (GFA),
+the assumed number of storeys, and the dimensions of the base floor.
 The thermal bridge length is assumed to correspond to the
 length of the perimeter of the separating floors.
 
@@ -190,6 +198,13 @@ l_\\text{sf} = \\begin{cases}
 \\left( \\lfloor n_\\text{storeys} \\rfloor - 1 \\right) l_\\text{bf} + 2 \\left( \\frac{A_\\text{bf} (n_\\text{storeys} - \\lfloor n_\\text{storeys} \\rfloor)}{d_\\text{frame}} + d_\\text{frame} \\right), \\quad & n_\\text{storeys} \\notin \\mathbb{N}
 \\end{cases}
 ```
+where `A_GFA` is the gross-floor area of the building,
+`A_bf` is the surface area of the base floor,
+`n_storeys` is the assumed [number\\_of\\_storeys](@ref),
+`l_bf` is the linear thermal bridge *(perimeter)* length of the base floor,
+and `d_frame` is the assumed [building\\_frame\\_depth\\_m](@ref).
+See [`calculate_base_floor_dimensions`](@ref)) for how the base floor dimensions
+are calculated.
 """
 function calculate_separating_floor_dimensions(
     data::ScopeData,
@@ -225,6 +240,12 @@ An auxiliary function used for window and exterior wall calculations.
 ```math
 A_\\text{vertical envelope} = h_\\text{room} \\left( l_\\text{bf} + l_\\text{sf} \\right)
 ```
+where `h_room` is the assumed [room\\_height\\_m](@ref),
+`l_bf` is the linear thermal bridge *(perimeter)* length of the base floor,
+and `l_sf` is the linear thermal bridge *(perimeter)* length of any separating floors.
+See [`calculate_base_floor_dimensions`](@ref) and
+[`calculate_separating_floor_dimensions`](@ref) for how the dimensions of the
+base and separating floors are calculated.
 """
 function calculate_vertical_envelope_surface_area(
     base_floor::NamedTuple,
@@ -246,14 +267,19 @@ end
 
 Calculate the window dimensions assuming a rectangular building.
 
-Calculates the window surface area [m2] simply using the assumed `window_to_wall_ratio`.
-The linear thermal bridge lenght is set to zero, as it's not really applicable
-without significantly better information about the number and size of the
-individual windows.
+Calculates the window surface area [m2] `A_w`
+simply using the assumed window-to-wall ratio.
+The linear thermal bridge lenght `l_w` is set to zero,
+as it's not really applicable without significantly better information
+about the number and size of the individual windows.
 ```math
 A_\\text{w} = w A_\\text{vertical envelope}, \\\\
 l_\\text{w} = 0
 ```
+where `w` is the assumed [window\\_area\\_to\\_external\\_wall\\_ratio\\_m2\\_m2](@ref),
+and `A_vertical_envelope` is the total vertical envelope area of the building.
+See [`calculate_vertical_envelope_surface_area`](@ref) for how the vertical
+envelope area is calculated.
 """
 function calculate_window_dimensions(
     vertical_envelope_area_m2::Real,
@@ -277,16 +303,24 @@ end
 
 Calculate the dimensions of exterior walls, assuming a rectangular building.
 
-The exterior wall surface area [m2] is calculated simply as the difference between
-`vertical_envelope_area_m2` ([`calculate_vertical_envelope_surface_area`](@ref))
-and the window surface area ([`calculate_window_dimensions`](@ref)).
+The exterior wall surface area [m2] `A_ewlb` is calculated simply as the difference between
+vertical envelope area and the window surface area.
 The linear thermal bridge length [m] includes the corners of the exterior walls.
 The results are provided for load-bearing and light exterior walls separately,
-based on the given `load_bearing_fraction`.
+based on the assumed load-bearing fraction of the external walls.
 ```math
 A_\\text{ewlb} = f_\\text{lb} \\left( A_\\text{vertical envelope} - A_\\text{w} \\right), \\\\
 l_\\text{ewlb} = 4 f_\\text{lb} \\lceil n_\\text{storeys} \\rceil h_\\text{room}
 ```
+where `f_lb` is the assumed [external\\_wall\\_load\\_bearing\\_fraction](@ref),
+`A_vertical_envelope` is the vertical envelope surface area of the building,
+`A_w` is the window surface area,
+`n_storeys` is the assumed [number\\_of\\_storeys](@ref),
+and `h_room` is the assumed [room\\_height\\_m](@ref).
+See [`calculate_vertical_envelope_surface_area`](@ref) and
+[`calculate_window_dimensions`](@ref) for how the vertical envelope and window
+areas are calculated.
+
 The dimensions of light exterior walls are calculated similarly to the above,
 except that `(1-f_lb)` is used as the coefficient instead.
 
@@ -324,16 +358,22 @@ end
 Calculate the partition wall dimensions, assuming a rectangular building.
 
 The *one-sided* partition wall surface area [m2] is calculated based on the
-`vertical_envelope_area_m2` ([`calculate_vertical_envelope_surface_area`](@ref)),
-and the given `partition_wall_ratio`.
+vertical envelope area of the building, and the assumed
+ratio between partition walls and vertical envelope.
 The linear thermal bridge length [m] is set to zero, as producing any actual
 estimation would require a lot more information about the layout of the building.
 The results are provided for load-bearing and light exterior walls separately,
-based on the given `load_bearing_fraction`.
+based on the assumed load-bearing faction.
 ```math
 A_\\text{pwlb} = f_\\text{lb} r_\\text{pw} A_\\text{vertical envelope}, \\\\
 l_\\text{pwlb} = 0
 ```
+where `f_lb` is the assumed [partition\\_wall\\_load\\_bearing\\_fraction](@ref),
+`r_pw` is the assumed [partition\\_wall\\_length\\_ratio\\_to\\_external\\_walls\\_m\\_m](@ref),
+and `A_vertical_envelope` is the vertical envelope area of the building.
+See [`calculate_vertical_envelope_surface_area`](@ref) for how the vertical
+envelope area is calculated.
+
 The dimensions of light partition walls are calculated similarly to the above,
 except that `(1-f_lb)` is used as the coefficient instead.
 
