@@ -85,7 +85,8 @@ Calculate the weight of a `building_period` within a `building_scope`.
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
-Essentially, represents whether the `building_period` is contained within `scope_period_start_year`--`scope_period_end_year`
+Essentially, represents whether the [building\\_period](@ref) `bp` is contained
+within [scope\\_period\\_start\\_year](@ref) -- [scope\\_period\\_end\\_year](@ref)
 in its entirety [1], only partially (0,1), or if at all [0].
 ```math
 w_\\text{bp} = \\text{max}\\left( \\text{min} \\left( \\frac{\\text{end}_\\text{scope} - \\text{start}_\\text{bp}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, \\frac{\\text{end}_\\text{bp} - \\text{start}_\\text{scope}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, 1 \\right), 0 \\right)
@@ -137,14 +138,21 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 
 Essentially, returns a normalized weight for each relevant entry in the input
 data statistics, corresponding to how impactful it is when aggregating
-the properties for the given `scope`. Each weight is calculated as:
+the properties for the given `scope`.
+The weights of the individual dimensions are assumed to be one,
+unless otherwise specified in [The `building_scope` definition](@ref).
+Also returns the total number of buildings and
+the total weighted gross-floor area included in the `building_scope`.
 ```math
 w_\\text{bs,bt,bp,lid,hs} = \\frac{w_\\text{bs} w_\\text{bt} w_\\text{bp} w_\\text{lid} w_\\text{hs} n_\\text{bs,bt,bp,lid,hs} A_\\text{gfa,bs,bt,bp,lid,hs}}{\\sum_{bs,bt,bp,lid,hs} w_\\text{bs,bt,bp,lid,hs}}
 ```
-where the weights of the individual dimensions are assumed to be one,
-unless otherwise specified in the `building_scope` definition.
-Also returns the total number of buildings and
-the total weighted gross-floor area included in the `building_scope`.
+where `w_bs` is the [building\\_stock\\_weight](@ref),
+`w_bt` is the [building\\_type\\_weight](@ref),
+`w_bp` is the [`_building_period_weight`](@ref),
+`w_lid` is the [location\\_id\\_weight](@ref),
+`w_hs` is the [heat\\_source\\_weight](@ref),
+`n_bs,bt,bp,lid,hs` is the [number\\_of\\_buildings](@ref),
+and `A_gfa` is the [average\\_gross\\_floor\\_area\\_m2\\_per\\_building](@ref).
 """
 function calculate_gross_floor_area_weights(
     scope::Object,
@@ -223,8 +231,10 @@ Essentially, sums over the gross-floor area weights of unused dimensions to
 produce reduced sets of weights.
 ```math
 w_\\text{bt,bp,lid} = \\sum_\\text{bp,hs} w_\\text{bs,bt,bp,lid,hs} \\\\
-w_\\text{lid} = \\sum_\\text{bt,bp} w_\\text{bt,bp,lid}
+w_\\text{lid} = \\sum_\\text{bt,bp} w_\\text{bt,bp,lid},
 ```
+where `w_bs,bt,bp,lid,hs` are the full gross-floor area weights calculated
+using [`calculate_gross_floor_area_weights`](@ref).
 """
 function aggregate_gfa_weights(gross_floor_area_weights::Dict{NTuple{5,Object},Float64})
     # Aggregate the GFA-weights to match the dimensions of the ventilation and fenestration (and structural) data.
