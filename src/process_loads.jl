@@ -61,6 +61,9 @@ for the given `loads` and `scope`.
 ```math
 \\Phi_\\text{DHW} = \\Phi_\\text{DHW,base} + \\phi_\\text{DHW,gfa} A_\\text{gfa}
 ```
+where `Φ_DHW,base` is the assumed [domestic\\_hot\\_water\\_demand\\_base\\_W](@ref),
+`Φ_DHW,gfa` is the assumed [domestic\\_hot\\_water\\_demand\\_gfa\\_scaling\\_W\\_m2](@ref),
+and `A_gfa` is the gross-floor area of the building.
 """
 function calculate_total_dhw_demand(
     loads::Object,
@@ -91,6 +94,9 @@ for the given `loads` and `scope`.
 ```math
 \\Phi_\\text{int} = \\Phi_\\text{int,base} + \\phi_\\text{int,gfa} A_\\text{gfa}
 ```
+where `Φ_int,base` is the assumed [internal\\_heat\\_loads\\_base\\_W](@ref),
+`Φ_int,gfa` is the assumed [internal\\_heat\\_loads\\_gfa\\_scaling\\_W\\_m2](@ref),
+and `A_gfa` is the gross-floor area of the building.
 """
 function calculate_total_internal_heat_loads(
     loads::Object,
@@ -120,13 +126,21 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 Loosely based on EN ISO 52016-1:2017 6.5.13.2,
 accounting for the solar heat gains through the windows of the building.
 Solar heat gains through the opaque parts of the building envelope are neglegted.
+The varying angle of incidence of the irradiation on the windows is accounted for
+using a very simple average non-perpendicularity factor.
+The frame-area fraction of the windows is accounted for in the solar energy transmittance,
+and window area distribution is handled using the shares towards cardinal directions.
 ```math
 \\Phi_\\text{sol} = f_\\text{np} g_\\text{gl} A_\\text{w} \\left( I_\\text{diff} + F_\\text{shading} \\sum_{d \\in \\text{N,E,S,W}} w_d I_\\text{dir,d} \\right)
 ```
-The varying angle of incidence of the irradiation on the windows is accounted for
-using a very simple average non-perpendicularity factor `f_np`.
-The frame-area fraction of the windows is accounted for in the solar energy transmittance,
-and window area distribution is handled using the shares towards cardinal directions `w_d`.
+where `f_np` is the assumed [window\\_non\\_perpendicularity\\_correction\\_factor](@ref),
+`g_gl` is the [total\\_normal\\_solar\\_energy\\_transmittance](@ref) of the glazing,
+`A_w` is the area of the windows,
+`I_diff` is the [diffuse\\_solar\\_irradiation\\_W\\_m2](@ref),
+`F_shading` is the assumed [external\\_shading\\_coefficient](@ref),
+`d` represents the cardinal directions,
+`w_d` is the [window\\_area\\_distribution\\_towards\\_cardinal\\_directions](@ref),
+and `I_dir,d` is the [direct\\_solar\\_irradiation\\_W\\_m2](@ref).
 """
 function calculate_total_solar_gains(
     archetype::Object,
