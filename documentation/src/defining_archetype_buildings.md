@@ -9,13 +9,6 @@ and [Library](@ref) sections are provided for readers interested in the
 technical details.
 
 
-## Contents
-
-```@contents
-Pages = ["defining_archetype_buildings.md"]
-```
-
-
 ## The `building_archetype` definition
 
 **The single most important object class in the definitions**, as each

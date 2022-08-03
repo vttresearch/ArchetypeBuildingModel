@@ -15,13 +15,6 @@ Furthermore, the `testscript.ipynb` *Jupyter Notebook* included in this
 repository provides and example how the weather data aggregation works.
 
 
-## Contents
-
-```@contents
-Pages = ["archetypebuildingweather.md"]
-```
-
-
 ## Input data requirements for the automatic weather data aggregation
 
 The weather data aggregation is controlled by a few parameters in the 
