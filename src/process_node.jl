@@ -296,12 +296,17 @@ Calculate the effective thermal mass of interior air and furniture on `node` in 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
-Essentially, the calculation is based on the gross-floor area [m2] of the `archetype`
-building, the assumed `effective_thermal_capacity_of_interior_air_and_furniture_J_m2K`
-of the `archetype`, and the assumed `interior_air_and_furniture_weight` of the `node`.
+Essentially, the calculation is based on the gross-floor area [m2] of the archetype
+building, the assumed effective thermal capacity of interior air and furniture,
+and the assumed share of interior air and furniture weight  on the `node`.
 ```math
 C_\\text{int,n} = w_\\text{int,n} c_\\text{int,gfa} A_\\text{gfa}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref)
+on this [building\\_node](@ref),
+`c_int,gfa` is the assumed
+[effective\\_thermal\\_capacity\\_of\\_interior\\_air\\_and\\_furniture\\_J\\_m2K](@ref),
+and `A_gfa` is the gross-floor area of the building.
 """
 function calculate_interior_air_and_furniture_thermal_mass(
     archetype::Object,
@@ -331,10 +336,14 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 Essentially, sums the total effective thermal mass of the structures
-attributed to this node, accounting for their `structure_type_weight`s.
+attributed to this node, accounting for their assigned weights.
 ```math
 C_\\text{n,str} = \\sum_{\\text{st} \\in n} w_\\text{n,st} c_\\text{st} A_\\text{st}
 ```
+where `st` is the [structure\\_type](@ref) and `n` is the [building\\_node](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
+`c_st`is the [effective\\_thermal\\_mass\\_J\\_m2K](@ref) of the structure,
+and `A_st` is the surface area of the structure.
 """
 function calculate_structural_thermal_mass(
     node::Object,
@@ -369,19 +378,25 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 
 Essentially, initializes the total heat transfer coefficient between
 the interior air node and the node containing the structures.
+For internal structures, the U-values for both the interior and
+*exterior* surface are used, effectively accounting for both sides of interior
+structures.
+If an external structure is lumped together with the
+interior air node, it's internal heat transfer coefficient is attributed to its
+exterior heat transfer instead, *but using this feature is not recommended*!
 ```math
 H_\\text{int,n} = \\begin{cases}
 (1 - w_\\text{int,n}) \\sum_{\\text{st} \\in n} w_\\text{n,st} U_\\text{int,st} A_\\text{st} \\qquad \\text{st} \\notin \\text{internal structures} \\\\
 (1 - w_\\text{int,n}) \\sum_{\\text{st} \\in n} w_\\text{n,st} ( U_\\text{int,st} + U_\\text{ext,st} ) A_\\text{st} \\qquad \\text{st} \\notin \\text{internal structures}
 \\end{cases}
 ```
-
-**NOTE!** For `is_internal` structures, the U-values for both the interior and
-*exterior* surface are used, effectively accounting for both sides of interior
-structures.
-**NOTE!** If an external structure is lumped together with the
-interior air node, it's internal heat transfer coefficient is attributed to its
-exterior heat transfer instead, *but using this feature is not recommended*!
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref)
+on this [building\\_node](@ref) `n`,
+`st` is the [structure\\_type](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
+`U_int,st` is the [internal\\_U\\_value\\_to\\_structure\\_W\\_m2K](@ref) of structure `st`,
+and `A_st` is the surface area of structure `st`.
+A structure `st` is considered internal if the [is\\_internal](@ref) flag is true.
 """
 function calculate_structural_interior_heat_transfer_coefficient(
     node::Object,
@@ -424,13 +439,18 @@ Essentially, calculates the total heat transfer coefficient between
 the ambient air and the node containing the structures.
 Internal structures have no exterior heat transfer coefficient,
 as they are assumed to not be part of the building envelope.
-```math
-H_\\text{ext,n} = \\sum_{\\text{st} \\in n} w_\\text{st} \\left( \\frac{1}{U_\\text{ext,st}} + \\frac{w_{int,n}}{U_\\text{int,st}} \\right)^{-1} A_\\text{st}
-```
-
-**NOTE!** If an external structure is lumped together with the
+If an external structure is lumped together with the
 interior air node, it's internal heat transfer coefficient is attributed to its
 exterior heat transfer as well, *but using this feature is not recommended*!
+```math
+H_\\text{ext,n} = \\sum_{\\text{st} \\in n} w_\\text{n,st} \\left( \\frac{1}{U_\\text{ext,st}} + \\frac{w_{int,n}}{U_\\text{int,st}} \\right)^{-1} A_\\text{st}
+```
+where `st` is the [structure\\_type](@ref) and `n` is the [building\\_node](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
+`U_ext,st` is the [external\\_U\\_value\\_to\\_ambient\\_air\\_W\\_m2K](@ref) of structure `st`,
+`w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`U_int,st` is the [internal\\_U\\_value\\_to\\_structure\\_W\\_m2K](@ref) of structure `st`,
+and `A_st` is the surface area of structure `st`.
 """
 function calculate_structural_exterior_heat_transfer_coefficient(
     node::Object,
@@ -471,8 +491,12 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 Essentially, calculates the total heat transfer coefficient between
 the ground and the node containing the structures.
 ```math
-H_\\text{grn,n} = \\sum_{\\text{st} \\in n} w_\\text{st} U_\\text{grn,st} A_\\text{st}
+H_\\text{grn,n} = \\sum_{\\text{st} \\in n} w_\\text{n,st} U_\\text{grn,st} A_\\text{st}
 ```
+where `st` is the [structure\\_type](@ref) and `n` is the [building\\_node](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
+`U_grn,st` is the [external\\_U\\_value\\_to\\_ground\\_W\\_m2K](@ref) of structure `st`,
+and `A_st` is the surface area of structure `st`.
 """
 function calculate_structural_ground_heat_transfer_coefficient(
     node::Object,
@@ -503,6 +527,9 @@ Windows are assumed to transfer heat directly between the indoor air and the amb
 ```math
 H_\\text{w,n} = w_\\text{int,n} U_\\text{w} A_\\text{w}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`U_w` is the [window\\_U\\_value\\_W\\_m2K](@ref),
+and `A_w` is the surface area of the windows.
 """
 function calculate_window_heat_transfer_coefficient(
     scope::ScopeData,
@@ -532,6 +559,14 @@ Loosely based on EN ISO 52016-1:2017 6.5.10.1.
 ```math
 H_\\text{ven,n} = w_\\text{int,n} A_\\text{gfa} h_\\text{room} \\rho_\\text{air} \\frac{ (1 - \\eta_\\text{hru}) r_\\text{ven} + r_\\text{inf}}{3600}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`A_gfa` is the gross-floor area of the building,
+`h_room` is the assumed [room\\_height\\_m](@ref),
+`ρ_air` is the assumed [volumetric\\_heat\\_capacity\\_of\\_interior\\_air\\_J\\_m3K](@ref),
+`η_hru` is the [HRU\\_efficiency](@ref) *(heat recovery unit)*,
+`r_ven` is the [ventilation\\_rate\\_1\\_h](@ref),
+and `r_inf` is the [infiltration\\_rate\\_1\\_h](@ref).
+The division by 3600 accounts for the unit conversion from J to Wh.
 """
 function calculate_ventilation_and_infiltration_heat_transfer_coefficient(
     archetype::Object,
@@ -569,6 +604,10 @@ and act as direct heat transfer between the indoor air and ambient conditions.
 ```math
 H_{\\Psi,n} = w_\\text{int,n} \\sum_\\text{st} l_\\text{st} \\Psi_\\text{st}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`st` is the [structure\\_type](@ref),
+`l_st` is the length of the linear thermal bridge of structure `st`,
+and `Ψ_st` is the [linear\\_thermal\\_bridges\\_W\\_mK](@ref).
 """
 function calculate_linear_thermal_bridge_heat_transfer_coefficient(
     scope::ScopeData,
@@ -605,6 +644,11 @@ assumed convective fraction of internal heat gains.
 ```math
 \\Phi_\\text{int,conv,n} = w_\\text{int,n} f_\\text{int,conv} \\Phi_\\text{int}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`f_int,conv` is the assumed [internal\\_heat\\_gain\\_convective\\_fraction](@ref),
+and `Φ_int` are the total internal heat gains of the building.
+See [`calculate_total_internal_heat_loads`](@ref) for how the total
+internal heat loads are calculated.
 """
 function calculate_convective_internal_heat_gains(
     archetype::Object,
@@ -637,11 +681,16 @@ Essentially, takes the given internal heat gain profile in `loads`
 and multiplies it with the assumed radiative fraction of internal heat gains.
 The radiative heat gains are assumed to be distributed across the structures 
 simply based on their relative surface areas.
+Note that currently, radiative internal heat gains are partially lost through windows!
 ```math
 \\Phi_\\text{int,rad,n} = (1 - f_\\text{int,conv}) \\frac{\\sum_{\\text{st} \\in n} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{int}
 ```
-
-**NOTE!** Currently, radiative internal heat gains are lost through windows!
+where `f_int,conv` is the assumed [internal\\_heat\\_gain\\_convective\\_fraction](@ref),
+`st` is the [structure\\_type](@ref) and `n` is this [building\\_node](@ref),
+`A_st` is the surface area of structure `st`,
+and `Φ_int` are the total internal heat gains of the building.
+See [`calculate_total_internal_heat_loads`](@ref) for how the total
+internal heat loads are calculated.
 """
 function calculate_radiative_internal_heat_gains(
     archetype::Object,
@@ -681,6 +730,11 @@ assumed convective fraction of solar heat gains.
 ```math
 \\Phi_\\text{sol,conv,n} = w_\\text{int,n} f_\\text{sol,conv} \\Phi_\\text{sol}
 ```
+where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`f_sol,conv` is the assumed [solar\\_heat\\_gain\\_convective\\_fraction](@ref),
+and `Φ_sol` are the total solar heat gains into the building.
+See [`calculate_total_solar_gains`](@ref) for how the total solar heat gains
+are calculated.
 """
 function calculate_convective_solar_gains(
     archetype::Object,
@@ -713,11 +767,16 @@ Essentially, takes the given solar heat gain profile in `loads`
 and multiplies it with the assumed radiative fraction of solar heat gains.
 The radiative heat gains are assumed to be distributed across the structures 
 simply based on their relative surface areas.
+Note that currently, radiative solar heat gains are partially lost through windows!
 ```math
 \\Phi_\\text{sol,rad,n} = (1 - f_\\text{sol,conv}) \\frac{\\sum_{\\text{st} \\in n} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{sol}
 ```
-
-**NOTE!** Currently, radiative solar heat gains are lost through windows!
+where `f_sol,conv` is the assumed [solar\\_heat\\_gain\\_convective\\_fraction](@ref),
+`st` is the [structure\\_type](@ref) and `n` is this [building\\_node](@ref),
+`A_st` is the surface area of structure `st`,
+and `Φ_sol` are the total solar heat gains into the building.
+See [`calculate_total_solar_gains`](@ref) for how the total solar heat gains
+are calculated.
 """
 function calculate_radiative_solar_gains(
     archetype::Object,
@@ -790,7 +849,7 @@ The principle is illustrated by the equation below:
 ```math
 \\Phi_\\text{ambient heat losses} = H_\\text{ext}(T_\\text{ambient} - T_\\text{internal}) \\\\
 = H_\\text{ext} T_\\text{ambient} - H_\\text{ext} T_\\text{internal} \\\\
-= \\Phi_\\text{ambient} - \\Phi_\\text{self discharge}
+= \\Phi_\\text{ambient} - \\Phi_\\text{self-discharge}
 ```
 
 **NOTE!** All heat transfer coefficients are assumed to be symmetrical!

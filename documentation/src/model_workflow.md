@@ -7,13 +7,6 @@ and functions in the [Library](@ref) section for readers interested in the
 technical details.
 
 
-## Contents
-
-```@contents
-Pages = ["model_workflow.md"]
-```
-
-
 ## Command line arguments
 
 The `process_archetype_buildings.jl` main program file has been primarily
