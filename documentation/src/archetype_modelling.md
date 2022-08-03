@@ -21,7 +21,7 @@ external loads on the building, we can proceed with
 [Calculating the properties of the lumped-capacitance thermal nodes](@ref),
 as well as with [Calculating the properties of the HVAC equipment](@ref).
 Finally, `ArchetypeBuildingModel.jl` also includes a very simple rule-based
-method for [Solving the heating demand and HVAC equipment consumption](@ref).
+method for [Solving the baseline heating demand and HVAC equipment consumption](@ref).
 While the main goal of this module is to provide input data for optimization
 models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
 [SpineOpt](https://github.com/Spine-project/SpineOpt.jl),
@@ -199,4 +199,36 @@ For more details, see the documentation for the
 [`ArchetypeBuildingModel.process_abstract_system`](@ref) function.
 
 
-## Solving the heating demand and HVAC equipment consumption
+## Solving the baseline heating demand and HVAC equipment consumption
+
+While the main goal of `ArchetypeBuildingModel.jl` is the creation of the
+lumped-capacitance thermal models depicting the aggregated flexible
+heating/cooling demand of building stocks,
+it is often useful or even necessary to have a baseline heating/cooling
+demand available for comparison.
+As such, `ArchetypeBuildingModel.jl` includes a very simple rule-based
+simulation of heating and cooling of the created [`ArchetypeBuilding`](@ref)s.
+
+Storing and processing the heating/cooling demand and HVAC equipment energy
+consumption results are handled via the [`ArchetypeBuildingResults`](@ref)
+struct.
+The actual calculations are performed in two main steps:
+
+1. Solve initial temperatures *(unless explicitly provided)*, node temperatures, and nodal HVAC demand using the [`ArchetypeBuildingModel.solve_heating_demand`](@ref) function.
+2. Solve the HVAC equipment consumption per process based on the above nodal demands using the [`ArchetypeBuildingModel.solve_consumption`](@ref) function.
+
+For readers interested in the actual implementation and technical details,
+please refer to the documentation of the above functions,
+and the functions linked therein.
+However, there are a few things worth noting about how the heating/cooling demand
+and HVAC equipment consumption are solved:
+
+ - **If not explicitly provided, lumped-capacitance thermal node initial temperatures are solved by starting the temperatures at their lowest permitted temperatures, and repeatedly solving the first 24-hours and replacing the initial temperatures with the ones on hour 24 until the temperatures no longer change.**
+ - **The simulation of the heating/cooling demand uses implicit Euler discretization of the lumped-capacitance thermal node energy balance equations.**
+     - This is mainly done to conform with the energy balance equations of [Backbone](https://cris.vtt.fi/en/publications/backbone) and [SpineOpt](https://github.com/Spine-project/SpineOpt.jl), as they both also use implicit Euler discretization for their energy balance constraints.
+ - **The simple rule-based controller used in determining the heating/cooling demand for the lumped-capacitance thermal nodes has the following rules:**
+     - If the temperature of a node would increase above its permitted maximum temperature, provide just enough cooling to keep it at the maximum.
+     - If the temperature of a node would fall below its permitted minimum, provide just enough heating to keep it at the minimum.
+ - **The nodal heating/cooling demand is used as-is for every [building\_process](@ref) for determining the HVAC equipment energy consumption, regardless of potential capacity limitations.**
+     - Essentially, when calculating the baseline HVAC equipment energy consumption, we assume that every process handles the entirety of the heating/cooling load.
+     - For most simple use-cases, this is fine. However, if there are e.g. multiple parallel heating or cooling processes on a node, the calculated baseline HVAC consumption isn't useful as-is. In such cases, the user needs to combine the HVAC consumption time series themselves, based on assumed operation logic of the parallel heating/cooling systems.
