@@ -249,6 +249,10 @@ The initialization is abandoned if no stable initial temperatures are found
 within a thousand 24-hour solves.
 In this case, the minimum permitted temperatures are used as the initial
 temperatures for each node, unless otherwise specified via `initial_temperatures`.
+Internally, uses the [`solve_heating_demand_loop`](@ref) function.
+
+See the [`solve_heating_demand`](@ref) function for the overall logic and
+formulation of the heating demand calculations.
 """
 function initialize_temperatures(
     archetype::ArchetypeBuilding,
@@ -321,6 +325,15 @@ end
 
 Initialize the right-hand side of the linear equation system,
 meaning the impact of the `external_load` and previous temperatures.
+
+See the [`solve_heating_demand`](@ref) function for the overall formulation.
+This function returns the right-hand side components separately
+```math
+\\hat{\\Phi} = \\hat{\\Phi'} + \\hat{\\frac{C}{\\Delta t} T_{t-\\Delta t}},
+```
+where `Φ'` is the component of external loads,
+and the rest is the component of the impact of previous temperatures.
+The components are useful for the [`solve_heating_demand_loop`](@ref) function.
 """
 function initialize_rhs(
     archetype::ArchetypeBuilding,
@@ -364,6 +377,8 @@ Essentially, performs the following steps:
     4. Check if new temperatures would violate temperature limits.
     5. If necessary, solve the HVAC demand required to keep temperatures within set limits.
 6. Return the solved temperatures and HVAC demand for each node and index.
+
+See the [`solve_heating_demand`](@ref) function for the overall formulation.
 """
 function solve_heating_demand_loop(
     indices::Vector{DateTime},
@@ -457,6 +472,15 @@ end
     )
 
 Forms and inverts the matrix for solving HVAC demand in different situations.
+
+Essentially, this function performs the
+```math
+\\left( \\bm{A} - \\sum_{m \\in M}[\\bm{A}_{m} + \\bm{I}_{m}] \\right)^{-1}
+```
+transformation of the dynamics matrix `A`,
+where the otherwise violated temperature variables `m ∈ M` are fixed
+and replaced with a variable for the required heating/cooling demand.
+See the [`solve_heating_demand`](@ref) function for the overall formulation.
 """
 function form_and_invert_hvac_matrix(
     dynamics_matrix::Matrix{Float64},
