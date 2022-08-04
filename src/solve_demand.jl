@@ -188,6 +188,20 @@ end
 
 Forms and inverts the implicit Euler discretized dynamics matrix for the
 `AbstractNodeNetwork`.
+
+The implicit Euler discretized dynamics matrix `A` is formed as follows:
+```math
+\\bm{A}_{n,m} = \\begin{cases}
+\\frac{C_m}{\\Delta t} + \\rho_m + \\sum_{n' \\in N} H_{n,m}, \\qquad n = m, \\\\
+- H_{n,m}, \\qquad n \\neq m,
+\\end{cases}, \\quad \\text{where } n, m \\in N
+```
+where `A_n,m` is the element of the dynamic matrix `A` on row `n` and column `m`,
+`C_m` is the thermal mass of node `m`,
+`Δt` is the length of the discretized time step,
+`ρ_m` is the self-discharge coefficient of node `m`,
+`N` is the set of nodes included in the lumped-capacitance thermal model,
+and `H_{m,n}` is the heat transfer coefficient between nodes `n` and `m`.
 """
 function form_and_invert_dynamics_matrix(archetype::ArchetypeBuilding, delta_t::Int64)
     # Initialize the implicit Euler dynamics matrix.
