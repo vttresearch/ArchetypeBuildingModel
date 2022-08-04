@@ -33,8 +33,54 @@ and provides the required energy input to maintain the system at the limit.
 The building dynamics are discretized using implicit *(backwards)* Euler,
 mainly for consistency with our existing energy system modelling tools
 like Backbone or SpineOpt. In principle, I believe the system could be solved
-analytically similar to my Master's Thesis:
+analytically similar to my Master's Thesis, if better accuracy would be desired:
 *Energy Management in Households with Coupled Photovoltaics and Electric Vehicles, Topi Rasku, 2015, Aalto University School of Science*.
+
+The idea of solving heating demand calculations can be as follows,
+starting from the energy balance equation for node `n`
+```math
+C_n \\frac{dT_n(t)}{dt} = - \\rho_n T_n(t) + \\sum_{m \\in N} \\left[ H_{n,m} \\left( T_m(t) - T_n(t) \\right) \\right] + \\Phi_n(t),
+```
+where `C_n` is the heat capacity of node `n`,
+`T_n(t)` is the time-dependent temperature of node `n` at time `t`,
+`ρ_n` is the self-discharge from node `n`,
+`N` is the set of temperature nodes in the lumped-capacitance model of the building,
+`H_n,m` is the heat transfer coefficient between nodes `n` and `m`,
+and `Φ_n(t)` is the time-dependent total external heat load on node `n`.
+Using the implicit Euler discretization, the above can be cast into
+```math
+\\left( \\frac{C_n}{\\Delta t} + \\rho_n + \\sum_{m \\in N} H_{n,m} \\right) T_{n,t} - \\sum_{m \\in N} \\left[ H_{n,m} T_{m,t} \\right] = \\Phi_{n,t} + \\frac{C_n}{\\Delta t} T_{n,t-\\Delta t},
+```
+where `Δt` is the length of the discretized time step.
+Since we always know the temperatures on the previous time step `t-Δt`,
+the above can be expressed in matrix form and solved as
+```math
+\\bm{A} \\hat{T} = \\hat{\\Phi}, \\\\
+\\hat{T} = \\bm{A}^{-1} \\hat{\\Phi},
+```
+where `A` is the so-called *dynamics matrix*, 
+`T` is the current temperature vector,
+and `Φ` is the right-hand side vector, containing the effect of external loads
+and previous temperatures.
+
+The above is used to calculate the temperatures of the nodes on each subsequent
+time step. However, when any of the node temperatures would violate the defined
+minimum and maximum permitted temperatures, that temperature variable is instead
+fixed to the violated boundary, moved to the right-hand side,
+and replaced with a heating/cooling demand variable `ϕ_m` instead.
+This results in a slightly modified problem to be solved
+```math
+\\hat{\\phi} = \\left( \\bm{A} - \\sum_{m \\in M}[\\bm{A}_{m} + \\bm{I}_{m}] \\right)^{-1} \\left( \\hat{\\Phi} - \\sum_{m \\in M}[\\hat{A}_{m} T'_m] \\right),
+```
+where `ϕ` is the modified temperature vector with the fixed temperature replaced
+with the heating/cooling demand variable,
+`m ∈ M` are the nodes that would violate their permitted bounds,
+and are therefore fixed at the boundary `T'_m`,
+`A_m` represents a selection of column `m` from the matrix `A`,
+and `I_m` represents column `m` from an identity matrix.
+Please note that there are both matrix and vector selections of `A_m`,
+where the matrix selection preserves the dimensions with filling zeroes,
+while the vector selection is essentially only the selected column in vector form.
 """
 function solve_heating_demand(
     archetype::ArchetypeBuilding,
