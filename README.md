@@ -89,7 +89,7 @@ start a Julia REPL from the root folder of this module and perform the following
 ```julia
 julia> ]
 (ArchetypeBuildingModel) pkg> Activate documentation
-(docs) pkg> ]
+(documentation) pkg> ]
 julia>
 ```
 

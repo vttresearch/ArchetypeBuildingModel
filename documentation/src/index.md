@@ -17,7 +17,7 @@ of the building stock.
 Essentially, this module takes input data and archetype building definitions
 in the format detailed in the [Input data reference](@ref)
 section as input, processes them according to the workflow detailed in the
-[Overview of the model workflow](@ref) section, and produces
+[Overview of the workflow](@ref) section, and produces
 lumped-capacitance thermal models of the desired synthetic average archetype
 buildings depicting the heating/cooling demand and HVAC energy consumption
 of a building stock,
@@ -39,7 +39,7 @@ This documentation is organized as follows:
 The [Defining archetype buildings](@ref) section explains how the archetype
 buildings are defined, meaning the key components in the
 [Input data reference](@ref), and how to use them.
-The [Overview of the model workflow](@ref) section goes through the
+The [Overview of the workflow](@ref) section goes through the
 `process_archetype_buildings.jl` main program file, explaining what is
 actually being done when aggregating the building stock data into the
 desired synthetic average archetype buildings.

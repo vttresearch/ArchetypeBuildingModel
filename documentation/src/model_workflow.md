@@ -1,4 +1,4 @@
-# Overview of the model workflow
+# Overview of the workflow
 
 The following sections aim to go over the main program file `process_archetype_buildings.jl`
 and explain the high-level workflow of the `ArchetypeBuildingModel.jl`.

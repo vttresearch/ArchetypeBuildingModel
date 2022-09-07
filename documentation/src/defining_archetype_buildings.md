@@ -40,7 +40,7 @@ See the [Object parameters](@ref) section for a comprehensive list of all the
 possible parameters for the [building\_archetype](@ref).
 
 Ultimately, each [building\_archetype](@ref) is processed into an [`ArchetypeBuilding`](@ref)
-by the main program described by the [Overview of the model workflow](@ref) section.
+by the main program described by the [Overview of the workflow](@ref) section.
 
 
 ## The `building_scope` definition
@@ -74,7 +74,7 @@ For this purpose, the [building\_scope](@ref) has the two mandatory parameters:
 - [scope\_period\_end\_year](@ref): The last year included in the [building\_scope](@ref).
 
 Ultimately, each [building\_scope](@ref) is processed into a [`ScopeData`](@ref)
-by the main program described by the [Overview of the model workflow](@ref) section.
+by the main program described by the [Overview of the workflow](@ref) section.
 
 
 ## The `building_fabrics` definition
@@ -93,7 +93,7 @@ Regardless, [building\_fabrics](@ref) are simply collections of
 
 The [building\_fabrics](@ref) definitions help form the [`EnvelopeData`](@ref)
 during the data processing by the main program, described by the
-[Overview of the model workflow](@ref) section.
+[Overview of the workflow](@ref) section.
 
 
 ### The `building_node` definition
@@ -123,7 +123,7 @@ but the most important ones are:
 
 Ultimately, each [building\_node](@ref) is processed into a [`BuildingNodeData`](@ref)
 *(and an [`AbstractNode`](@ref) for energy system model export)*
-by the main program described by the [Overview of the model workflow](@ref) section.
+by the main program described by the [Overview of the workflow](@ref) section.
 
 
 ## The `building_systems` definition
@@ -159,7 +159,7 @@ COPs are modelled.
 
 Ultimately, each [building\_process](@ref) is processed into a [`BuildingProcessData`](@ref)
 *([`AbstractProcess`](@ref) for the energy sysem model export)*
-by the main program described by the [Overview of the model workflow](@ref) section.
+by the main program described by the [Overview of the workflow](@ref) section.
 
 
 ## The `building_loads` definition
@@ -177,7 +177,7 @@ For [building\_loads](@ref), all the important information is contained in the
 - [internal\_heat\_loads\_gfa\_scaling\_W\_m2](@ref): Gross-floor area scaling internal heat gains data.
 
 Ultimately, each [building\_loads](@ref) is processed into a [`LoadsData`](@ref)
-by the main program described by the [Overview of the model workflow](@ref) section.
+by the main program described by the [Overview of the workflow](@ref) section.
 
 
 ## The `building_weather` definition
