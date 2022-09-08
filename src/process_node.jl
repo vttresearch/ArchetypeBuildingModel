@@ -78,7 +78,7 @@ Essentially, this function performs the following steps:
 5. Calculate the total heat transfer coefficient between the structures on this `node` and the ground using [`calculate_structural_ground_heat_transfer_coefficient`](@ref).
 6. Calculate the total heat transfer coefficient through windows for this `node` using [`calculate_window_heat_transfer_coefficient`](@ref).
 7. Calculate the total heat transfer coefficient of ventilation and infiltration on this `node` using [`calculate_ventilation_and_infiltration_heat_transfer_coefficient`](@ref).
-8. Calculate the total heat transfer coefficient of thermal bridges for this `node` using [`calculate_linear_thermal_bridge_heat_transfer_coefficient`](@ref).
+8. Calculate the total heat transfer coefficient of thermal bridges for this `node` using [`calculate_total_thermal_bridge_heat_transfer_coefficient`](@ref).
 9. Fetch domestic hot water demand from `loads` for this `node`.
 10. Calculate the convective internal heat gains on this `node` using [`calculate_convective_internal_heat_gains`](@ref).
 11. Calculate the radiative internal heat gains on this `node` using [`calculate_radiative_internal_heat_gains`](@ref).
@@ -209,7 +209,8 @@ function process_building_node(
         )
     heat_transfer_coefficient_thermal_bridges_W_K =
         mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
-        calculate_linear_thermal_bridge_heat_transfer_coefficient(
+        calculate_total_thermal_bridge_heat_transfer_coefficient(
+            archetype,
             scope,
             envelope,
             interior_weight;
@@ -587,41 +588,48 @@ end
 
 
 """
-    calculate_linear_thermal_bridge_heat_transfer_coefficient(
+    calculate_total_thermal_bridge_heat_transfer_coefficient(
+        archetype::Object,
         scope::ScopeData,
         envelope::EnvelopeData,
         interior_weight::Real;
         mod::Module = @__MODULE__,
     )
 
-Calculate linear thermal bridge heat transfer coefficient.
+Calculate total thermal bridge heat transfer coefficient.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
-Linear thermal bridges are assumed to bypass the temperature node within the structure,
+Thermal bridges are assumed to bypass the temperature node within the structure,
 and act as direct heat transfer between the indoor air and ambient conditions.
 ```math
-H_{\\Psi,n} = w_\\text{int,n} \\sum_\\text{st} l_\\text{st} \\Psi_\\text{st}
+H_{\\Psi,n} = w_\\text{int,n} \\left( \\Delta U_\\text{w,tb} A_w + \\sum_\\text{st} \\left[ l_\\text{st} \\Psi_\\text{st} \\right] \\right)
 ```
 where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this node,
+`ΔU_w,tb` is the [window\\_area\\_thermal\\_bridge\\_surcharge\\_W\\_m2K](@ref),
+`A_w` is the window surface area based on [`calculate_window_dimensions`](@ref),
 `st` is the [structure\\_type](@ref),
 `l_st` is the length of the linear thermal bridge of structure `st`,
 and `Ψ_st` is the [linear\\_thermal\\_bridges\\_W\\_mK](@ref).
 """
-function calculate_linear_thermal_bridge_heat_transfer_coefficient(
+function calculate_total_thermal_bridge_heat_transfer_coefficient(
+    archetype::Object,
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
     mod::Module = @__MODULE__,
 )
-    reduce(
-        +,
-        scope.structure_data[st].linear_thermal_bridges_W_mK *
-        getfield(envelope, st.name).linear_thermal_bridge_length_m for
-        st in mod.structure_type();
-        init = 0,
-    ) * interior_weight
+    interior_weight * (
+        mod.window_area_thermal_bridge_surcharge_W_m2K(building_archetype = archetype) *
+        envelope.window.surface_area_m2 + reduce(
+            +,
+            scope.structure_data[st].linear_thermal_bridges_W_mK *
+            getfield(envelope, st.name).linear_thermal_bridge_length_m for
+            st in mod.structure_type();
+            init = 0,
+        )
+    )
 end
 
 
