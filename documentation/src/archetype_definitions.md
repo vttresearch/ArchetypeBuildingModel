@@ -97,16 +97,6 @@ Default value: `10000.0`
 
 Value list: `nothing`
 
-### `external_shading_coefficient`
-
->Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based *Final report - Average EU building heat load for HVAC equipment, Delft, 2014*.
-
-Object class: `building_archetype`
-
-Default value: `0.65`
-
-Value list: `nothing`
-
 ### `energy_efficiency_override_multiplier`
 
 >A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients.
@@ -114,6 +104,16 @@ Value list: `nothing`
 Object class: `building_archetype`
 
 Default value: `1.0`
+
+Value list: `nothing`
+
+### `external_shading_coefficient`
+
+>Assumed average external shading coefficient, effectively a factor for the amount of direct solar radiation reaching the windows. Default value based *Final report - Average EU building heat load for HVAC equipment, Delft, 2014*.
+
+Object class: `building_archetype`
+
+Default value: `0.65`
 
 Value list: `nothing`
 
@@ -234,6 +234,16 @@ Value list: `nothing`
 Object class: `building_archetype`
 
 Default value: `Dict{String, Any}("data" => Any[Any["north", 0.25], Any["east", 0.25], Any["south", 0.25], Any["west", 0.25]], "type" => "map", "index_name" => "cardinal_direction", "index_type" => "str")`
+
+Value list: `nothing`
+
+### `window_area_thermal_bridge_surcharge_W_m2K`
+
+>A factor for estimating the linear thermal bridges from fenestration, essentially an addition to the fenestration U-value. Default value based on EN ISO 13789:2017 Table B.6.
+
+Object class: `building_archetype`
+
+Default value: `0.1`
 
 Value list: `nothing`
 
