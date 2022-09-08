@@ -29,7 +29,7 @@ function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
         mod.weather_year => (type = Real, min = 1900, max = 2050),
         mod.window_area_distribution_towards_cardinal_directions => (type = Map,),
         mod.window_area_to_external_wall_ratio_m2_m2 => (type = Real, min = 0, max = 1),
-        mod.window_area_thermal_bridge_surcharge_W_m2K => (type = Real),
+        mod.window_area_thermal_bridge_surcharge_W_m2K => (type = Real,),
         mod.window_non_perpendicularity_correction_factor =>
             (type = Real, min = 0, max = 1),
         mod.domestic_hot_water_demand_base_W => (type = SpineDataType,),
