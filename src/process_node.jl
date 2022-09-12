@@ -517,10 +517,10 @@ function calculate_structural_ground_heat_transfer_coefficient(
 )
     (
         1 + min(
-            mod.frame_depth_m(building_archetype = archetype)^2 /
+            mod.building_frame_depth_m(building_archetype = archetype)^2 /
             envelope.base_floor.surface_area_m2,
             envelope.base_floor.surface_area_m2 /
-            mod.frame_depth_m(building_archetype = archetype)^2,
+            mod.building_frame_depth_m(building_archetype = archetype)^2,
         )
     ) * reduce(
         +,
