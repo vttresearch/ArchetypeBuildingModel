@@ -504,6 +504,9 @@ where `d_frame` is the assumed [building\\_frame\\_depth\\_m](@ref),
 `w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
 `U_grn,st` is the [external\\_U\\_value\\_to\\_ground\\_W\\_m2K](@ref) of structure `st`,
 and `A_st` is the surface area of structure `st`.
+Note that the correction factor `C = (length + width) / length = 1 + d_frame^2 / A_bf`
+in the above equation assumes that `d_frame < A_bf / d_frame`.
+If `d_frame > A_bf / d_frame`, the correction term becomes `1 + A_bf / d_frame^2` instead.
 """
 function calculate_structural_ground_heat_transfer_coefficient(
     archetype::Object,
@@ -513,9 +516,12 @@ function calculate_structural_ground_heat_transfer_coefficient(
     mod::Module = @__MODULE__,
 )
     (
-        1 +
-        mod.frame_depth_m(building_archetype = archetype)^2 /
-        envelope.base_floor.surface_area_m2
+        1 + min(
+            mod.frame_depth_m(building_archetype = archetype)^2 /
+            envelope.base_floor.surface_area_m2,
+            envelope.base_floor.surface_area_m2 /
+            mod.frame_depth_m(building_archetype = archetype)^2,
+        )
     ) * reduce(
         +,
         scope.structure_data[st].external_U_value_to_ground_W_m2K *
