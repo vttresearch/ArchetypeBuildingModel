@@ -189,6 +189,7 @@ function process_building_node(
     heat_transfer_coefficient_structures_ground_W_K =
         mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_structural_ground_heat_transfer_coefficient(
+            archetype,
             node,
             scope,
             envelope;
@@ -478,6 +479,7 @@ end
 
 """
     calculate_structural_ground_heat_transfer_coefficient(
+        archetype::Object,
         node::Object,
         scope::ScopeData,
         envelope::EnvelopeData;
@@ -490,22 +492,31 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 Essentially, calculates the total heat transfer coefficient between
-the ground and the node containing the structures.
+the ground and the node containing the structures according to the simplified
+method proposed by K.Kissock in:
+`Simplified Model for Ground Heat Transfer from Slab-on-Grade Buildings, (c) 2013 ASHRAE`
 ```math
-H_\\text{grn,n} = \\sum_{\\text{st} \\in n} w_\\text{n,st} U_\\text{grn,st} A_\\text{st}
+H_\\text{grn,n} = \\left( 1 + \\frac{d_\\text{frame}^2}{A_\\text{bf}} \\right) \\sum_{\\text{st} \\in n} w_\\text{n,st} U_\\text{grn,st} A_\\text{st}
 ```
-where `st` is the [structure\\_type](@ref) and `n` is the [building\\_node](@ref),
+where `d_frame` is the assumed [building\\_frame\\_depth\\_m](@ref),
+`A_bf` is the area according to [`calculate_base_floor_dimensions`](@ref),
+`st` is the [structure\\_type](@ref) and `n` is the [building\\_node](@ref),
 `w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
 `U_grn,st` is the [external\\_U\\_value\\_to\\_ground\\_W\\_m2K](@ref) of structure `st`,
 and `A_st` is the surface area of structure `st`.
 """
 function calculate_structural_ground_heat_transfer_coefficient(
+    archetype::Object,
     node::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
     mod::Module = @__MODULE__,
 )
-    reduce(
+    (
+        1 +
+        mod.frame_depth_m(building_archetype = archetype)^2 /
+        envelope.base_floor.surface_area_m2
+    ) * reduce(
         +,
         scope.structure_data[st].external_U_value_to_ground_W_m2K *
         getfield(envelope, st.name).surface_area_m2 *
