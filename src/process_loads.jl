@@ -24,7 +24,7 @@ Essentially, performs the following steps:
 1. Finds the `building_loads` object corresponding to the `building_archetype`.
 2. Calculates total domestic hot water (DHW) demand using [`calculate_total_dhw_demand`](@ref).
 3. Calculates total internal heat loads using [`calculate_total_internal_heat_loads`](@ref).
-4. Calculates total solar gains using [`calculate_total_solar_gains`](@ref).
+4. Calculates total solar gains through windows using [`calculate_total_solar_gains`](@ref).
 5. Returns the calculated DHW demand, internal gains, and solar gains.
 """
 function process_building_loads(

@@ -82,8 +82,8 @@ Essentially, this function performs the following steps:
 9. Fetch domestic hot water demand from `loads` for this `node`.
 10. Calculate the convective internal heat gains on this `node` using [`calculate_convective_internal_heat_gains`](@ref).
 11. Calculate the radiative internal heat gains on this `node` using [`calculate_radiative_internal_heat_gains`](@ref).
-12. Calculate the convective solar heat gains on this `node` using [`calculate_convective_solar_gains`](@ref).
-13. Calculate the radiative solar heat gains on this `node` using [`calculate_radiative_solar_gains`](@ref).
+12. Calculate the convective solar heat gains through windows on this `node` using [`calculate_convective_solar_gains`](@ref).
+13. Calculate the radiative solar heat gains through windows on this `node` using [`calculate_radiative_solar_gains`](@ref).
 14. Return all the pieces necessary for constructing the [`BuildingNodeData`](@ref) for this `node`.
 
 **NOTE! Linear thermal bridges are assumed to bypass any potential structural lumped-capacitance nodes,
@@ -744,7 +744,7 @@ end
         mod::Module = @__MODULE__,
     )
 
-Calculate the convective solar heat gains on the `node` in [W].
+Calculate the convective solar heat gains through windows on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -783,7 +783,7 @@ end
         mod::Module = @__MODULE__,
     )
 
-Calculate the radiative solar heat gains on the `node` in [W].
+Calculate the radiative solar heat gains through windows on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
