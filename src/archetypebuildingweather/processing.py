@@ -132,12 +132,8 @@ def coarsen_raster(raster, target, method="mean", boundary="trim"):
     boundary : Setting for `xarray.coarsen()` sampling, `trim` by default.
     """
     # First, figure out how much we need to coarsen the data.
-    x_c = int(
-        abs(np.diff(target.x.values).mean() // np.diff(raster.x.values).mean())
-    )
-    y_c = int(
-        abs(np.diff(target.y.values).mean() // np.diff(raster.y.values).mean())
-    )
+    x_c = int(abs(np.diff(target.x.values).mean() // np.diff(raster.x.values).mean()))
+    y_c = int(abs(np.diff(target.y.values).mean() // np.diff(raster.y.values).mean()))
 
     # Next, coarsen the raster.
     if method == "mean":
@@ -206,7 +202,12 @@ def prepare_layout(
 
 
 def match_layout(
-    shapefile, raster, cutout, boundary="trim", coarse_method="mean", reindex_method="nearest"
+    shapefile,
+    raster,
+    cutout,
+    boundary="trim",
+    coarse_method="mean",
+    reindex_method="nearest",
 ):
     """
     Resamples and normalizes a layout to match the `atlite` cutout.
@@ -263,8 +264,14 @@ def process_weather(cutout, layout):
     direct_irradiation :
         Direct irradiation on walls facing the cardinal directions [W/m2].
     """
-    # Define the azimuth angles for the cardinal directions.
-    dirs = {"north": 0.0, "east": 90.0, "south": 180.0, "west": 270.0}
+    # Define the slope and azimuth angles for the horizontal and cardinal directions.
+    dirs = {
+        "horizontal": (0.0, 0.0),
+        "north": (90.0, 0.0),
+        "east": (90.0, 90.0),
+        "south": (90.0, 180.0),
+        "west": (90.0, 270.0),
+    }
 
     # Calculate the aggregated weather using the `atlite` cutout.
     ambient_temperature = (
@@ -281,13 +288,13 @@ def process_weather(cutout, layout):
     )
     direct_irradiation = {
         dir: cutout.irradiation(
-            orientation={"slope": 90.0, "azimuth": az},
+            orientation={"slope": sl, "azimuth": az},
             layout=layout,
             irradiation="direct",
         )
         .squeeze()
         .to_series()
-        for dir, az in dirs.items()
+        for dir, (sl, az) in dirs.items()
     }
 
     return ambient_temperature, diffuse_irradiation, direct_irradiation
