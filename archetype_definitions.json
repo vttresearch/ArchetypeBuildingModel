@@ -269,6 +269,20 @@
     "object_parameters": [
         [
             "building_archetype",
+            "average_apparent_sky_temperature_difference_K",
+            11,
+            null,
+            "Assumed average difference between external air temperatures and sky temperatures [K], default value based on EN ISO 52016-1:2017 Table B.19."
+        ],
+        [
+            "building_archetype",
+            "average_structural_solar_absorption_coefficient",
+            0.6,
+            null,
+            "Assumed average solar absorption coefficient for external opaque surfaces, default based on EN ISO 52016-1:2017 Table B.14."
+        ],
+        [
+            "building_archetype",
             "building_frame_depth_m",
             10.4,
             null,
@@ -287,6 +301,13 @@
             1.0,
             null,
             "A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients."
+        ],
+        [
+            "building_archetype",
+            "external_radiative_surface_heat_transfer_coefficient_W_m2K",
+            4.14,
+            null,
+            "Assumed external radiative surface heat transfer coefficient [W/m2K], default value based on EN ISO 13789:2017 Table 8."
         ],
         [
             "building_archetype",
