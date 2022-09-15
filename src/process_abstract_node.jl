@@ -47,7 +47,7 @@ Essentially, this function performs the following steps:
 2. Sum all the self-discharge and ambient heat transfer components together.
 3. Collect heat transfer coefficients between the interior air node and this one.
 4. Update heat transfer coefficients based on user-defined coefficients.
-5. Sum together the internal heat gains, solar gains, DHW demand, as well as the impact of ambient temperatures.
+5. Sum together the internal heat gains, solar gains, radiative sky heat losses, DHW demand, as well as the impact of ambient temperatures.
 6. Return the components required for constructing an [`AbstractNode`](@ref).
 
 **NOTE!** The ambient temperatures are accounted for via a combination of `self_discharge_coefficient_W_K`
@@ -149,7 +149,9 @@ function process_abstract_node(
         node_data.internal_heat_gains_air_W +
         node_data.internal_heat_gains_structures_W +
         node_data.solar_heat_gains_air_W +
-        node_data.solar_heat_gains_structures_W - node_data.domestic_hot_water_demand_W
+        node_data.solar_heat_gains_structures_W +
+        node_data.solar_heat_gains_envelope_W - node_data.radiative_envelope_sky_losses_W -
+        node_data.domestic_hot_water_demand_W
 
     # Return the properties of interest in the correct order for `AbstractNode`.
     return thermal_mass_Wh_K,
