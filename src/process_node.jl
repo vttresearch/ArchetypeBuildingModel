@@ -708,10 +708,11 @@ The radiative heat gains are assumed to be distributed across the structures
 simply based on their relative surface areas.
 Note that currently, radiative internal heat gains are partially lost through windows!
 ```math
-\\Phi_\\text{int,rad,n} = (1 - f_\\text{int,conv}) \\frac{\\sum_{\\text{st} \\in n} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{int}
+\\Phi_\\text{int,rad,n} = (1 - f_\\text{int,conv}) \\frac{\\sum_{\\text{st} \\in n} w_\\text{n,st} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{int}
 ```
 where `f_int,conv` is the assumed [internal\\_heat\\_gain\\_convective\\_fraction](@ref),
 `st` is the [structure\\_type](@ref) and `n` is this [building\\_node](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
 `A_st` is the surface area of structure `st`,
 and `Φ_int` are the total internal heat gains of the building.
 See [`calculate_total_internal_heat_loads`](@ref) for how the total
@@ -729,6 +730,7 @@ function calculate_radiative_internal_heat_gains(
     (1 - mod.internal_heat_gain_convective_fraction(building_archetype = archetype)) *
     reduce(
         +,
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         getfield(envelope, st.name).surface_area_m2 / total_structure_area_m2 for
         st in mod.building_node__structure_type(building_node = node);
         init = 0,
@@ -794,10 +796,11 @@ The radiative heat gains are assumed to be distributed across the structures
 simply based on their relative surface areas.
 Note that currently, radiative solar heat gains are partially lost through windows!
 ```math
-\\Phi_\\text{sol,rad,n} = (1 - f_\\text{sol,conv}) \\frac{\\sum_{\\text{st} \\in n} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{sol}
+\\Phi_\\text{sol,rad,n} = (1 - f_\\text{sol,conv}) \\frac{\\sum_{\\text{st} \\in n} w_\\text{n,st} A_\\text{st}}{\\sum_{\\text{st}} A_\\text{st}} \\Phi_\\text{sol}
 ```
 where `f_sol,conv` is the assumed [solar\\_heat\\_gain\\_convective\\_fraction](@ref),
 `st` is the [structure\\_type](@ref) and `n` is this [building\\_node](@ref),
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node,
 `A_st` is the surface area of structure `st`,
 and `Φ_sol` are the total solar heat gains into the building.
 See [`calculate_total_solar_gains`](@ref) for how the total solar heat gains
@@ -815,6 +818,7 @@ function calculate_radiative_solar_gains(
     (1 - mod.solar_heat_gain_convective_fraction(building_archetype = archetype)) *
     reduce(
         +,
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         getfield(envelope, st.name).surface_area_m2 / total_structure_area_m2 for
         st in mod.building_node__structure_type(building_node = node);
         init = 0,
