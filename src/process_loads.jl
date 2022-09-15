@@ -249,7 +249,7 @@ end
     calculate_envelope_radiative_sky_losses(
         archetype::Object,
         scope::ScopeData,
-        envelope::EnvelopeData,
+        envelope::EnvelopeData;
         mod::Module = @__MODULE__,
     )
 
@@ -279,7 +279,7 @@ and `ΔT_sky` is the assumed [average\\_apparent\\_sky\\_temperature\\_differenc
 function calculate_envelope_radiative_sky_losses(
     archetype::Object,
     scope::ScopeData,
-    envelope::EnvelopeData,
+    envelope::EnvelopeData;
     mod::Module = @__MODULE__,
 )
     # Define envelope structure types and their view factors to the sky, based on EN ISO 52016-1:2017 Table B.18.
