@@ -689,6 +689,10 @@
                 "index_type": "str",
                 "data": [
                     [
+                        "horizontal",
+                        0.0
+                    ],
+                    [
                         "north",
                         0.0
                     ],
