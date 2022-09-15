@@ -212,7 +212,7 @@ where `R_e,st` is the [exterior\\_resistance\\_m2K\\_W](@ref) of structure `st`,
 `d` represents either horizontal or cardinal directions,
 and `I_dir,d` is the [direct\\_solar\\_irradiation\\_W\\_m2](@ref).
 """
-function calculate_net_envelope_solar_gains(
+function calculate_envelope_solar_gains(
     archetype::Object,
     scope::ScopeData,
     envelope::EnvelopeData,
