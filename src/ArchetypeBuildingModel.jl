@@ -7,13 +7,18 @@ using Test
 using PyCall
 using Interpolations
 
+# Define the set of possible solar directions, currently hard-coded.
+const solar_directions = [:horizontal, :north, :east, :south, :west]
+
 include("types.jl")
 include("base.jl")
 include("process_envelope.jl")
 include("process_loads.jl")
 include("process_node.jl")
+include("process_abstract_node.jl")
 include("process_scope.jl")
 include("process_system.jl")
+include("process_abstract_system.jl")
 include("process_weather.jl")
 include("tests.jl")
 include("create_backbone_input.jl")

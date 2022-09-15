@@ -77,6 +77,26 @@ Depth = 3
 
 ## Object parameters
 
+### `average_apparent_sky_temperature_difference_K`
+
+>Assumed average difference between external air temperatures and sky temperatures [K], default value based on EN ISO 52016-1:2017 Table B.19.
+
+Object class: `building_archetype`
+
+Default value: `11`
+
+Value list: `nothing`
+
+### `average_structural_solar_absorption_coefficient`
+
+>Assumed average solar absorption coefficient for external opaque surfaces, default based on EN ISO 52016-1:2017 Table B.14.
+
+Object class: `building_archetype`
+
+Default value: `0.6`
+
+Value list: `nothing`
+
 ### `building_frame_depth_m`
 
 >Assumed average depth of the building. Default value based on an industry rule-of-thumb regarding natural light conditions (Rakenteellinen energiatehokkuus - Opas, 2015).
@@ -104,6 +124,16 @@ Value list: `nothing`
 Object class: `building_archetype`
 
 Default value: `1.0`
+
+Value list: `nothing`
+
+### `external_radiative_surface_heat_transfer_coefficient_W_m2K`
+
+>Assumed external radiative surface heat transfer coefficient [W/m2K], default value based on EN ISO 13789:2017 Table 8.
+
+Object class: `building_archetype`
+
+Default value: `4.14`
 
 Value list: `nothing`
 
