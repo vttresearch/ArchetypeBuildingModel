@@ -272,7 +272,7 @@ The radiative sky heat losses `Φ_sky,st` are calculated for each structure as
 where `R_e,st` is the [exterior\\_resistance\\_m2K\\_W](@ref) of structure `st`,
 `U_ext,st` is the [external\\_U\\_value\\_to\\_ambient\\_air\\_W\\_m2K](@ref) of structure `st`,
 `A_st` is the surface area of the corresponding envelope structure (See [`EnvelopeData`](@ref)),
-`F_sky,st` is the assumed [sky\\_view\\_factor](@ref) for structure `st`,
+`F_sky,st` is the assumed sky view factor *(hardcoded for now)* for structure `st`,
 `h_re` is the assumed [external\\_radiative\\_surface\\_heat\\_transfer\\_coefficient\\_W\\_m2K](@ref),
 and `ΔT_sky` is the assumed [average\\_apparent\\_sky\\_temperature\\_difference\\_K](@ref).
 """
