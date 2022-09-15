@@ -263,7 +263,7 @@ Value list: `nothing`
 
 Object class: `building_archetype`
 
-Default value: `Dict{String, Any}("data" => Any[Any["north", 0.25], Any["east", 0.25], Any["south", 0.25], Any["west", 0.25]], "type" => "map", "index_name" => "cardinal_direction", "index_type" => "str")`
+Default value: `Dict{String, Any}("data" => Any[Any["horizontal", 0.0], Any["north", 0.25], Any["east", 0.25], Any["south", 0.25], Any["west", 0.25]], "type" => "map", "index_name" => "cardinal_direction", "index_type" => "str")`
 
 Value list: `nothing`
 
@@ -563,7 +563,7 @@ Value list: `nothing`
 
 Object class: `building_weather`
 
-Default value: `Dict{String, Any}("data" => Any[Any["north", 0.0], Any["east", 0.0], Any["south", 0.0], Any["west", 0.0]], "type" => "map", "index_name" => "cardinal_direction", "index_type" => "str")`
+Default value: `Dict{String, Any}("data" => Any[Any["horizontal", 0.0], Any["north", 0.0], Any["east", 0.0], Any["south", 0.0], Any["west", 0.0]], "type" => "map", "index_name" => "cardinal_direction", "index_type" => "str")`
 
 Value list: `nothing`
 
