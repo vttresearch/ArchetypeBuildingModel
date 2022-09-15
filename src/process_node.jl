@@ -67,8 +67,10 @@ Division of internal heat gains and solar heat gains between the interior air an
 is based on the `interior_air_and_furniture_weight`, the relative surface areas of the different structure types
 and their `structure_type_weights`, as well as the `internal_heat_gain_convective_fraction` parameter
 for controlling the assumed convective vs radiative fractions of the internal gains.
-Solar gains are divided between the interior air and structures similar to internal heat gains,
+Solar gains through the windows are divided between the interior air and structures similar to internal heat gains,
 but use the `solar_heat_gain_convective_fraction` parameter for their convective vs radiative fraction instead.
+Solar heat gains through the opaque parts of the building envelope are applied
+entirely to the structures, as are envelope radiative sky heat losses.
 
 Essentially, this function performs the following steps:
 1. Fetch user defined thermal mass, self-discharge, temperature set-point, and heat transfer coefficient parameters.
@@ -84,7 +86,9 @@ Essentially, this function performs the following steps:
 11. Calculate the radiative internal heat gains on this `node` using [`calculate_radiative_internal_heat_gains`](@ref).
 12. Calculate the convective solar heat gains through windows on this `node` using [`calculate_convective_solar_gains`](@ref).
 13. Calculate the radiative solar heat gains through windows on this `node` using [`calculate_radiative_solar_gains`](@ref).
-14. Return all the pieces necessary for constructing the [`BuildingNodeData`](@ref) for this `node`.
+14. Calculate the total solar heat gains through the opaque building envelope on this `node` using [`calculate_total_envelope_solar_gains`](@ref).
+15. Calculate the total radiative envelope sky heat losses on this `node` using [`calculate_total_envelope_radiative_sky_losses`](@ref).
+16. Return all the pieces necessary for constructing the [`BuildingNodeData`](@ref) for this `node`.
 
 **NOTE! Linear thermal bridges are assumed to bypass any potential structural lumped-capacitance nodes,
 and apply directly to the heat transfer coefficient between the interior air and the ambient air!**
@@ -259,6 +263,12 @@ function process_building_node(
         mod = mod,
     )
 
+    # Calculate the solar heat gains through the building envelope for the node, as well as the envelope radiative sky losses.
+    solar_heat_gains_envelope_W =
+        calculate_total_envelope_solar_gains(node, loads; mod = mod)
+    radiative_envelope_sky_losses_W =
+        calculate_total_envelope_radiative_sky_losses(node, loads; mod = mod)
+
     # Return all the stuff in the correct order.
     return thermal_mass_base_J_K,
     thermal_mass_gfa_scaled_J_K,
@@ -281,6 +291,8 @@ function process_building_node(
     internal_heat_gains_structures_W,
     solar_heat_gains_air_W,
     solar_heat_gains_structures_W,
+    solar_heat_gains_envelope_W,
+    radiative_envelope_sky_losses_W,
     interior_weight
 end
 
@@ -822,6 +834,72 @@ function calculate_radiative_solar_gains(
         getfield(envelope, st.name).surface_area_m2 / total_structure_area_m2 for
         st in mod.building_node__structure_type(building_node = node);
         init = 0,
+    )
+end
+
+
+"""
+    calculate_total_envelope_solar_gains(
+        node::Object,
+        loads::LoadsData;
+        mod::Module = @__MODULE__,
+    )
+
+Calculate the total solar heat gain [W] through the opaque envelope on this node.
+
+NOTE! The `mod` keyword changes from which Module data is accessed from,
+`@__MODULE__` by default.
+
+```math
+\\Phi_\\text{env,n} = \\sum_{st \\in n} w_\\text{n,st} \\Phi_\\text{sol,st},
+```
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node `n`,
+and `Φ_sol,st` are the heat gains through envelope structures using [`calculate_envelope_solar_gains`](@ref).
+"""
+function calculate_total_envelope_solar_gains(
+    node::Object,
+    loads::LoadsData;
+    mod::Module = @__MODULE__,
+)
+    reduce(
+        +,
+        mod.structure_type_weight(building_node = node, structure_type = st) *
+        get(loads.envelope_solar_gains_W, st, 0.0) for
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0.0,
+    )
+end
+
+
+"""
+    calculate_total_envelope_radiative_sky_losses(
+        node::Object,
+        loads::LoadsData;
+        mod::Module = @__MODULE__,
+    )
+
+Calculate the total radiative envelope sky heat losses [W] for this node.
+
+NOTE! The `mod` keyword changes from which Module data is accessed from,
+`@__MODULE__` by default.
+
+```math
+\\Phi_\\text{sky,n} = \\sum_{st \\in n} w_\\text{n,st} \\Phi_\\text{sky,st},
+```
+`w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node `n`,
+and `Φ_sky,st` are the envelope radiative sky heat losses using [`calculate_envelope_solar_gains`](@ref).
+"""
+function calculate_total_envelope_radiative_sky_losses(
+    node::Object,
+    loads::LoadsData;
+    mod::Module = @__MODULE__,
+)
+    reduce(
+        +,
+        mod.structure_type_weight(building_node = node, structure_type = st) *
+        get(loads.envelope_radiative_sky_losses_W, st, 0.0) for
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0.0,
     )
 end
 

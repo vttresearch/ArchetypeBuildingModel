@@ -400,8 +400,10 @@ This struct contains the following fields:
 - `domestic_hot_water_demand_W::SpineDataType`: Domestic hot water demand in [W] on this node.
 - `internal_heat_gains_air_W::SpineDataType`: Convective part of internal heat gains on this node in [W].
 - `internal_heat_gains_structures_W::SpineDataType`: Radiative part of internal heat gains on this node in [W].
-- `solar_heat_gains_air_W::SpineDataType`: Convective part of solar heat gains on this node in [W].
-- `solar_heat_gains_structures_W::SpineDataType`: Radiative part of solar heat gains on this node in [W].
+- `solar_heat_gains_air_W::SpineDataType`: Convective part of solar heat gains through windows on this node in [W].
+- `solar_heat_gains_structures_W::SpineDataType`: Radiative part of solar heat gains through windows on this node in [W].
+- `solar_heat_gains_envelope_W::SpineDataType`: Solar heat gains through the opaque building envelope [W].
+- `radiative_envelope_sky_losses_W::SpineDataType`: Radiative heat losses to the sky from the exposed parts of the building envelope [W].
 - `interior_air_and_furniture_weight::Float64`: The defined share of interior air and furniture assigned to this node.
 
 The constructor calls the [`process_building_node`](@ref) function,
@@ -430,6 +432,8 @@ struct BuildingNodeData <: BuildingDataType
     internal_heat_gains_structures_W::SpineDataType
     solar_heat_gains_air_W::SpineDataType
     solar_heat_gains_structures_W::SpineDataType
+    solar_heat_gains_envelope_W::SpineDataType
+    radiative_envelope_sky_losses_W::SpineDataType
     interior_air_and_furniture_weight::Float64
     """
         BuildingNodeData(
