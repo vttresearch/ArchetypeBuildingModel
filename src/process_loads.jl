@@ -170,7 +170,7 @@ function calculate_total_solar_gains(
                 building_archetype = archetype;
                 cardinal_direction = dir,
             ) * weather.direct_solar_irradiation_W_m2[dir] for
-            dir in [:north, :east, :south, :west]
+            dir in solar_directions
         )
     )
 end

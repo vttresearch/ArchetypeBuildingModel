@@ -50,9 +50,9 @@ function process_weather(weather::Object; mod::Module = @__MODULE__)
         dir => mod.direct_solar_irradiation_W_m2(
             building_weather = weather;
             cardinal_direction = dir,
-        ) for dir in [:north, :east, :south, :west]
+        ) for dir in solar_directions
     )
-    for dir in [:north, :east, :south, :west]
+    for dir in solar_directions
         all(values(dir_solar_irradiation_W_m2[dir]) .>= 0) || @warn """
         `direct_solar_irradiation_W_m2[$(dir)]` for `$(weather)` shouldn't have negative values!
         $(count(values(dir_solar_irradiation_W_m2[dir]) .< 0)) violations found,
