@@ -13,7 +13,7 @@ The `limit` keyword can be used to limit the number of tests run.
 """
 function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
     params_for_testing = [ # Object parameters
-        mod.average_apparent_sky_temperature_difference =>
+        mod.average_apparent_sky_temperature_difference_K =>
             (type = Real, min = 0, max = 20),
         mod.average_structural_solar_absorption_coefficient =>
             (type = Real, min = 0, max = 1),
