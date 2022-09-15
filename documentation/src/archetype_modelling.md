@@ -5,6 +5,9 @@ modelling approach and the inherent assumptions used by this module in more deta
 aimed at a more expert audience interested in the inner workings of the module.
 However, a lot of the techical details are not reproduced here,
 but instead reference the relevant docstrings in the [Library](@ref) section.
+In general, the used method is loosely based on the international standard
+[EN ISO 52016-1:2017](https://www.iso.org/obp/ui/#iso:std:iso:52016:-1:ed-1:v1:en),
+and majority of the same assumptions apply.
 
 Overall, the structure of this section more or less follows the
 [`ArchetypeBuilding`](@ref) constructor,
@@ -69,23 +72,37 @@ See the [`ArchetypeBuildingModel.calculate_total_dhw_demand`](@ref)
 and [`ArchetypeBuildingModel.calculate_total_internal_heat_loads`](@ref)
 for the exact formulations.
 
-Calculating the total solar gains for the buildings is slightly more complicated,
-but it is still heavily simplified by the following key assumptions:
+Calculating the total solar gains for the buildings is more complicated,
+but it is still heavily simplified by the following key assumptions in line with the 
+[EN ISO 52016-1:2017](https://www.iso.org/obp/ui/#iso:std:iso:52016:-1:ed-1:v1:en) standard:
 
-- **The solar heat gains through the opaque parts of the building envelope, as well as the radiative heat losses of the building envelope, are neglected.**
-    - This considerably simplifies the lumped-capacitance thermal modelling of the envelope structures, as in order to reasonably capture the impact of solar irradiation on the opaque envelope structures and radiative heat losses, we would have to include a dedicated thermal node to represent the exterior *(surface)* temperature of the envelope structures.
-    - In essence, we're assuming that the solar heat gains and radiative heat losses from the exterior surface of the opaque envelope structures balance out enough as to not significantly impact the interior dynamics of the building.
-    - This used to be mentioned in section 11.3.4 in the old EN ISO 13790 standard as an acceptable assumption for the most part, but is no longer mentioned in the newer EN ISO 52016-1.
+- **Solar properties of windows as well as external shading are assumed to be independent of the solar angle.**
+- **Surface heat transfer coefficients and apparent sky to ambient air temperature difference are approximated as time-invariant averages.**
+- **Exterior surface of envelope structures is assumed to have negligible thermal mass for simplicity.**
 - **For the purpose of solar heat gains, the building is assumed to aligned with the cardinal directions.**
 
-Thus, the only solar heat gains through the windows are accounted for by the model,
-as they have a direct impact on the interior of the building.
-The solar gains through the windows are impacted by the window properties in
+Solar gains through the windows are impacted by the window properties in
 [`ScopeData`](@ref), the solar irradiation in [`WeatherData`](@ref),
-as well as estimated [external\_shading\_coefficient](@ref) and
+the assumed [window\_non\_perpendicularity\_correction\_factor](@ref),
+as well as the estimated [external\_shading\_coefficient](@ref) and
 [window\_area\_distribution\_towards\_cardinal\_directions](@ref).
 See the [`ArchetypeBuildingModel.calculate_total_solar_gains`](@ref)
 for the exact formulation.
+
+Meanwhile, the solar gains through the building envelope are impacted by the
+[exterior\_resistance\_m2K\_W](@ref) and [external\_U\_value\_to\_ambient\_air\_W\_m2K](@ref)
+of each structure, their surface areas as recored in [`EnvelopeData`](@ref),
+The assumed [average\_structural\_solar\_absorption\_coefficient](@ref),
+the solar irradiation in [`WeatherData`](@ref),
+as well as the estimated [external\_shading\_coefficient](@ref).
+The radiative envelope sky heat losses are also heavily simplified,
+depending again on the surface properties of the structures,
+as well as assumed sky view factors,
+the assumed [external\_radiative\_surface\_heat\_transfer\_coefficient\_W\_m2K](@ref),
+and the assumed [average\_apparent\_sky\_temperature\_difference\_K](@ref).
+See the [`ArchetypeBuildingModel.calculate_total_envelope_solar_gains`](@ref)
+and [`ArchetypeBuildingModel.calculate_total_envelope_radiative_sky_losses`](@ref),
+as well as the functions linked therein for the exact formulation.
 
 
 ## Calculating the properties of the lumped-capacitance thermal nodes
