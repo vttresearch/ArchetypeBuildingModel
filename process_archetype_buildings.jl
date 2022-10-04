@@ -21,6 +21,7 @@ if length(ARGS) < 1
     3. `-backbone <url>`, the url to a Spine Datastore where the produced Backbone input data should be written.
     4. `-import_weather <false>`, controls whether auto-generated `building_weather` are imported into the DB.
     5. `-save_layouts <false>`, controls whether auto-generated `building_weather` layouts are saved as images.
+    6. `-alternative <"">`, the name of the alternative where the parameters are saved, empty by default.
     """
 else
     # Process command line arguments
@@ -30,6 +31,7 @@ else
     backbone_url = get(kws, "-backbone", nothing)
     import_weather = lowercase(get(kws, "-import_weather", "false")) == "true"
     save_layouts = lowercase(get(kws, "-save_layouts", "false")) == "true"
+    alternative = get(kws, "-alternative", "")
 
     # Open input database and run tests.
     @info "Opening input datastore at `$(url_in)`..."
@@ -70,7 +72,8 @@ else
         @info "Processing and writing SpineOpt input data into `$(spineopt_url)`..."
         @time write_to_url(
             String(spineopt_url),
-            SpineOptInput(archetype_dictionary, archetype_results_dictionary),
+            SpineOptInput(archetype_dictionary, archetype_results_dictionary);
+            alternative = alternative
         )
     end
 
@@ -79,7 +82,8 @@ else
         @info "Processing and writing Backbone input data into `$(backbone_url)`..."
         @time write_to_url(
             String(backbone_url),
-            BackboneInput(archetype_dictionary, archetype_results_dictionary),
+            BackboneInput(archetype_dictionary, archetype_results_dictionary);
+            alternative = alternative
         )
     end
 
