@@ -73,7 +73,7 @@ else
         @time write_to_url(
             String(spineopt_url),
             SpineOptInput(archetype_dictionary, archetype_results_dictionary);
-            alternative = alternative
+            alternative = alternative,
         )
     end
 
@@ -83,7 +83,7 @@ else
         @time write_to_url(
             String(backbone_url),
             BackboneInput(archetype_dictionary, archetype_results_dictionary);
-            alternative = alternative
+            alternative = alternative,
         )
     end
 
