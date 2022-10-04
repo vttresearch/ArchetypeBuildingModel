@@ -59,7 +59,7 @@ else
         results__building_archetype__building_process,
         archetype_results_dictionary,
     )
-    @info "Importing `ArchetypeBuildingResults`..."
+    @info "Importing `ArchetypeBuildingResults` into `$(results_url)`..."
     @time import_data(
         results_url,
         [
