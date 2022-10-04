@@ -19,9 +19,10 @@ if length(ARGS) < 1
     Furthermore, the following optional keyword arguments can be provided:
     2. `-spineopt <url>`, the url to a Spine Datastore where the produced SpineOpt input data should be written.
     3. `-backbone <url>`, the url to a Spine Datastore where the produced Backbone input data should be written.
-    4. `-import_weather <false>`, controls whether auto-generated `building_weather` are imported into the DB.
-    5. `-save_layouts <false>`, controls whether auto-generated `building_weather` layouts are saved as images.
-    6. `-alternative <"">`, the name of the alternative where the parameters are saved, empty by default.
+    4. `-results <url>`, the url to a Spine Datastore where the baseline results are to be written. If not provided, results are written back into the input data url.
+    5. `-import_weather <false>`, controls whether auto-generated `building_weather` are imported into the DB.
+    6. `-save_layouts <false>`, controls whether auto-generated `building_weather` layouts are saved as images.
+    7. `-alternative <"">`, the name of the alternative where the parameters are saved, empty by default.
     """
 else
     # Process command line arguments
@@ -29,6 +30,7 @@ else
     kws = Dict(ARGS[i] => get(ARGS, i + 1, nothing) for i = 1:2:length(ARGS))
     spineopt_url = get(kws, "-spineopt", nothing)
     backbone_url = get(kws, "-backbone", nothing)
+    results_url = get(kws, "-results", url_in)
     import_weather = lowercase(get(kws, "-import_weather", "false")) == "true"
     save_layouts = lowercase(get(kws, "-save_layouts", "false")) == "true"
     alternative = get(kws, "-alternative", "")
@@ -59,7 +61,7 @@ else
     )
     @info "Importing `ArchetypeBuildingResults`..."
     @time import_data(
-        url_in,
+        results_url,
         [
             results__building_archetype__building_node,
             results__building_archetype__building_process,
