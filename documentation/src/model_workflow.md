@@ -13,12 +13,14 @@ The `process_archetype_buildings.jl` main program file has been primarily
 designed to be run via [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox),
 but be run directly from the command line as well if necessary.
 Regardless, the main program is controlled using the following command line arguments:
-1. The url to a *Spine Datastore* containing the required input data and archetype building definitions.
+1. The `url` to a *Spine Datastore* containing the required input data and archetype building definitions.
 Furthermore, the following optional keyword arguments can be provided:
-- `-spineopt <url>`, the url to a *Spine Datastore* where the produced *SpineOpt* input data should be written, if any.
-- `-backbone <url>`, the url to a *Spine Datastore* where the produced *Backbone* input data should be written, if any.
+- `-spineopt <>`, the url to a *Spine Datastore* where the produced *SpineOpt* input data should be written, if any.
+- `-backbone <>`, the url to a *Spine Datastore* where the produced *Backbone* input data should be written, if any.
+- `results <url>`, url to a *Spine Datastore* where the produced baseline HVAC demand results should be written. By default, the results are written back into the input datastore at `url`.
 - `-import_weather <false>`, controls whether auto-generated `building_weather` are imported into the input *Datastore*. Set to `false` by default. 
 - `-save_layouts <false>`, controls whether auto-generated `building_weather` layouts are saved as images. Set to `false` by default.
+- `alternative <"">`, the name of the *Spine Datastore* alternative where the `-spineopt` and `backbone` input data are saved. An empty string by default, resulting in *Spine Toolbox* automatically generating an alternative name when importing the parameter values.
 
 Essentially, the main purpose of the `-import_weather` keyword is to avoid
 reprocessing the weather data over and over again for cases where multiple
