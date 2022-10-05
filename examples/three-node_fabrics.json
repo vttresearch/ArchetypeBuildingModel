@@ -6,6 +6,11 @@
             "A 3-node model with interior air and furniture, envelope structure mass, and interior structure mass in separate nodes."
         ],
         [
+            "building_fabrics",
+            "IAaF_LBF_LF",
+            "3-node model with interior air and furniture, load-bearing fabrics, and light fabrics as their own nodes."
+        ],
+        [
             "building_node",
             "envelope_mass",
             "A temperature node representing all envelope structure thermal mass of the building."
@@ -19,6 +24,16 @@
             "building_node",
             "internal_mass",
             "A temperature node representing all internal structure thermal mass of the building."
+        ],
+        [
+            "building_node",
+            "light_fabrics",
+            "A temperature node representing all light (non-load-bearing) structures in the building."
+        ],
+        [
+            "building_node",
+            "load-bearing_fabrics",
+            "Node for all load-bearing (heavy) structures in the building."
         ],
         [
             "structure_type",
@@ -79,6 +94,27 @@
             ]
         ],
         [
+            "building_fabrics__building_node",
+            [
+                "IAaF_LBF_LF",
+                "interior_air_and_furniture"
+            ]
+        ],
+        [
+            "building_fabrics__building_node",
+            [
+                "IAaF_LBF_LF",
+                "light_fabrics"
+            ]
+        ],
+        [
+            "building_fabrics__building_node",
+            [
+                "IAaF_LBF_LF",
+                "load-bearing_fabrics"
+            ]
+        ],
+        [
             "building_node__structure_type",
             [
                 "envelope_mass",
@@ -124,6 +160,55 @@
             "building_node__structure_type",
             [
                 "internal_mass",
+                "separating_floor"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "light_fabrics",
+                "light_exterior_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "light_fabrics",
+                "light_partition_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "light_fabrics",
+                "roof"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "load-bearing_fabrics",
+                "base_floor"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "load-bearing_fabrics",
+                "exterior_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "load-bearing_fabrics",
+                "partition_wall"
+            ]
+        ],
+        [
+            "building_node__structure_type",
+            [
+                "load-bearing_fabrics",
                 "separating_floor"
             ]
         ]
