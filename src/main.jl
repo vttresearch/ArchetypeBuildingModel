@@ -165,14 +165,14 @@ end
 
 
 """
-    initialize_result_relationship_classes!(mod::Module)
+    initialize_result_classes!(mod::Module)
 
-Initialize `RelationshipClass`es for storing heating and HVAC demand results in `mod`.
+Initialize `RelationshipClass`es and `ObjectClass`es for storing heating and HVAC demand results in `mod`.
 
 Note that this function modifies `mod` directly!
 """
-function initialize_result_relationship_classes!(mod::Module)
-    # Initialize node results
+function initialize_result_classes!(mod::Module)
+    # Initialize archetype node results
     results__building_archetype__building_node = RelationshipClass(
         :results__building_archetype__building_node,
         [:building_archetype, :building_node],
@@ -201,21 +201,34 @@ function initialize_result_relationship_classes!(mod::Module)
     hvac_consumption_MW =
         Parameter(:hvac_consumption_MW, [results__building_archetype__building_process])
 
+    # Initialize system link node results
+    results__system_link_node = ObjectClass(
+        :results__system_link_node,
+        Array{ObjectLike,1}(),
+        Dict(),
+        Dict(:total_consumption_MW => parameter_value(nothing)),
+    )
+    # Create the assosicated parameter
+    total_consumption_MW = Parameter(:total_consumption_MW, [results__system_link_node])
+
     # Evaluate the relationship classes and parameters to the desired module.
     @eval mod begin
         results__building_archetype__building_node =
             $results__building_archetype__building_node
         results__building_archetype__building_process =
             $results__building_archetype__building_process
+        results__system_link_node = $results__system_link_node
         initial_temperature_K = $initial_temperature_K
         temperature_K = $temperature_K
         hvac_demand_W = $hvac_demand_W
         hvac_consumption_MW = $hvac_consumption_MW
+        total_consumption_MW = $total_consumption_MW
     end
 
     # Return the handles for the relationship classes for future reference.
     return results__building_archetype__building_node,
-    results__building_archetype__building_process
+    results__building_archetype__building_process,
+    results__system_link_node
 end
 
 
@@ -223,15 +236,22 @@ end
     add_results!(
         results__building_archetype__building_node::RelationshipClass,
         results__building_archetype__building_process::RelationshipClass,
-        results_dictionary::Dict{Object,ArchetypeBuildingResults},
+        results__system_link_node::ObjectClass,
+        results_dictionary::Dict{Object,ArchetypeBuildingResults};
+        mod::Module = @__MODULE__
     )
 
     Add results from `results_dictionary` into the result `RelationshipClass`es.
+
+    NOTE! The `mod` keyword changes from which Module data is accessed from,
+    `@__MODULE__` by default.
 """
 function add_results!(
     results__building_archetype__building_node::RelationshipClass,
     results__building_archetype__building_process::RelationshipClass,
-    results_dictionary::Dict{Object,ArchetypeBuildingResults},
+    results__system_link_node::ObjectClass,
+    results_dictionary::Dict{Object,ArchetypeBuildingResults};
+    mod::Module = @__MODULE__,
 )
     # Collect `ArchetypeBuildingResults`
     results = values(results_dictionary)
@@ -258,7 +278,29 @@ function add_results!(
         ),
     )
 
+    # Add `results__system_link_node` results.
+    total_cons_MW = merge(+, getfield.(results, :hvac_consumption)...)
+    add_object_parameter_values!(
+        results__system_link_node,
+        Dict(
+            sys_link_n => Dict(
+                :total_consumption_MW => parameter_value(
+                    sum(
+                        get(total_cons_MW, p, 0.0) for
+                        p in mod.building_process__direction__building_node(
+                            direction = mod.direction(:from_node),
+                            building_node = sys_link_n,
+                        )
+                    ),
+                ),
+            ) for sys_link_n in mod.building_archetype__system_link_node(
+                building_archetype = mod.building_archetype(),
+            )
+        ),
+    )
+
     # Return the results of interest
     return results__building_archetype__building_node,
-    results__building_archetype__building_process
+    results__building_archetype__building_process,
+    results__system_link_node
 end
