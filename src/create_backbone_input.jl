@@ -119,6 +119,7 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 Essentially, performs the following steps:
 1. Initialize an empty [`BackboneInput`](@ref).
 2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
+3. Calculate and [`add_system_link_node_parameters!`](@ref).
 """
 function BackboneInput(
     archetypes::Dict{Object,ArchetypeBuilding},
@@ -134,6 +135,7 @@ function BackboneInput(
             mod = mod,
         )
     end
+    add_system_link_node_parameters!(backbone, results; mod = mod)
     return backbone
 end
 
@@ -313,18 +315,12 @@ function add_archetype_to_input!(
             :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
         ) for (n, abs_n) in archetype.abstract_nodes
     )
-    merge!( # System link nodes need to be defined separately.
-        gn_param_dict,
-        Dict(
-            (grid = g_map[n], node = n_map[n]) =>
-                Dict(:nodeBalance => parameter_value(true)) for n in sys_link_nodes
-        ),
-    )
     add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
     merge!(
         backbone.grid__node.parameter_defaults,
         Dict(param => parameter_value(nothing) for param in keys(first(gn_param_dict)[2])),
     )
+    # NOTE! System link nodes handled separately via `add_system_link_node_parameters`.
 
     # `grid__node__boundary` based on the maximum and minimum temperatures.
     gnb_param_dict = Dict(
@@ -396,6 +392,87 @@ function add_archetype_to_input!(
     add_relationships!(
         backbone.unit__unittype,
         [(unit = u, unittype = backbone.unittype(:HVAC)) for u in values(u_map)],
+    )
+end
+
+
+"""
+    add_system_link_node_parameters!(
+        backbone::BackboneInput,
+        results::Dict{Object,ArchetypeBuildingResults};
+        mod::Module = @__MODULE__,
+    )
+
+Add system link node parameters into [`BackboneInput`](@ref).
+"""
+function add_system_link_node_parameters!(
+    backbone::BackboneInput,
+    results::Dict{Object,ArchetypeBuildingResults};
+    mod::Module = @__MODULE__,
+)
+    # Initialize parameter dicts for looping
+    node_balance_dict = Dict()
+    influx_building_baseline_consumption = Dict()
+
+    # Loop over the results to collect them appropriately
+    for r in values(results)
+        # Identify system link nodes
+        system_link_nodes = mod.building_archetype__system_link_node(
+            building_archetype = r.archetype.archetype,
+        )
+        # Create grid and node mappings for system link nodes
+        g_map = Dict(
+            sys_node => backbone.grid(
+                mod.grid_name(
+                    building_archetype = r.archetype.archetype,
+                    building_node = sys_node,
+                ),
+            ) for sys_node in system_link_nodes
+        )
+        n_map = Dict(
+            sys_node => backbone.node(
+                mod.node_name(
+                    building_archetype = r.archetype.archetype,
+                    building_node = sys_node,
+                ),
+            ) for sys_node in system_link_nodes
+        )
+        # Set node balance and merge with existing values.
+        merge!(
+            node_balance_dict,
+            Dict((grid = g_map[n], node = n_map[n]) => true for n in system_link_nodes),
+        )
+        # Calculate total HVAC consumption and add it to existing values.
+        merge!(
+            +,
+            influx_building_baseline_consumption,
+            Dict(
+                (grid = g_map[n], node = n_map[n]) => sum(
+                    get(r.hvac_consumption, p, 0.0) for
+                    p in mod.building_process__direction__building_node(
+                        direction = mod.direction(:from_node),
+                        building_node = n,
+                    )
+                ) for n in system_link_nodes
+            ),
+        )
+    end
+
+    # Form and add the system link node parameters to the backbone inputs.
+    gn_param_dict = Dict(
+        k => Dict(
+            :nodeBalance => parameter_value(get(node_balance_dict, k, nothing)),
+            :influx_building_baseline_consumption => parameter_value(
+                timeseries_to_backbone_map(
+                    get(influx_building_baseline_consumption, k, nothing),
+                ),
+            ),
+        ) for k in keys(node_balance_dict)
+    )
+    add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
+    merge!(
+        backbone.grid__node.parameter_defaults,
+        Dict(param => parameter_value(nothing) for param in keys(first(gn_param_dict)[2])),
     )
 end
 
