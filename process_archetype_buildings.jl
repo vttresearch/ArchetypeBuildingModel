@@ -77,7 +77,7 @@ else
         @info "Processing and writing SpineOpt input data into `$(spineopt_url)`..."
         @time write_to_url(
             String(spineopt_url),
-            SpineOptInput(archetype_dictionary, archetype_results_dictionary);
+            SpineOptInput(archetype_results_dictionary);
             alternative = alternative,
         )
     end
@@ -87,7 +87,7 @@ else
         @info "Processing and writing Backbone input data into `$(backbone_url)`..."
         @time write_to_url(
             String(backbone_url),
-            BackboneInput(archetype_dictionary, archetype_results_dictionary);
+            BackboneInput(archetype_results_dictionary);
             alternative = alternative,
         )
     end
