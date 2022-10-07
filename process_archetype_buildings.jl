@@ -52,12 +52,14 @@ else
 
     # Write the results back into the input datastore
     results__building_archetype__building_node,
-    results__building_archetype__building_process =
-        initialize_result_relationship_classes!(m)
+    results__building_archetype__building_process,
+    results__system_link_node = initialize_result_classes!(m)
     add_results!(
         results__building_archetype__building_node,
         results__building_archetype__building_process,
-        archetype_results_dictionary,
+        results__system_link_node,
+        archetype_results_dictionary;
+        mod = m,
     )
     @info "Importing `ArchetypeBuildingResults` into `$(results_url)`..."
     @time import_data(
@@ -65,6 +67,7 @@ else
         [
             results__building_archetype__building_node,
             results__building_archetype__building_process,
+            results__system_link_node,
         ],
         "Importing `ArchetypeBuildingResults`.",
     )
@@ -74,7 +77,7 @@ else
         @info "Processing and writing SpineOpt input data into `$(spineopt_url)`..."
         @time write_to_url(
             String(spineopt_url),
-            SpineOptInput(archetype_dictionary, archetype_results_dictionary);
+            SpineOptInput(archetype_results_dictionary);
             alternative = alternative,
         )
     end
@@ -84,7 +87,7 @@ else
         @info "Processing and writing Backbone input data into `$(backbone_url)`..."
         @time write_to_url(
             String(backbone_url),
-            BackboneInput(archetype_dictionary, archetype_results_dictionary);
+            BackboneInput(archetype_results_dictionary);
             alternative = alternative,
         )
     end

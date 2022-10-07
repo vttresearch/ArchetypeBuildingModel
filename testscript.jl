@@ -202,6 +202,22 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 )
 
 
+## Test creating the results database structures.
+
+@info "Initializing result classes..."
+@time results__building_archetype__building_node,
+results__building_archetype__building_process,
+results__system_link_node = initialize_result_classes!(m)
+@info "Adding results..."
+@time add_results!(
+    results__building_archetype__building_node,
+    results__building_archetype__building_process,
+    results__system_link_node,
+    archetype_results;
+    mod = m,
+)
+
+
 ## Test creating and writing SpineOpt input
 
 @info "Creating `SpineOptInput`..."

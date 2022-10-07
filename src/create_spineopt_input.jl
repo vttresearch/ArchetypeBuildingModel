@@ -45,7 +45,6 @@ end
 
 """
     SpineOptInput(
-        archetypes::Dict{Object,ArchetypeBuilding},
         results::Dict{Object,ArchetypeBuildingResults};
         mod::Module = @__MODULE__,
     )
@@ -57,21 +56,15 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 
 Essentially, performs the following steps:
 1. Initialize an empty [`SpineOptInput`](@ref).
-2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
+2. Loop over the given `results`, and [`add_archetype_to_input!`](@ref) one by one.
 """
 function SpineOptInput(
-    archetypes::Dict{Object,ArchetypeBuilding},
     results::Dict{Object,ArchetypeBuildingResults};
     mod::Module = @__MODULE__,
 )
     spineopt = SpineOptInput()
-    for archetype in keys(archetypes)
-        add_archetype_to_input!(
-            spineopt,
-            archetypes[archetype],
-            results[archetype];
-            mod = mod,
-        )
+    for result in values(results)
+        add_archetype_to_input!(spineopt, result; mod = mod)
     end
     return spineopt
 end
@@ -80,18 +73,17 @@ end
 """
     add_archetype_to_input!(
         spineopt::SpineOptInput,
-        archetype::ArchetypeBuilding,
         result::ArchetypeBuildingResults;
         mod::Module = @__MODULE__,
     )
 
-Process and add the desired `archetype` building with `result` into the `spineopt` input.
+Process and add the desired archetype building `result` into the `spineopt` input.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 This is a very long and rather complicated function,
-which essentially translates the information contained in the `archetype` [`ArchetypeBuilding`](@ref)
+which essentially translates the information contained in the `result` [`ArchetypeBuildingResults`](@ref)
 into the data structure in `spineopt` [`SpineOptInput`](@ref),
 so that it is understood by the SpineOpt energy system model.
 The key steps taken by this function are summarized below:
@@ -105,20 +97,20 @@ The key steps taken by this function are summarized below:
 """
 function add_archetype_to_input!(
     spineopt::SpineOptInput,
-    archetype::ArchetypeBuilding,
     result::ArchetypeBuildingResults;
     mod::Module = @__MODULE__,
 )
     # Map `building_node` objects to unique `node` objects.
     n_map = Dict(
         node => Object(
-            Symbol(string(archetype.archetype.name) * '.' * string(node.name)),
+            Symbol(string(result.archetype.archetype.name) * '.' * string(node.name)),
             :node,
-        ) for node in keys(archetype.abstract_nodes)
+        ) for node in keys(result.archetype.abstract_nodes)
     )
     # Identify the relevant system link nodes and map them to new nodes with the desired names.
-    sys_link_nodes =
-        mod.building_archetype__system_link_node(building_archetype = archetype.archetype)
+    sys_link_nodes = mod.building_archetype__system_link_node(
+        building_archetype = result.archetype.archetype,
+    )
     # This is a bit complicated, as we have to avoid creating identical objects.
     merge!(
         n_map,
@@ -127,21 +119,21 @@ function add_archetype_to_input!(
                 isnothing(
                     spineopt.node(
                         mod.node_name(
-                            building_archetype = archetype.archetype,
+                            building_archetype = result.archetype.archetype,
                             building_node = sys_link_node,
                         ),
                     ),
                 ) ?
                 Object(
                     mod.node_name(
-                        building_archetype = archetype.archetype,
+                        building_archetype = result.archetype.archetype,
                         building_node = sys_link_node,
                     ),
                     :node,
                 ) :
                 spineopt.node(
                     mod.node_name(
-                        building_archetype = archetype.archetype,
+                        building_archetype = result.archetype.archetype,
                         building_node = sys_link_node,
                     ),
                 ) for sys_link_node in sys_link_nodes
@@ -150,9 +142,9 @@ function add_archetype_to_input!(
     # Map `building_process` objects to unique `unit` objects.
     u_map = Dict(
         process => Object(
-            Symbol(string(archetype.archetype.name) * '.' * string(process.name)),
+            Symbol(string(result.archetype.archetype.name) * '.' * string(process.name)),
             :unit,
-        ) for process in keys(archetype.abstract_processes)
+        ) for process in keys(result.archetype.abstract_processes)
     )
 
     # Add the necessary `unit` objects
@@ -176,7 +168,7 @@ function add_archetype_to_input!(
             :node_state_cap => parameter_value(abs_node.maximum_temperature_K),
             :node_state_min => parameter_value(abs_node.minimum_temperature_K),
             :state_coeff => parameter_value(abs_node.thermal_mass_Wh_K),
-        ) for (node, abs_node) in archetype.abstract_nodes
+        ) for (node, abs_node) in result.archetype.abstract_nodes
     )
     add_object_parameter_values!(spineopt.node, node_param_dict)
     merge!(
@@ -196,7 +188,7 @@ function add_archetype_to_input!(
     # `node__node` based on heat transfer coefficients
     nn_param_dict = Dict(
         (n_map[n1], n_map[n2]) => Dict(:diff_coeff => parameter_value(v)) for
-        (n1, abs_n1) in archetype.abstract_nodes for
+        (n1, abs_n1) in result.archetype.abstract_nodes for
         (n2, v) in abs_n1.heat_transfer_coefficients_W_K
     )
     add_relationships!(
@@ -209,7 +201,7 @@ function add_archetype_to_input!(
     # `unit__from_node` based on maximum flow parameters.
     ufn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
-        (p, abs_p) in archetype.abstract_processes for
+        (p, abs_p) in result.archetype.abstract_processes for
         ((d, n), v) in abs_p.maximum_flows_W if (
             v >= 0 && d == mod.direction(:from_node) ||
             v < 0 && d == mod.direction(:to_node)
@@ -225,7 +217,7 @@ function add_archetype_to_input!(
     # `unit__to_node` based on maximum flow parameters.
     utn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
-        (p, abs_p) in archetype.abstract_processes for
+        (p, abs_p) in result.archetype.abstract_processes for
         ((d, n), v) in abs_p.maximum_flows_W if (
             v >= 0 && d == mod.direction(:to_node) ||
             v < 0 && d == mod.direction(:from_node)
@@ -257,7 +249,7 @@ function add_archetype_to_input!(
                     abs(abs_p.coefficient_of_performance)
                 ) : nothing,
             ),
-        ) for (p, abs_p) in archetype.abstract_processes for
+        ) for (p, abs_p) in result.archetype.abstract_processes for
         ((d1, n1), v1) in abs_p.maximum_flows_W for
         ((d2, n2), v2) in abs_p.maximum_flows_W if
         (d1 == mod.direction(:from_node) && d2 == mod.direction(:to_node) && n1 != n2)

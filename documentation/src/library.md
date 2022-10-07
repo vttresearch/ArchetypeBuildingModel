@@ -37,7 +37,7 @@ archetype_building_processing
 create_abstract_node_network
 create_building_node_network
 create_building_weather
-initialize_result_relationship_classes!
+initialize_result_classes!
 run_input_data_tests
 run_object_class_tests
 run_parameter_tests
@@ -71,6 +71,7 @@ ArchetypeBuildingModel.StructureData
 ArchetypeBuildingModel._building_period_weight
 ArchetypeBuildingModel._pyseries_to_timeseries
 ArchetypeBuildingModel.add_archetype_to_input!
+ArchetypeBuildingModel.add_system_link_node_parameters!
 ArchetypeBuildingModel.aggregate_gfa_weights
 ArchetypeBuildingModel.calculate_base_floor_dimensions
 ArchetypeBuildingModel.calculate_cop
