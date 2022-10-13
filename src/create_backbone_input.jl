@@ -264,7 +264,7 @@ function add_archetype_to_input!(
             :availability => parameter_value(1.0),
             :efficiency => parameter_value( # This is only used if COP isn't a time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern} ? nothing :
-                Map([:op00, :eff00], [1.0, abs(abs_p.coefficient_of_performance)]),
+                Map([:op00, :eff00], [0.0, abs(abs_p.coefficient_of_performance)]),
             ),
             :efficiency_ts => parameter_value( # This is used if COP is a time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern} ?
