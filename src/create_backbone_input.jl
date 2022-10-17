@@ -440,13 +440,14 @@ function add_system_link_node_parameters!(
             +,
             influx_building_baseline_consumption,
             Dict(
-                (grid = g_map[n], node = n_map[n]) => sum(
-                    get(r.hvac_consumption, p, 0.0) for
-                    p in mod.building_process__direction__building_node(
-                        direction = mod.direction(:from_node),
-                        building_node = n,
-                    )
-                ) for n in system_link_nodes
+                (grid = g_map[n], node = n_map[n]) =>
+                    -sum( # Backbone ts_influx is negative for consumption!
+                        get(r.hvac_consumption, p, 0.0) for
+                        p in mod.building_process__direction__building_node(
+                            direction = mod.direction(:from_node),
+                            building_node = n,
+                        )
+                    ) for n in system_link_nodes
             ),
         )
     end
