@@ -221,14 +221,14 @@ results__system_link_node = initialize_result_classes!(m)
 ## Test creating and writing SpineOpt input
 
 @info "Creating `SpineOptInput`..."
-@time spineopt = SpineOptInput(archetype_dictionary, archetype_results; mod = m)
+@time spineopt = SpineOptInput(archetype_results; mod = m)
 #write_to_url(output_url, spineopt)
 
 
 ## Test creating and writing Backbone input
 
 @info "Creating `BackboneInput`..."
-@time backbone = BackboneInput(archetype_dictionary, archetype_results; mod = m)
+@time backbone = BackboneInput(archetype_results; mod = m)
 #write_to_url(output_url, backbone)
 
 
