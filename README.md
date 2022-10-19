@@ -106,6 +106,15 @@ julia> include("documentation/make.jl")
 MIT, see `LICENSE` for more information.
 
 
+## How to cite
+
+Please refer to the *Cite this* section of the `ArchetypeBuildingModel.jl` entry in
+[VTT's Research Information Portal](https://cris.vtt.fi/en/publications/archetypebuildingmodeljl-a-julia-module-for-aggregating-building-).
+If you are feeling especially generous, you can also consider citing the
+[manuscript](https://cris.vtt.fi/en/publications/sensitivity-of-a-simple-lumped-capacitance-building-thermal-model)
+demonstrating `ArchetypeBuildingModel.jl` on the level of individual buildings.
+
+
 ## Acknowledgements
 
 <center>
