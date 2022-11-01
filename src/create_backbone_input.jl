@@ -264,7 +264,7 @@ function add_archetype_to_input!(
             :availability => parameter_value(1.0),
             :efficiency => parameter_value( # This is only used if COP isn't a time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern} ? nothing :
-                Map([:op00, :eff00], [1.0, abs(abs_p.coefficient_of_performance)]),
+                Map([:op00, :eff00], [0.0, abs(abs_p.coefficient_of_performance)]),
             ),
             :efficiency_ts => parameter_value( # This is used if COP is a time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern} ?
@@ -440,13 +440,14 @@ function add_system_link_node_parameters!(
             +,
             influx_building_baseline_consumption,
             Dict(
-                (grid = g_map[n], node = n_map[n]) => sum(
-                    get(r.hvac_consumption, p, 0.0) for
-                    p in mod.building_process__direction__building_node(
-                        direction = mod.direction(:from_node),
-                        building_node = n,
-                    )
-                ) for n in system_link_nodes
+                (grid = g_map[n], node = n_map[n]) =>
+                    -sum( # Backbone ts_influx is negative for consumption!
+                        get(r.hvac_consumption, p, 0.0) for
+                        p in mod.building_process__direction__building_node(
+                            direction = mod.direction(:from_node),
+                            building_node = n,
+                        )
+                    ) for n in system_link_nodes
             ),
         )
     end
