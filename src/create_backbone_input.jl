@@ -273,7 +273,7 @@ function add_archetype_to_input!(
                     [timeseries_to_backbone_map(abs_p.coefficient_of_performance)],
                 ) : nothing,
             ),
-            :unitCount => parameter_value(1.0),
+            :unitCount => parameter_value(abs_p.number_of_processes),
             :useTimeseries => parameter_value( # Set flag for time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern},
             ),
