@@ -139,7 +139,7 @@ def coarsen_raster(raster, target, method="mean", boundary="trim"):
     if method == "mean":
         coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary).mean()
     elif method == "sum":
-        coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary)
+        coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary).sum()
     else:
         raise "`method` not recognized! Please use either 'mean' or 'sum'."
 
