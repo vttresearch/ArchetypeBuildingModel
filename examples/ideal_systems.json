@@ -23,7 +23,7 @@
         [
             "building_process",
             "ideal_cooling",
-            "Ideal cooling equipment with a fixed COP of 3."
+            "Ideal cooling equipment with a fixed COP of 1."
         ],
         [
             "building_process",
