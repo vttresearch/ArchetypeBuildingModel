@@ -252,7 +252,7 @@ function add_archetype_to_input!(
             :unit,
         ) for process in keys(result.archetype.abstract_processes)
     )
-    # Add ambient and ground temperatures to `grid` parameters for convenience
+    # Add various auxiliary `grid` parameters for results processing convenience
     g_param_dict = Dict(
         arch_grid => Dict(
             :ambient_temperature_K => parameter_value(
@@ -264,6 +264,11 @@ function add_archetype_to_input!(
                 timeseries_to_backbone_map(
                     result.archetype.weather_data.ground_temperature_K,
                 ),
+            ),
+            :number_of_buildings =>
+                parameter_value(result.archetype.scope_data.number_of_buildings),
+            :average_gross_floor_area_m2_per_building => parameter_value(
+                result.archetype.scope_data.average_gross_floor_area_m2_per_building,
             ),
         ),
     )
