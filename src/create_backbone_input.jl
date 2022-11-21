@@ -52,7 +52,7 @@ struct BackboneInput <: ModelInput
         effLevel =
             ObjectClass(:effLevel, [Object(Symbol("level$(i)"), :effLevel) for i = 1:9])
         effSelector = ObjectClass(:effSelector, [Object(:directOff, :effSelector)])
-        grid = ObjectClass(:grid, [Object(:building, :grid)])
+        grid = ObjectClass(:grid, Array{ObjectLike,1}())
         io = ObjectClass(:io, [Object(:input, :io), Object(:output, :io)])
         node = ObjectClass(:node, Array{ObjectLike,1}())
         unit = ObjectClass(:unit, Array{ObjectLike,1}())
@@ -151,17 +151,18 @@ into the data structure in `backbone` [`BackboneInput`](@ref),
 so that it is understood by the Backbone energy system model.
 The key steps taken by this function are summarized below:
 1. Map the ArchetypeBuildingModel `direction` objects to Backbone `io` objects.
-2. Map the ArchetypeBuildingModel `building_node` objects to unique Backbone `node` objects.
-3. Identify the necessary *system link nodes*, and add them into the set of Backbone `node` objects with the desired names.
-4. Include all `node`s to the `building` `grid`, and connect the *system link nodes* to their desired `grid`s.
-5. Map the ArchetypeBuildingModel `building_process` objects to unique Backbone `unit` objects.
-6. Determine Backbone `unit` parameters based on [`AbstractProcess`](@ref) properties.
-7. Set the `directOff` efficiency representation for all `unit`s.
-8. Determine Backbone `grid__node` parameters based on [`AbstractNode`](@ref) properties.
-9. Determine Backbone `grid__node__boundary` parameters based on [`AbstractNode`](@ref) maximum and minimum permitted temperatures.
-10. Determine Backbone `grid__node__node` parameters based on [`AbstractNode`](@ref) heat transfer coefficients.
-11. Determine Backbone `grid__node__unit__io` parameters based on [`AbstractProcess`](@ref) maximum flows.
-12. Set the `HVAC` `unittype` for every `unit`.
+2. Create a `grid` object representing the `archetype` being processed and map the grids.
+3. Map the ArchetypeBuildingModel `building_node` objects to unique Backbone `node` objects.
+4. Identify the necessary *system link nodes*, and add them into the set of Backbone `node` objects with the desired names.
+5. Include all building `node`s to the archetype `grid`, and connect the *system link nodes* to their desired `grid`s.
+6. Map the ArchetypeBuildingModel `building_process` objects to unique Backbone `unit` objects.
+7. Determine Backbone `unit` parameters based on [`AbstractProcess`](@ref) properties.
+8. Set the `directOff` efficiency representation for all `unit`s.
+9. Determine Backbone `grid__node` parameters based on [`AbstractNode`](@ref) properties.
+10. Determine Backbone `grid__node__boundary` parameters based on [`AbstractNode`](@ref) maximum and minimum permitted temperatures.
+11. Determine Backbone `grid__node__node` parameters based on [`AbstractNode`](@ref) heat transfer coefficients.
+12. Determine Backbone `grid__node__unit__io` parameters based on [`AbstractProcess`](@ref) maximum flows.
+13. Set the `HVAC` `unittype` for every `unit`.
 """
 function add_archetype_to_input!(
     backbone::BackboneInput,
@@ -212,10 +213,9 @@ function add_archetype_to_input!(
                 ) for sys_link_node in sys_link_nodes
         ),
     )
-    # Map `building_node` objects to their corresponding `grid`
-    g_map = Dict(
-        node => backbone.grid(:building) for node in keys(result.archetype.abstract_nodes)
-    )
+    # Map `building_node` objects to their corresponding `grid
+    arch_grid = Object(result.archetype.archetype.name, :grid)
+    g_map = Dict(node => arch_grid for node in keys(result.archetype.abstract_nodes))
     # Map the system link nodes to their desired grids.
     # This is a bit complicated, as we have to avoid creating identical objects.
     merge!(
@@ -252,6 +252,34 @@ function add_archetype_to_input!(
             :unit,
         ) for process in keys(result.archetype.abstract_processes)
     )
+    # Add various auxiliary `grid` parameters for results processing convenience
+    g_param_dict = Dict(
+        arch_grid => Dict(
+            :ambient_temperature_K => parameter_value(
+                timeseries_to_backbone_map(
+                    result.archetype.weather_data.ambient_temperature_K,
+                ),
+            ),
+            :ground_temperature_K => parameter_value(
+                timeseries_to_backbone_map(
+                    result.archetype.weather_data.ground_temperature_K,
+                ),
+            ),
+            :number_of_buildings =>
+                parameter_value(result.archetype.scope_data.number_of_buildings),
+            :average_gross_floor_area_m2_per_building => parameter_value(
+                result.archetype.scope_data.average_gross_floor_area_m2_per_building,
+            ),
+        ),
+    )
+    add_object_parameter_values!(backbone.grid, g_param_dict)
+    merge!(
+        backbone.grid.parameter_defaults,
+        Dict(
+            param => parameter_value(nothing) for
+            param in keys(first(backbone.grid.parameter_values)[2])
+        ),
+    )
 
     # Create the necessary objects and their parameters
     # Add the `grid` and `node` objects.
@@ -273,7 +301,7 @@ function add_archetype_to_input!(
                     [timeseries_to_backbone_map(abs_p.coefficient_of_performance)],
                 ) : nothing,
             ),
-            :unitCount => parameter_value(1.0),
+            :unitCount => parameter_value(abs_p.number_of_processes),
             :useTimeseries => parameter_value( # Set flag for time series
                 abs_p.coefficient_of_performance isa Union{TimeSeries,TimePattern},
             ),

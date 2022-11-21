@@ -79,5 +79,5 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
     filter!(pair -> pair[2] != 0, maximum_flows_W)
 
     # Return the components for `AbstractProcess`.
-    return coefficient_of_performance, maximum_flows_W
+    return process.number_of_processes, coefficient_of_performance, maximum_flows_W
 end

@@ -1,5 +1,8 @@
 # ArchetypeBuildingModel.jl
 
+[![documentation](https://img.shields.io/badge/documentation-latest-blue)](https://vttresearch.github.io/ArchetypeBuildingModel/)
+[![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://mit-license.org/)
+
 A Julia module for aggregating building stock data into desired archetype building lumped-capacitance thermal models.
 
 The goal of this module is to aggregate building stock data into arbitrary

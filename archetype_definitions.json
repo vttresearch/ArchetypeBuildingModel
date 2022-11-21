@@ -967,5 +967,11 @@
             "to_node",
             "Direction of energy flow from a process and into a node."
         ]
+    ],
+    "alternatives": [
+        [
+            "Base",
+            "Base alternative"
+        ]
     ]
 }

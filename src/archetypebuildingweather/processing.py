@@ -132,14 +132,20 @@ def coarsen_raster(raster, target, method="mean", boundary="trim"):
     boundary : Setting for `xarray.coarsen()` sampling, `trim` by default.
     """
     # First, figure out how much we need to coarsen the data.
-    x_c = int(abs(np.diff(target.x.values).mean() // np.diff(raster.x.values).mean()))
-    y_c = int(abs(np.diff(target.y.values).mean() // np.diff(raster.y.values).mean()))
+    if raster.x.values.size > 1:
+        x_c = int(abs(np.diff(target.x.values).mean() // np.diff(raster.x.values).mean()))
+    else:
+        x_c = 1
+    if raster.y.values.size > 1:
+        y_c = int(abs(np.diff(target.y.values).mean() // np.diff(raster.y.values).mean()))
+    else:
+        y_c = 1
 
     # Next, coarsen the raster.
     if method == "mean":
         coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary).mean()
     elif method == "sum":
-        coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary)
+        coarse_raster = raster.coarsen(x=x_c, y=y_c, boundary=boundary).sum()
     else:
         raise "`method` not recognized! Please use either 'mean' or 'sum'."
 
@@ -323,7 +329,10 @@ def plot_layout(shapefile, layout, dpi=300, title="layout"):
     A pyplot figure.
     """
     f, ax = plt.subplots(dpi=dpi)
-    layout.where(layout != xarray.zeros_like(layout)).plot(ax=ax)
+    try:
+        layout.where(layout != xarray.zeros_like(layout)).plot(ax=ax)
+    except:
+        print("Cannot print point layout raster!")
     shapefile.data.geometry.plot(
         ax=ax, edgecolor=(0, 0, 0, 1), facecolor=(0, 0, 0, 0), linewidth=0.2
     )

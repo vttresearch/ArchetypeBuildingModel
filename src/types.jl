@@ -624,6 +624,7 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 
 This struct contains the following fields:
 - `building_process::Object`: The `building_process` definition this `AbstractProcess` depicts.
+- `number_of_processes::Float64`: The number of aggregated processes this one depicts for the large-scale energy system models.
 - `coefficient_of_performance::SpineDataType`: The coefficient of performance of this process.
 - `maximum_flows_W::Dict{Tuple{Object,Object},SpineDataType}`: The maximum flows to/from this process in [W].
 
@@ -631,6 +632,7 @@ The constructor calls the [`process_abstract_system`](@ref) function.
 """
 struct AbstractProcess <: BuildingDataType
     building_process::Object
+    number_of_processes::Float64
     coefficient_of_performance::SpineDataType
     maximum_flows_W::Dict{Tuple{Object,Object},SpineDataType}
     """
