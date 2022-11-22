@@ -84,7 +84,7 @@ class Shapefile:
 
 
 def prepare_cutout(
-    shapefile, weather_year, module="era5", features=["influx", "temperature"]
+    shapefile, weather_start, weather_end, module="era5", features=["influx", "temperature"]
 ):
     """
     Prepares the `atlite` cutout for the weather data.
@@ -93,7 +93,8 @@ def prepare_cutout(
     ----------
 
     shapefile : The `Shapefile` used for defining the bounds of the cutout.
-    weather_year : String defining the timespan of the cutout, e.g. a year.
+    weather_start : String defining the start of the cutout in `yyyy-mm-dd`, month and day can be skipped.
+    weather_end: String defining the end of the cutout in `yyyy-mm-dd`, month and day can be skipped.
     module : Module for the weather data, ERA5 by default.
     features : Climate data features to be fetched, `influx` and `temperature` by default.
 
@@ -107,11 +108,11 @@ def prepare_cutout(
 
     # Define and prepare the cutout.
     cutout = atlite.Cutout(
-        path=Path("data/" + shapefile.name + "_" + weather_year).with_suffix(".nc"),
+        path=Path("data/" + shapefile.name + "_" + weather_start + "--" + weather_end).with_suffix(".nc"),
         module=module,
         x=slice(x1, x2),
         y=slice(y1, y2),
-        time=weather_year,
+        time=slice(weather_start, weather_end),
     )
     cutout.prepare(features=features)
     return cutout
@@ -343,7 +344,8 @@ def plot_layout(shapefile, layout, dpi=300, title="layout"):
 def aggregate_weather(
     shapefile_path,
     weights,
-    weather_year,
+    weather_start,
+    weather_end,
     raster_path=None,
     filename="scope",
     save_layouts=True,
@@ -364,8 +366,10 @@ def aggregate_weather(
         Path to the shapefile defiining the area under investigation.
     weights : dict
         Weights for the different polygons in the shapefile.
-    weather_year : str | datetime-like
-        Year for which the weather data is aggregated.
+    weather_start : str | datetime-like
+        Time when weather data period starts in `yyyy-mm-dd`, month and day can be omitted.
+    weather_end : str | datetime-like
+        Time when weather data period ends in `yyyy-mm-dd`, month and day can be omitted.
 
     Optional parameters
     -------------------
@@ -384,7 +388,7 @@ def aggregate_weather(
         Direct irradiation on walls facing the cardinal directions [W/m2].
     """
     shapefile = Shapefile(shapefile_path)
-    cutout = prepare_cutout(shapefile, weather_year)
+    cutout = prepare_cutout(shapefile, weather_start, weather_end)
     raster = prepare_layout(shapefile, weights, raster_path)
     layout = match_layout(shapefile, raster, cutout)
     if save_layouts:
