@@ -32,7 +32,8 @@ function run_parameter_tests(mod::Module = @__MODULE__; limit::Real = Inf)
         mod.solar_heat_gain_convective_fraction => (type = Real, min = 0, max = 1),
         mod.volumetric_heat_capacity_of_interior_air_J_m3K =>
             (type = Real, min = 0, max = 10000),
-        mod.weather_year => (type = Real, min = 1900, max = 2050),
+        mod.weather_end => (type = Symbol,),
+        mod.weather_start => (type = Symbol,),
         mod.window_area_distribution_towards_cardinal_directions => (type = Map,),
         mod.window_area_to_external_wall_ratio_m2_m2 => (type = Real, min = 0, max = 1),
         mod.window_area_thermal_bridge_surcharge_W_m2K => (type = Real,),

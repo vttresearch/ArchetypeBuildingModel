@@ -163,10 +163,10 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 Essentially tries to automatically fetch weather data from ERA5 using the
 `PYPSA/atlite` python library, and aggregate it according to the GIS data
 indicated via the `shapefile_path` and `raster_weight_path` parameters for
-the `building_stock` objects. The desired weather year needs to be indicated
-using the `building_archetype` `weather_year` parameter, and weighting is done
-based on the `building_scope`, the shapefile at `shapefile_path`, and the optional
-raster data at `raster_weight_path`.
+the `building_stock` objects. The desired weather period needs to be indicated
+using the `building_archetype` `weather_start` and `weather_end` parameters,
+and weighting is done based on the `building_scope`, the shapefile at `shapefile_path`,
+and the optional raster data at `raster_weight_path`.
 
 The optional `ignore_year` and `repeat` keywords are used to control the
 corresponding flags of the created `SpineInterface.TimeSeries`.
@@ -188,16 +188,18 @@ function create_building_weather(
     # Import `ArchetypeBuildingWeather.py`, doesn't work outside the function for some reason...
     abw = pyimport("archetypebuildingweather")
     # Fetch the information necessary for `ArchetypeBuildingWeather.py`.
-    year = string(Int(mod.weather_year(building_archetype = archetype)))
+    w_start = string(mod.weather_start(building_archetype = archetype))
+    w_end = string(mod.weather_end(building_archetype = archetype))
     weights =
         Dict(string(key.name) => val for (key, val) in scopedata.location_id_gfa_weights)
-    bw_name = "WY-" * year * '-' * string(scopedata.building_scope.name)
+    bw_name = string(scopedata.building_scope.name) * '_' * w_start * '_' * w_end
 
     # Call `ArchetypeBuildingWeather.py` to fetch and aggregate the weather.
     ambient_temperature, diffuse_irradiation, direct_irradiation = abw.aggregate_weather(
         scopedata.shapefile_path,
         weights,
-        year,
+        w_start,
+        w_end,
         scopedata.raster_weight_path,
         bw_name,
         save_layouts,

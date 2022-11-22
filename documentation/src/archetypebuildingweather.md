@@ -20,10 +20,11 @@ repository provides and example how the weather data aggregation works.
 The weather data aggregation is controlled by a few parameters in the 
 [Input data reference](@ref):
 - [shapefile\_path](@ref): Filepath pointing to a shapefile describing the geographical shape of the [building\_stock](@ref) in question.
-- [weather\_year](@ref): The desired weather year for the [building\_archetype](@ref).
+- [weather\_start](@ref): The desired start of the weather period for the [building\_archetype](@ref).
+- [weather\_end](@ref): The desired end of the weather period for the [building\_archetype](@ref).
 - [raster\_weight\_path](@ref): An optional filepath to weighting raster data.
 
-While the [weather\_year](@ref) is more or less self-explanatory,
+While the [weather\_start](@ref) and [weather\_end](@ref) are more or less self-explanatory,
 there are a few important things to know about the shapefile and optional
 raster data:
 - The shapefile and raster must use the *WGS 84 EPSG:4326* coordinate reference system, as it is required by `PyPSA/atlite` for correctly handling *ERA5* data.
@@ -53,8 +54,8 @@ essentially performs the following steps:
 
 ### The `prepare_cutout` function
 
-The `prepare_cutout` function takes as input the given `shapefile` and
-`weather_year`, and quite simply creates and prepares the `atlite` ERA5 cutout.
+The `prepare_cutout` function takes as input the given `shapefile`,
+`weather_start` and `weather_end`, and quite simply creates and prepares the `atlite` ERA5 cutout.
 See the [`atlite` documentation](https://atlite.readthedocs.io/en/latest/introduction.html)
 or their [*Creating a Cutout with ERA5* example](https://atlite.readthedocs.io/en/latest/examples/create_cutout.html) for more information.
 

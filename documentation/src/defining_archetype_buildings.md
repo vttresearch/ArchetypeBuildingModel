@@ -26,8 +26,8 @@ using the appropriate relationship classes:
 
 The [building\_archetype](@ref) objects also houses most of the parameters
 defining assumptions regarding the archetype and how it's modelled.
-The only mandatory parameter is the [weather\_year](@ref), which is required
-for automatic weather data processing using [ArchetypeBuildingWeather.py](@ref),
+The only mandatory parameters are the [weather\_start](@ref) and [weather\_end](@ref),
+which are required for automatic weather data processing using [ArchetypeBuildingWeather.py](@ref),
 while the rest of the parameters have set default values that kick in if not
 specified by the user.
 For example, the assumed shape of the building envelope can be tweaked using

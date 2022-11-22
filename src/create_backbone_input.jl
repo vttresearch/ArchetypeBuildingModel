@@ -270,15 +270,18 @@ function add_archetype_to_input!(
             :average_gross_floor_area_m2_per_building => parameter_value(
                 result.archetype.scope_data.average_gross_floor_area_m2_per_building,
             ),
+            Symbol("archetype.", result.archetype.archetype.name) => parameter_value(1),
+            Symbol("scope.", result.archetype.scope.name) => parameter_value(1),
+            Symbol("fabrics.", result.archetype.fabrics.name) => parameter_value(1),
+            Symbol("systems.", result.archetype.systems.name) => parameter_value(1),
+            Symbol("loads.", result.archetype.loads.name) => parameter_value(1),
+            Symbol("weather.", result.archetype.weather.name) => parameter_value(1),
         ),
     )
     add_object_parameter_values!(backbone.grid, g_param_dict)
     merge!(
         backbone.grid.parameter_defaults,
-        Dict(
-            param => parameter_value(nothing) for
-            param in keys(first(backbone.grid.parameter_values)[2])
-        ),
+        Dict(param => parameter_value(nothing) for param in keys(first(g_param_dict)[2])),
     )
 
     # Create the necessary objects and their parameters
@@ -310,10 +313,7 @@ function add_archetype_to_input!(
     add_object_parameter_values!(backbone.unit, u_param_dict)
     merge!(
         backbone.unit.parameter_defaults,
-        Dict(
-            param => parameter_value(nothing) for
-            param in keys(first(backbone.unit.parameter_values)[2])
-        ),
+        Dict(param => parameter_value(nothing) for param in keys(first(u_param_dict)[2])),
     )
 
     # Create and add the necessary relationships
