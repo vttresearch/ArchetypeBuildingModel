@@ -108,7 +108,7 @@ def prepare_cutout(
 
     # Define and prepare the cutout.
     cutout = atlite.Cutout(
-        path=Path("data/" + shapefile.name + "_" + weather_start + "--" + weather_end).with_suffix(".nc"),
+        path=Path("data/" + shapefile.name + "_" + weather_start + "_" + weather_end).with_suffix(".nc"),
         module=module,
         x=slice(x1, x2),
         y=slice(y1, y2),
