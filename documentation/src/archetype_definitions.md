@@ -247,9 +247,19 @@ Default value: `1210.0`
 
 Value list: `nothing`
 
-### `weather_year`
+### `weather_end`
 
->The year for which weather data will be processed, unless a `building_weather` object is connected to the archetype manually.
+>The time for the end of the weather period, as a `yyyy-mm-dd` string. Month and day can be skipped.
+
+Object class: `building_archetype`
+
+Default value: `nothing`
+
+Value list: `nothing`
+
+### `weather_start`
+
+>The time for the beginning of the weather period, as a `yyyy-mm-dd` string. Month and day can be skipped.
 
 Object class: `building_archetype`
 
