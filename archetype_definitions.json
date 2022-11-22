@@ -388,10 +388,17 @@
         ],
         [
             "building_archetype",
-            "weather_year",
+            "weather_end",
             null,
             null,
-            "The year for which weather data will be processed, unless a `building_weather` object is connected to the archetype manually."
+            "The time for the end of the weather period, as a `yyyy-mm-dd` string. Month and day can be skipped."
+        ],
+        [
+            "building_archetype",
+            "weather_start",
+            null,
+            null,
+            "The time for the beginning of the weather period, as a `yyyy-mm-dd` string. Month and day can be skipped."
         ],
         [
             "building_archetype",
