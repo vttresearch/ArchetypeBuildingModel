@@ -42,12 +42,12 @@
                 {
                     "map_type": "RelationshipObject",
                     "position": 0,
-                    "header": "*"
+                    "header": "grid"
                 },
                 {
                     "map_type": "RelationshipObject",
                     "position": 1,
-                    "header": "*"
+                    "header": "node"
                 },
                 {
                     "map_type": "Alternative",
@@ -65,7 +65,7 @@
                 {
                     "map_type": "ParameterValueIndex",
                     "position": 2,
-                    "header": "*"
+                    "header": "f"
                 },
                 {
                     "map_type": "IndexName",
@@ -74,7 +74,7 @@
                 {
                     "map_type": "ParameterValueIndex",
                     "position": 3,
-                    "header": "*"
+                    "header": "t"
                 },
                 {
                     "map_type": "ExpandedValue",
