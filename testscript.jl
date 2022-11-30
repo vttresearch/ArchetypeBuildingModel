@@ -18,7 +18,7 @@ m = Module()
 
 # Open database
 
-# Example IDA ESBO comparison.
+# Provide the url for a datastore containing the required raw input data and the archetype building definitions.
 url = "sqlite:///<REDACTED>"
 
 # Output url
