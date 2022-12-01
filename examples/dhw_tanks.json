@@ -65,7 +65,7 @@
             "building_node",
             "DHWT_daily_EN",
             "maximum_permitted_temperature_K",
-            353.15,
+            363.15,
             "Base"
         ],
         [
@@ -93,7 +93,7 @@
             "building_node",
             "DHWT_daily_YM",
             "maximum_permitted_temperature_K",
-            353.15,
+            363.15,
             "Base"
         ],
         [
