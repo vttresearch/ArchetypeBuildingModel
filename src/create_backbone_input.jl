@@ -334,6 +334,8 @@ function add_archetype_to_input!(
             :nodeBalance => parameter_value(true),
             :influx => parameter_value(timeseries_to_backbone_map(abs_n.external_load)),
             :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
+            :r_state_gnft_baseline =>
+                parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
         ) for (n, abs_n) in result.archetype.abstract_nodes
     )
     add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
