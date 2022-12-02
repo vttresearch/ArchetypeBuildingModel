@@ -11,6 +11,7 @@ hood.
 using Pkg
 Pkg.activate("test")
 
+using Revise
 using Test
 using Plots
 using ArchetypeBuildingModel
