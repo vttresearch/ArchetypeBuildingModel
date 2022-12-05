@@ -18,7 +18,7 @@
         [
             "building_process",
             "A2WHP_DHW",
-            "An air-to-water heat pump with a reference COP of 3 at 7/35 C source/sink temperatures, loosely based on EN 15316-4-2:2017 Annex C example values. Used for heating domestic hot water up to a fixed 60C, topped to 90C by an electric heater."
+            "An air-to-water heat pump with a reference COP of 3 at 7/35 C source/sink temperatures, loosely based on EN 15316-4-2:2017 Annex C example values. Used for heating domestic hot water up to a fixed 60C, topped to 80C by an electric heater."
         ],
         [
             "building_process",
@@ -33,7 +33,7 @@
         [
             "building_process",
             "G2WHP_DHW",
-            "A ground-to-water heat pump with a reference COP of 3.7 at 10/45 C source/sink temperatures, loosely based on EN 15316-4-2:2017 Annex C example values. Used for heating domestic hot water up to a fixed 60C, topped to 90C by an electric heater."
+            "A ground-to-water heat pump with a reference COP of 3.7 at 10/45 C source/sink temperatures, loosely based on EN 15316-4-2:2017 Annex C example values. Used for heating domestic hot water up to a fixed 60C, topped to 80C by an electric heater."
         ]
     ],
     "relationships": [
@@ -395,7 +395,7 @@
             "building_process",
             "A2WHP_DHW",
             "coefficient_of_performance_base",
-            0.22808196,
+            0.238457067,
             "Base"
         ],
         [
@@ -635,7 +635,7 @@
             "building_process",
             "G2WHP_DHW",
             "coefficient_of_performance_base",
-            0.306272799,
+            0.329760055,
             "Base"
         ],
         [
