@@ -3,12 +3,12 @@
         [
             "building_node",
             "DHWT_daily_EN",
-            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `EN 12831-3:2017 Annex B`. Assumes a typical DHW storage tank between 30-500 litres in volume, and an average DHW temperature of 60C for calculating the losses."
+            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `EN 12831-3:2017 Annex B`. Assumes a typical DHW storage tank between 30-500 litres in volume, and an average DHW temperature of 60C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 80C based on a small survey of technical parameters of existing products."
         ],
         [
             "building_node",
             "DHWT_daily_YM",
-            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `L\u00c3\u00a4mmitysj\u00c3\u00a4rjestelm\u00c3\u00a4t ja l\u00c3\u00a4mmin k\u00c3\u00a4ytt\u00c3\u00b6vesi - laskentaopas (Ymp\u00c3\u00a4rist\u00c3\u00b6ministeri\u00c3\u00b6 2011)`. Assumes that a typical DHW storage tank is between 150-500 litres in volume, has 40-100mm insulation, and an average DHW temperature of 60C for calculating the losses."
+            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `L\u00c3\u00a4mmitysj\u00c3\u00a4rjestelm\u00c3\u00a4t ja l\u00c3\u00a4mmin k\u00c3\u00a4ytt\u00c3\u00b6vesi - laskentaopas (Ymp\u00c3\u00a4rist\u00c3\u00b6ministeri\u00c3\u00b6 2011)`. Assumes that a typical DHW storage tank is between 150-500 litres in volume, has 40-100mm insulation, and an average DHW temperature of 60C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 80C based on a small survey of technical parameters of existing products."
         ],
         [
             "building_node",
@@ -65,7 +65,7 @@
             "building_node",
             "DHWT_daily_EN",
             "maximum_permitted_temperature_K",
-            363.15,
+            353.15,
             "Base"
         ],
         [
@@ -93,7 +93,7 @@
             "building_node",
             "DHWT_daily_YM",
             "maximum_permitted_temperature_K",
-            363.15,
+            353.15,
             "Base"
         ],
         [
