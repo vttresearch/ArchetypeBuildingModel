@@ -552,7 +552,7 @@ end
         weather::WeatherData,
     ) <: BuildingDataType
 
-Contain parameters defining a `node` in a model-agnostic manner.
+Contain parameters defining a `node` in a large-scale-energy-system-model-agnostic manner.
 
 Essentially, a `node` is a point in a commodity network where commodity balance is observed.
 `nodes` can have a *state*, which represents accumulated commodities at the point.
