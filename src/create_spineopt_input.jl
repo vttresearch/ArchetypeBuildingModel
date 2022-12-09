@@ -202,7 +202,7 @@ function add_archetype_to_input!(
     ufn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
         (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), v) in abs_p.maximum_flows_W if (
+        ((d, n), v) in abs_p.maximum_flows if (
             v >= 0 && d == mod.direction(:from_node) ||
             v < 0 && d == mod.direction(:to_node)
         )
@@ -218,7 +218,7 @@ function add_archetype_to_input!(
     utn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
         (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), v) in abs_p.maximum_flows_W if (
+        ((d, n), v) in abs_p.maximum_flows if (
             v >= 0 && d == mod.direction(:to_node) ||
             v < 0 && d == mod.direction(:from_node)
         )
@@ -250,8 +250,8 @@ function add_archetype_to_input!(
                 ) : nothing,
             ),
         ) for (p, abs_p) in result.archetype.abstract_processes for
-        ((d1, n1), v1) in abs_p.maximum_flows_W for
-        ((d2, n2), v2) in abs_p.maximum_flows_W if
+        ((d1, n1), v1) in abs_p.maximum_flows for
+        ((d2, n2), v2) in abs_p.maximum_flows if
         (d1 == mod.direction(:from_node) && d2 == mod.direction(:to_node) && n1 != n2)
     )
     add_relationships!(

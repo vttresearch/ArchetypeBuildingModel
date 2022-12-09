@@ -35,12 +35,12 @@ function solve_consumption(
     # into a parameter value for easier access.
     hvac_consumption = Dict()
     for (process, abstract_process) in archetype.abstract_processes
-        # Figure out which node the process handles using `maximum_flows_W`
+        # Figure out which node the process handles using `maximum_flows`
         output_nodes =
             getindex.(
                 filter(
                     tup -> tup[1] == mod.direction(:to_node),
-                    keys(abstract_process.maximum_flows_W),
+                    keys(abstract_process.maximum_flows),
                 ),
                 2,
             )

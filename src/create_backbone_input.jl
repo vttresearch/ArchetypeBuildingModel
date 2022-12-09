@@ -401,7 +401,7 @@ function add_archetype_to_input!(
             :conversionCoeff => parameter_value(val / abs(val)),
             :unitSize => parameter_value(abs(val)),
         ) for (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), val) in abs_p.maximum_flows_W
+        ((d, n), val) in abs_p.maximum_flows
     )
     add_relationship_parameter_values!(backbone.grid__node__unit__io, gnuio_param_dict)
     merge!(
