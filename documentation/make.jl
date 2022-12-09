@@ -81,6 +81,7 @@ makedocs(
         "model_workflow.md",
         "archetype_modelling.md",
         "archetypebuildingweather.md",
+        "output_processing.md",
         "archetype_definitions.md",
         "library.md",
     ],

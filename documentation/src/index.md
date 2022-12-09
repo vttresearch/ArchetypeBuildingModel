@@ -1,6 +1,7 @@
 # ArchetypeBuildingModel.jl
 
-A Julia module for aggregating building stock data into desired
+A [SpineInterface.jl](https://github.com/Spine-project/SpineInterface.jl)-based
+Julia module for aggregating building stock data into desired
 archetype building lumped-capacitance thermal models.
 
 The goal of this module is to provide an easy way to define and aggregate
@@ -48,6 +49,10 @@ thermal modelling approach used by this module in more detail,
 while the [ArchetypeBuildingWeather.py](@ref) section briefly explains
 the logic and workings of the python sub-module handling the automatic
 weather data processing.
+The [Input data processing for large-scale energy system modelling frameworks](@ref)
+section provides an overview of how the data is further processed to be compatible
+with [Backbone](https://cris.vtt.fi/en/publications/backbone)
+and [SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
 Finally, the [Input data reference](@ref) and the [Library](@ref)
 sections provide comprehensive documentation of the definition/input
 data format and the modelling code respectively.

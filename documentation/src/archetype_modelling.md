@@ -156,33 +156,10 @@ For readers interested in the technical details and exact formulations,
 please refer to the documentation of the
 [`ArchetypeBuildingModel.process_building_node`](@ref) function,
 and the functions linked therein.
-
-
-### Processing thermal nodes into `AbstractNode`s
-
-While the [`BuildingNodeData`](@ref) structs and the related functions
-are key for understanding the inner workings of the `ArchetypeBuildingModel.jl`,
-it is important to note that for creating the input data for energy system
-models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
-[SpineOpt](https://github.com/Spine-project/SpineOpt.jl),
-the nodes are processed further into so-called [`AbstractNode`](@ref)s.
-As their name suggests, the [`AbstractNode`](@ref)s are essentially an abstraction
-of the [`BuildingNodeData`](@ref), condensing the information into a minimal
-set of model-agnostic fields required to describe the properties of a thermal
-node, making it easier to interface with different energy system models.
-
-Unfortunately, this process of abstraction loses a lot of intuitive information,
-and it can be nigh impossible to meaningfully interpret some of the fields in the
-[`AbstractNode`](@ref).
-The most important difference to note is:
-
- - **The effect of ambient air and ground temperatures are implemented using a mathematically equivalent combination of self-discharge and external "ambient" heat loads.**
-    - The main motivation for this is the lack of support for ambient temperature parameters in large scale energy system models. Implementing ambient heat losses in such models via using the ambient temperatures directly would required changes to the model code, which is not always desireable or even possible.
-    - However, self-discharge of storages and energy demand/gains are often supported natively by energy system models, allowing us to "misuse" them in order to achieve the desired effect.
-
-We won't discuss the peculiarities of [`AbstractNode`](@ref)s further here,
-but further details can be found in their documentation, as well as the 
-[`ArchetypeBuildingModel.process_abstract_node`](@ref) function.
+See the [Processing thermal nodes into `AbstractNode`s](@ref) section for
+how the data is adapted for use with large-scale energy system models,
+which also happens to simplify
+[Solving the baseline heating demand and HVAC equipment consumption](@ref).
 
 
 ## Calculating the properties of the HVAC equipment
@@ -197,23 +174,10 @@ Overall, the process is pretty simple, roughly consisting of the following steps
 For the exact formulations, see the documentation for the
 [`ArchetypeBuildingModel.process_building_system`](@ref) function and the
 functions linked therein.
-
-
-### Processing HVAC equipment into `AbstractProcess`es
-
-Similar to [`AbstractNode`](@ref)s, the [`AbstractProcess`](@ref)es are
-essentially model-agnostic abstractions of the underlying [`BuildingProcessData`](@ref),
-useful for creating the input data for energy system
-models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
-[SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
-Overall, the abstraction is pretty straightforward,
-but there is one important difference:
-
- - **The coefficient of performance in the [`AbstractNode`](@ref) accounts for the `number_of_processes` and watts into megawatts conversion.**
-     - Essentially, this means that the COP in the [`AbstractNode`](@ref) is no longer representative of the COP of an individual heating device. Instead, it represents the overall conversion from the energy system scale into the archetype building scale.
-
-For more details, see the documentation for the
-[`ArchetypeBuildingModel.process_abstract_system`](@ref) function.
+See the [Processing HVAC equipment into `AbstractProcess`es](@ref) section for
+how the data is adapted for use with large-scale energy system models,
+which also happens to simplify
+[Solving the baseline heating demand and HVAC equipment consumption](@ref).
 
 
 ## Solving the baseline heating demand and HVAC equipment consumption
