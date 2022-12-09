@@ -19,7 +19,7 @@ in our large-scale energy system modelling frameworks.
 Performs the following steps:
 1. COP mode indicated using COP sign, positive for heating and negative for cooling.
 2. Scale COP to account for boundary between buildings and system link nodes. W -> MW conversion and accounting for the total number of processes.
-3. Factor COP mode into the `maximum_flows_W` dictionary.
+3. Factor COP mode into the `maximum_flows` dictionary.
 4. Return the components for [`AbstractProcess`](@ref).
 """
 function process_abstract_system(process::BuildingProcessData; mod::Module = @__MODULE__)
@@ -59,7 +59,7 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
     end
 
     # Maximum flows scaled using number of processes, sign used to indicate heating (positive) or cooling (negative).
-    maximum_flows_W = Dict(
+    maximum_flows = Dict(
         (dir, node) =>
             ( # Cooling processes indicated using negative flows.
                 dir == mod.direction(:to_node) &&
@@ -76,8 +76,8 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
             building_process = process.building_process,
         )
     )
-    filter!(pair -> pair[2] != 0, maximum_flows_W)
+    filter!(pair -> pair[2] != 0, maximum_flows)
 
     # Return the components for `AbstractProcess`.
-    return process.number_of_processes, coefficient_of_performance, maximum_flows_W
+    return process.number_of_processes, coefficient_of_performance, maximum_flows
 end

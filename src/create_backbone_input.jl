@@ -177,7 +177,7 @@ function add_archetype_to_input!(
     # Map `building_node` objects to unique `node` objects.
     n_map = Dict(
         node => Object(
-            Symbol(string(result.archetype.archetype.name) * '.' * string(node.name)),
+            Symbol(string(result.archetype.archetype.name) * "__" * string(node.name)),
             :node,
         ) for node in keys(result.archetype.abstract_nodes)
     )
@@ -248,7 +248,7 @@ function add_archetype_to_input!(
     # Map `building_process` objects to unique `unit` objects.
     u_map = Dict(
         process => Object(
-            Symbol(string(result.archetype.archetype.name) * '.' * string(process.name)),
+            Symbol(string(result.archetype.archetype.name) * "__" * string(process.name)),
             :unit,
         ) for process in keys(result.archetype.abstract_processes)
     )
@@ -334,6 +334,8 @@ function add_archetype_to_input!(
             :nodeBalance => parameter_value(true),
             :influx => parameter_value(timeseries_to_backbone_map(abs_n.external_load)),
             :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
+            :r_state_gnft_baseline =>
+                parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
         ) for (n, abs_n) in result.archetype.abstract_nodes
     )
     add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
@@ -399,7 +401,7 @@ function add_archetype_to_input!(
             :conversionCoeff => parameter_value(val / abs(val)),
             :unitSize => parameter_value(abs(val)),
         ) for (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), val) in abs_p.maximum_flows_W
+        ((d, n), val) in abs_p.maximum_flows
     )
     add_relationship_parameter_values!(backbone.grid__node__unit__io, gnuio_param_dict)
     merge!(

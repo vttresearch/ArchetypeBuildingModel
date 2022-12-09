@@ -51,15 +51,32 @@ Essentially, this function performs the following steps:
 6. Return the components required for constructing an [`AbstractNode`](@ref).
 
 **NOTE!** The ambient temperatures are accounted for via a combination of `self_discharge_coefficient_W_K`
-and `external_load`, instead of  `heat_transfer_coefficients_W_K` on any ambient temperature nodes.
-This is because not all large-scale energy system models support ambient temperatures as separate parameters,
-whereas self-discharge and external loads are almost always supported.
-The principle is illustrated by the equation below:
+and `external_load`, instead of  `heat_transfer_coefficients_W_K` on any ambient temperature nodes,
+as illustrated by the equations below.
+Typically, the heat balance equation in simplified lumped-capacitance thermal
+models is cast as
 ```math
-\\Phi_\\text{ambient heat losses} = H_\\text{ext}(T_\\text{ambient} - T_\\text{internal}) \\\\
-= H_\\text{ext} T_\\text{ambient} - H_\\text{ext} T_\\text{internal} \\\\
-= \\Phi_\\text{ambient} - \\Phi_\\text{self-discharge}
+C_n \\frac{dT_n(t)}{dt} = H_{amb,n} \\left( T_{amb}(t) - T_{n}(t) \\right) + \\sum_{m \\in \\mathbb{N}} \\left[ H_{n,m} \\left( T_{m}(t) - T_{n}(t) \\right) \\right] + \\Sigma P_{n}(t) + \\Sigma \\Phi_{n}(t),
 ```
+where `C_n` is the effective thermal mass of node `n`,
+`T_{n}(t)` is the temperature of node `n` on time step `t`,
+`T_{amb}(t)` is the ambient temperature,
+`H_{amb,n}` is the conductance between ambient temperature and the node temperature,
+`N` is the set of temperature nodes connected to node `n`,
+`H_{n,m}` is the conductance between nodes `n` and `m`,
+`∑P_{n}(t)` is the total impact of HVAC equipment,
+and `∑Φ_{n}(t)` is the total effect of internal and solar heat gains.
+However, large-scale energy system models rarely support ambient temperature `T_{amb}(t)`
+as input data directly, requiring the above equation to be cast as
+```math
+C_n \\frac{dT_n(t)}{dt} = - H_{amb,n} T_{n}(t) + \\sum_{m \\in N} \\left[ H_{n,m} \\left( T_{m}(t) - T_{n}(t) \\right) \\right] + \\Sigma P_{n}(t) + \\left( H_{amb,n} T_{amb}(t) + \\Sigma \\Phi_{n}(t) \\right).
+```
+Now the `- H_{amb,n} T_{n}(t)` term can be interpreted as self-discharge losses,
+while the `H_{amb,n} T_{amb}(t)` term can be bundled together with other external
+influences on the node, both supported by typical large-scale energy system models.
+Unfortunately, this has the side-effect of making the energy-system-model-level
+input data quite unintuitive, but avoids the need to implement ambient-temperature-dependent
+interactions in complicated energy system modelling frameworks.
 
 **NOTE!** All heat transfer coefficients are assumed to be symmetrical!
 **NOTE!** All [`AbstractNode`](@ref)s are given `1e-9 Wh/K` thermal mass to avoid
