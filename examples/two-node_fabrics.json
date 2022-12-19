@@ -128,7 +128,7 @@
             "building_node",
             "interior_air_and_furniture",
             "maximum_permitted_temperature_K",
-            300.15,
+            298.15,
             "Base"
         ],
         [
