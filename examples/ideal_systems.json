@@ -7,7 +7,7 @@
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `Lämmitysjärjestelmät ja lämmin käyttövesi - laskentaopas (Ympäristöministeriö 2011)`. Assumes that a typical DHW storage tank is between 150-500 litres in volume, has 40-100mm insulation, and an average DHW temperature of 60C for calculating the losses."
         ],
         [
@@ -50,7 +50,7 @@
             [
                 "ideal_DHW",
                 "to_node",
-                "DHWT_daily_YM"
+                "DHWT_daily_YM_150-500l"
             ]
         ],
         [
@@ -89,7 +89,7 @@
             "building_systems__building_node",
             [
                 "ideal_systems",
-                "DHWT_daily_YM"
+                "DHWT_daily_YM_150-500l"
             ]
         ],
         [
@@ -117,35 +117,35 @@
     "object_parameter_values": [
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "domestic_hot_water_demand_weight",
             1.0,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "effective_thermal_mass_gfa_scaling_J_m2K",
             6427.0,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "maximum_permitted_temperature_K",
             353.15,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "minimum_permitted_temperature_K",
             333.15,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "self_discharge_rate_gfa_scaling_W_m2K",
             0.0019,
             "Base"
@@ -175,7 +175,7 @@
             [
                 "ideal_DHW",
                 "to_node",
-                "DHWT_daily_YM"
+                "DHWT_daily_YM_150-500l"
             ],
             "maximum_power_gfa_scaling_W_m2",
             15.0,
