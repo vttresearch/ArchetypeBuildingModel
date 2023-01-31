@@ -3,12 +3,17 @@
         [
             "building_node",
             "DHWT_daily_EN",
-            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `EN 12831-3:2017 Annex B`. Assumes a typical DHW storage tank between 30-500 litres in volume, and an average DHW temperature of 60C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 80C based on a small survey of technical parameters of existing products."
+            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `EN 12831-3:2017 Annex B`. Assumes a typical DHW storage tank between 30-500 litres in volume, and an average DHW temperature of 60C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 90C based on a small survey of technical parameters of existing products. Distribution losses currently unaccounted for!"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
-            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `L\u00c3\u00a4mmitysj\u00c3\u00a4rjestelm\u00c3\u00a4t ja l\u00c3\u00a4mmin k\u00c3\u00a4ytt\u00c3\u00b6vesi - laskentaopas (Ymp\u00c3\u00a4rist\u00c3\u00b6ministeri\u00c3\u00b6 2011)`. Assumes that a typical DHW storage tank is between 150-500 litres in volume, has 40-100mm insulation, and an average DHW temperature of 60C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 80C based on a small survey of technical parameters of existing products."
+            "DHWT_daily_YM_150-500l",
+            "A GFA-scaling domestic hot water tank, with enough capacity for one-day storage according to `L\u00c3\u00a4mmitysj\u00c3\u00a4rjestelm\u00c3\u00a4t ja l\u00c3\u00a4mmin k\u00c3\u00a4ytt\u00c3\u00b6vesi - laskentaopas (Ymp\u00c3\u00a4rist\u00c3\u00b6ministeri\u00c3\u00b6 2011)`. Assumes that a typical DHW storage tank is between 150-500 litres in volume, has 40-100mm insulation, and an average DHW temperature of 70C for calculating the loss coefficient. Minimum allowed temperature set to 60C for legionella decontamination, maximum of 90C based on a small survey of technical parameters of existing products. DHW distribution losses estimated mainly based on `Energiatehokkuus 2018 (Finnish Ministry of the Environment)`. DHW tank standby losses assumed non-utilisable, whereas 35% of distribution losses are assumed utilisable according to `Production and distribution of domestic hot water in selected Danish apartment buildings and institutions. Analysis of consumption, energy efficiency and the significance for energy design requirements of buildings (Bohm B. 2013)`"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_1000-3000l",
+            "A GFA-scaling domestic hot water tank with estimated volume between 1000-3000 litres. Sources and assumptions identical to the `DHWT_daily_YM_150-500l` tank."
         ],
         [
             "building_node",
@@ -27,7 +32,14 @@
         [
             "building_node__building_node",
             [
-                "DHWT_daily_YM",
+                "DHWT_daily_YM_150-500l",
+                "interior_air_and_furniture"
+            ]
+        ],
+        [
+            "building_node__building_node",
+            [
+                "DHWT_daily_YM_1000-3000l",
                 "interior_air_and_furniture"
             ]
         ],
@@ -42,7 +54,14 @@
             "building_node__building_node",
             [
                 "interior_air_and_furniture",
-                "DHWT_daily_YM"
+                "DHWT_daily_YM_150-500l"
+            ]
+        ],
+        [
+            "building_node__building_node",
+            [
+                "interior_air_and_furniture",
+                "DHWT_daily_YM_1000-3000l"
             ]
         ]
     ],
@@ -65,7 +84,7 @@
             "building_node",
             "DHWT_daily_EN",
             "maximum_permitted_temperature_K",
-            353.15,
+            363.15,
             "Base"
         ],
         [
@@ -77,28 +96,70 @@
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
             "domestic_hot_water_demand_weight",
             1.0,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_1000-3000l",
+            "domestic_hot_water_demand_weight",
+            1.0,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_150-500l",
             "effective_thermal_mass_gfa_scaling_J_m2K",
             6427.0,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
-            "maximum_permitted_temperature_K",
-            353.15,
+            "DHWT_daily_YM_1000-3000l",
+            "effective_thermal_mass_gfa_scaling_J_m2K",
+            6427.0,
             "Base"
         ],
         [
             "building_node",
-            "DHWT_daily_YM",
+            "DHWT_daily_YM_150-500l",
+            "self_discharge_rate_gfa_scaling_W_m2K",
+            0.0067,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_1000-3000l",
+            "self_discharge_rate_gfa_scaling_W_m2K",
+            0.0046,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_150-500l",
+            "maximum_permitted_temperature_K",
+            363.15,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_1000-3000l",
+            "maximum_permitted_temperature_K",
+            363.15,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_150-500l",
+            "minimum_permitted_temperature_K",
+            333.15,
+            "Base"
+        ],
+        [
+            "building_node",
+            "DHWT_daily_YM_1000-3000l",
             "minimum_permitted_temperature_K",
             333.15,
             "Base"
@@ -118,11 +179,21 @@
         [
             "building_node__building_node",
             [
-                "DHWT_daily_YM",
+                "DHWT_daily_YM_150-500l",
                 "interior_air_and_furniture"
             ],
             "heat_transfer_coefficient_gfa_scaling_W_m2K",
-            0.016,
+            0.019,
+            "Base"
+        ],
+        [
+            "building_node__building_node",
+            [
+                "DHWT_daily_YM_1000-3000l",
+                "interior_air_and_furniture"
+            ],
+            "heat_transfer_coefficient_gfa_scaling_W_m2K",
+            0.015,
             "Base"
         ],
         [
@@ -139,10 +210,20 @@
             "building_node__building_node",
             [
                 "interior_air_and_furniture",
-                "DHWT_daily_YM"
+                "DHWT_daily_YM_150-500l"
             ],
             "heat_transfer_coefficient_gfa_scaling_W_m2K",
-            0.016,
+            0.019,
+            "Base"
+        ],
+        [
+            "building_node__building_node",
+            [
+                "interior_air_and_furniture",
+                "DHWT_daily_YM_1000-3000l"
+            ],
+            "heat_transfer_coefficient_gfa_scaling_W_m2K",
+            0.015,
             "Base"
         ]
     ]
