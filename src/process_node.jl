@@ -145,12 +145,20 @@ function process_building_node(
         minimum_temperature_K = mod.minimum_permitted_temperature_K(building_node = node)
     end
 
-    # Fetch the user-defined heat transfer coefficients
+    # Determine the valid nodes for heat transfer coefficients
+    fabrics = only(mod.building_archetype__building_fabrics(building_archetype = archetype))
+    systems = only(mod.building_archetype__building_systems(building_archetype = archetype))
+    valid_nodes = vcat(
+        mod.building_fabrics__building_node(building_fabrics = fabrics),
+        mod.building_systems__building_node(building_systems = systems),
+    )
+    # Fetch the user-defined heat transfer coefficients for the valid nodes
     heat_transfer_coefficients_base_W_K = Dict(
         n => mod.heat_transfer_coefficient_base_W_K(
             building_node1 = node,
             building_node2 = n,
-        ) for n in mod.building_node__building_node(building_node1 = node)
+        ) for
+        n in mod.building_node__building_node(building_node1 = node) if n in valid_nodes
     )
     heat_transfer_coefficients_gfa_scaled_W_K = Dict(
         n =>
@@ -158,7 +166,8 @@ function process_building_node(
             mod.heat_transfer_coefficient_gfa_scaling_W_m2K(
                 building_node1 = node,
                 building_node2 = n,
-            ) for n in mod.building_node__building_node(building_node1 = node)
+            ) for
+        n in mod.building_node__building_node(building_node1 = node) if n in valid_nodes
     )
 
     # Calculate interior air and structural thermal masses.
