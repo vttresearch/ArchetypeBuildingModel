@@ -22,27 +22,27 @@ Essentially, performs the following steps:
 function process_weather(weather::Object; mod::Module = @__MODULE__)
     # Fetch ambient temperature data and check that it's ok.
     ambient_temp_K = mod.ambient_temperature_K(building_weather = weather)
-    all(values(ambient_temp_K) .>= 0) || @warn """
+    all(collect_leaf_values(ambient_temp_K) .>= 0) || @warn """
     `ambient_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(values(ambient_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(values(ambient_temp_K))).
+    $(count(collect_leaf_values(ambient_temp_K) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(ambient_temp_K))).
     """
 
     # Calculate the effective ground temperature and check it's ok.
     ground_temp_K = calculate_effective_ground_temperature(ambient_temp_K)
-    all(values(ground_temp_K) .>= 0) || @warn """
+    all(collect_leaf_values(ground_temp_K) .>= 0) || @warn """
     `ground_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(values(ground_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(values(ground_temp_K))).
+    $(count(collect_leaf_values(ground_temp_K) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(ground_temp_K))).
     """
 
     # Fetch diffuse solar irradiation data and check it's ok.
     diff_solar_irradiation_W_m2 =
         mod.diffuse_solar_irradiation_W_m2(building_weather = weather)
-    all(values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
+    all(collect_leaf_values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
     `diffuse_solar_irradiation_W_m2` for `$(weather)` shouldn't have negative values!
-    $(count(values(diff_solar_irradiation_W_m2) .< 0)) violations found,
-    with a minimum of $(minimum(values(diff_solar_irradiation_W_m2))).
+    $(count(collect_leaf_values(diff_solar_irradiation_W_m2) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(diff_solar_irradiation_W_m2))).
     """
 
     # Fetch direct solar irradiation data and check it's ok.
