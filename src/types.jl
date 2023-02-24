@@ -173,12 +173,17 @@ SpineDataType = Union{Real,TimeSeries,TimePattern,Map}
 
 
 """
-    WeatherData(weather::Object; mod::Module = @__MODULE__) <: BuildingDataType
+    WeatherData(
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
+    ) <: BuildingDataType
 
 Process and store the weather data for further calculations.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from
-by the constructor, `@__MODULE__` by default.
+by the constructor, `@__MODULE__` by default. The `realization` scenario is
+required for effective ground temperature calculations.
 
 This struct contains the following fields:
 - `building_weather::Object`: The `building_weather` object used to construct this `WeatherData`.
@@ -201,16 +206,21 @@ struct WeatherData <: BuildingDataType
 
     Construct a new `WeatherData` based on the given `weather` object.
     """
-    function WeatherData(weather::Object; mod::Module = @__MODULE__)
-        WeatherData(weather, process_weather(weather; mod = mod)...)
+    function WeatherData(
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
+    )
+        WeatherData(
+            weather,
+            process_weather(weather; mod = mod, realization = realization)...,
+        )
     end
     function WeatherData(weather::Object, args...)
-        for (i, arg) in enumerate(args[1:end-1]) # Direct solar irradiation data cannot be verified similar to others.
-            all(values(arg) .>= 0) ||
+        for (i, arg) in enumerate(args) # Direct solar irradiation data cannot be verified similar to others.
+            all(collect_leaf_values(arg) .>= 0) ||
                 @warn "`$(fieldnames(WeatherData)[i])` for `$(weather)` shouldn't have negative values!"
         end
-        all(vcat(values.(values(args[end]))...) .>= 0) ||
-            @warn "`direct_solar_irradiation_W_m2` for `$(weather)` shouldn't have negative values!"
         new(weather, args...)
     end
 end
@@ -650,7 +660,11 @@ end
 
 
 """
-    ArchetypeBuilding(archetype::Object; mod::Module = @__MODULE__)
+    ArchetypeBuilding(
+        archetype::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
+    )
 
 Contains data representing a single archetype building.
 
@@ -709,11 +723,19 @@ struct ArchetypeBuilding
     abstract_nodes::AbstractNodeNetwork
     abstract_processes::Dict{Object,AbstractProcess}
     """
-        ArchetypeBuilding(archetype::Object; mod::Module = @__MODULE__)
+        ArchetypeBuilding(
+            archetype::Object;
+            mod::Module = @__MODULE__,
+            realization::Symbol = :realization,
+        )
 
     Create a new `ArchetypeBuilding` for the given `archetype`.
     """
-    function ArchetypeBuilding(archetype::Object; mod::Module = @__MODULE__)
+    function ArchetypeBuilding(
+        archetype::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
+    )
         # Fetch and process the scope and weather data related to the archetype.
         if length(
             mod.building_archetype__building_weather(building_archetype = archetype),
@@ -723,6 +745,7 @@ struct ArchetypeBuilding
         weather_data = WeatherData(
             first(mod.building_archetype__building_weather(building_archetype = archetype));
             mod = mod,
+            realization = realization,
         )
         if length(mod.building_archetype__building_scope(building_archetype = archetype)) !=
            1
