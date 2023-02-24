@@ -836,6 +836,7 @@ abstract type ModelInput end
         free_dynamics::Bool = false,
         initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
         mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     ) <: BuildingDataType
 
 Store the temperature and HVAC demand results for the `archetype` building.
@@ -843,6 +844,8 @@ Store the temperature and HVAC demand results for the `archetype` building.
 The `free_dynamics` keyword can be used to force the calculations to ignore
 heating/cooling set points, while the `initial_temperatures` keyword
 can be used to fix the initial temperatures for the simulation.
+The `realization` keyword is used to select the true data from potentially
+stochastic input.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from
 by the constructor, `@__MODULE__` by default.
@@ -873,6 +876,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
             free_dynamics::Bool = false,
             initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
             mod::Module = @__MODULE__,
+            realization::Symbol = :realization,
         )
 
     Construct a new `ArchetypeBuildingResults` by solving the HVAC demand.    
@@ -882,9 +886,14 @@ struct ArchetypeBuildingResults <: BuildingDataType
         free_dynamics::Bool = false,
         initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
         mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     )
-        initial_temperatures, temperatures, hvac_demand =
-            solve_heating_demand(archetype, free_dynamics, initial_temperatures)
+        initial_temperatures, temperatures, hvac_demand = solve_heating_demand(
+            archetype,
+            free_dynamics,
+            initial_temperatures;
+            realization = realization,
+        )
         hvac_consumption = solve_consumption(archetype, hvac_demand; mod = mod)
         new(
             archetype,
