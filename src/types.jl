@@ -359,7 +359,7 @@ struct LoadsData <: BuildingDataType
     end
     function LoadsData(archetype::Object, args...)
         for (i, arg) in enumerate(args)
-            all(values(arg) .>= 0) || @warn """
+            all(collect_leaf_values(arg) .>= 0) || @warn """
             `$(fieldnames(LoadsData)[i])` for `$(archetype)` shouldn't have negative values!
             $(count(values(arg) .< 0)) violations found, with a minimum value of $(minimum(values(arg))).
             """
@@ -472,7 +472,7 @@ struct BuildingNodeData <: BuildingDataType
     end
     function BuildingNodeData(building_node::Object, args...)
         for (i, arg) in enumerate(args)
-            all(values(arg) .>= 0) || @warn """
+            all(collect_leaf_values(arg) .>= 0) || @warn """
             `$(fieldnames(BuildingNodeData)[i+1])` for `$(building_node)` shouldn't have negative values!
             $(count(values(arg) .< 0)) violations found, with a minimum value of $(minimum(values(arg))).
             """
