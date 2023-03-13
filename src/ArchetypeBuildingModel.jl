@@ -27,6 +27,7 @@ include("solve_demand.jl")
 include("solve_consumption.jl")
 include("export.jl")
 include("main.jl")
+include("util.jl")
 
 # Exports for the `process_archetype_buildings.jl` main program
 export using_spinedb,

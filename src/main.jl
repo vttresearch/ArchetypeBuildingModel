@@ -29,6 +29,7 @@ end
         save_layouts::Bool;
         weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
         mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     )
 
 Process the [`ScopeData`](@ref), [`WeatherData`](@ref), and [`ArchetypeBuilding`](@ref) objects.
@@ -42,6 +43,8 @@ If `save_layouts == true`, diagnostic figures of the layouts are saved into `fig
 The `weather_data_dictionary` keyword can be used to bypass weather data processing
 if a pre-existing dictionary is provided.
 The `mod` keyword changes from which Module data is accessed from, `@__MODULE__` by default.
+The `realization` keyword is used to indicate the true data from potentially
+stochastic input.
 
 This function performs the following steps:
 1. Construct the [`ScopeData`](@ref) for each defined [building\\_archetype\\_\\_building_scope](@ref), and store in the `scope_data_dictionary`.
@@ -54,6 +57,7 @@ function archetype_building_processing(
     save_layouts::Bool;
     weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
     mod::Module = @__MODULE__,
+    realization::Symbol = :realization,
 )
     # Process relevant `ScopeData` objects.
     @info "Processing `building_scope` objects into `ScopeData` for `scope_data_dictionary`..."
@@ -94,7 +98,7 @@ function archetype_building_processing(
         end
         @info "Processing `building_weather` objects into `WeatherData` for `weather_data_dictionary`..."
         @time weather_data_dictionary = Dict(
-            archetype => WeatherData(weather; mod = mod) for
+            archetype => WeatherData(weather; mod = mod, realization = realization) for
             (archetype, weather) in mod.building_archetype__building_weather()
         )
     else
@@ -125,13 +129,15 @@ end
             Object,
             Dict{Object,Float64}
         }(),
+        realization::Symbol = :realization,
     )
 
 Solve the [`ArchetypeBuilding`](@ref) heating and cooling demand.
 
 The `free_dynamics` keyword can be used to ignore node temperature limits,
 while the `initial_temperatures` keyword can be used to set desired initial
-temperatures for the nodes.
+temperatures for the nodes. The `realization` keyword is used to denote
+the true data from potentially stochastic input.
 
 Essentially, performs the following steps:
 1. Create the `archetype_results_dictionary` by constructing the [`ArchetypeBuildingResults`](@ref) for each entry in the `archetype_dictionary`.
@@ -147,6 +153,7 @@ function solve_archetype_building_hvac_demand(
         Dict{Object,Float64},
     }(),
     mod::Module = @__MODULE__,
+    realization::Symbol = :realization,
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
@@ -156,6 +163,7 @@ function solve_archetype_building_hvac_demand(
             free_dynamics = free_dynamics,
             initial_temperatures = get(initial_temperatures, archetype, nothing),
             mod = mod,
+            realization = realization,
         ) for (archetype, archetype_building) in archetype_dictionary
     )
 
