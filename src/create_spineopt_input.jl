@@ -154,14 +154,7 @@ function add_archetype_to_input!(
     node_param_dict = Dict(
         n_map[node] => Dict(
             :demand => parameter_value(-1 * abs_node.external_load),
-            :fix_node_state => parameter_value(
-                TimeSeries(
-                    [first(result.temperatures[node].indexes)],
-                    [result.initial_temperatures[node]],
-                    false,
-                    false,
-                ),
-            ),
+            :initial_node_state => parameter_value(result.initial_temperatures[node]),
             :frac_state_loss =>
                 parameter_value(abs_node.self_discharge_coefficient_W_K),
             :has_state => parameter_value(true),

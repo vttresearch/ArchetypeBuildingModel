@@ -27,6 +27,7 @@ url = "sqlite:///<REDACTED>"
 
 @info "Opening database..."
 @time using_spinedb(url, m)
+realization = :realization # Realization data scenario name from stochastic input
 
 
 ## Run tests
@@ -189,7 +190,7 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 
 @info "Processing `ArchetypeBuilding` objects..."
 @time archetype_dictionary = Dict(
-    archetype => ArchetypeBuilding(archetype; mod = m) for
+    archetype => ArchetypeBuilding(archetype; mod = m, realization = realization) for
     archetype in m.building_archetype()
 )
 
@@ -198,8 +199,12 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 
 @info "Creating `ArchetypeBuildingResults`..."
 @time archetype_results = Dict(
-    archetype => ArchetypeBuildingResults(val; free_dynamics = false, mod = m) for
-    (archetype, val) in archetype_dictionary
+    archetype => ArchetypeBuildingResults(
+        val;
+        free_dynamics = false,
+        mod = m,
+        realization = realization,
+    ) for (archetype, val) in archetype_dictionary
 )
 
 
@@ -228,8 +233,8 @@ results__system_link_node = initialize_result_classes!(m)
 
 ## Test creating and writing Backbone input
 
-@info "Creating `BackboneInput`..."
-@time backbone = BackboneInput(archetype_results; mod = m)
+#@info "Creating `BackboneInput`..."
+#@time backbone = BackboneInput(archetype_results; mod = m)
 #write_to_url(output_url, backbone)
 
 

@@ -109,9 +109,9 @@ function calculate_cop(
     # Check if source and sink temperatures are defined, return 1.0 if not.
     if (
         mod.coefficient_of_performance_sink_temperature_K(building_process = process) isa
-        Map{Symbol,SpineInterface.NothingParameterValue} &&
+        Map{Symbol,Nothing} &&
         mod.coefficient_of_performance_source_temperature_K(building_process = process) isa
-        Map{Symbol,SpineInterface.NothingParameterValue}
+        Map{Symbol,Nothing}
     )
         COP_multiplier = 1.0
     else

@@ -6,12 +6,17 @@ Contains functions for processing weather data.
 
 
 """
-    process_weather(weather::Object; mod::Module = @__MODULE__)
+    process_weather(
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = realization,
+    )
 
 Process `weather` data for the [`WeatherData`](@ref) constructor.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`@__MODULE__` by default.
+`@__MODULE__` by default. The `realization` scenario is required for processing
+of effective ground temperature.
 
 Essentially, performs the following steps:
 1. Fetch the ambient temperature data for `weather`.
@@ -19,30 +24,34 @@ Essentially, performs the following steps:
 3. Fetch diffuse and direct solar irradiation data.
 4. Return the components for the [`WeatherData`](@ref) constructor.
 """
-function process_weather(weather::Object; mod::Module = @__MODULE__)
+function process_weather(
+    weather::Object;
+    mod::Module = @__MODULE__,
+    realization::Symbol = realization,
+)
     # Fetch ambient temperature data and check that it's ok.
     ambient_temp_K = mod.ambient_temperature_K(building_weather = weather)
-    all(values(ambient_temp_K) .>= 0) || @warn """
+    all(collect_leaf_values(ambient_temp_K) .>= 0) || @warn """
     `ambient_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(values(ambient_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(values(ambient_temp_K))).
+    $(count(collect_leaf_values(ambient_temp_K) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(ambient_temp_K))).
     """
 
     # Calculate the effective ground temperature and check it's ok.
     ground_temp_K = calculate_effective_ground_temperature(ambient_temp_K)
-    all(values(ground_temp_K) .>= 0) || @warn """
+    all(collect_leaf_values(ground_temp_K) .>= 0) || @warn """
     `ground_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(values(ground_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(values(ground_temp_K))).
+    $(count(collect_leaf_values(ground_temp_K) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(ground_temp_K))).
     """
 
     # Fetch diffuse solar irradiation data and check it's ok.
     diff_solar_irradiation_W_m2 =
         mod.diffuse_solar_irradiation_W_m2(building_weather = weather)
-    all(values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
+    all(collect_leaf_values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
     `diffuse_solar_irradiation_W_m2` for `$(weather)` shouldn't have negative values!
-    $(count(values(diff_solar_irradiation_W_m2) .< 0)) violations found,
-    with a minimum of $(minimum(values(diff_solar_irradiation_W_m2))).
+    $(count(collect_leaf_values(diff_solar_irradiation_W_m2) .< 0)) violations found,
+    with a minimum of $(minimum(collect_leaf_values(diff_solar_irradiation_W_m2))).
     """
 
     # Fetch direct solar irradiation data and check it's ok.
@@ -53,7 +62,7 @@ function process_weather(weather::Object; mod::Module = @__MODULE__)
         ) for dir in solar_directions
     )
     for dir in solar_directions
-        all(values(dir_solar_irradiation_W_m2[dir]) .>= 0) || @warn """
+        all(collect_leaf_values(dir_solar_irradiation_W_m2[dir]) .>= 0) || @warn """
         `direct_solar_irradiation_W_m2[$(dir)]` for `$(weather)` shouldn't have negative values!
         $(count(values(dir_solar_irradiation_W_m2[dir]) .< 0)) violations found,
         with a minimum of $(minimum(values(dir_solar_irradiation_W_m2[dir]))).
@@ -71,7 +80,8 @@ end
 """
     calculate_effective_ground_temperature(
         ambient_temp_K::SpineDataType;
-        coeff::Real=1.7
+        coeff::Real = 1.7
+        realization::Symbol = :realization,
     )
 
 Calculate the effective ground temperature based on the ambient temperature.
@@ -89,6 +99,7 @@ the annual and 3-month moving averages.
 function calculate_effective_ground_temperature(
     ambient_temp_K::TimeSeries;
     coeff::Real = 1.7,
+    realization::Symbol = :realization,
 )
     # Ambient temperature assumed to repeat when calculating moving averages
     repeating_ambient = TimeSeries(
@@ -127,6 +138,7 @@ end
 function calculate_effective_ground_temperature(
     ambient_temp_K::TimePattern;
     coeff::Real = 1.7,
+    realization::Symbol = :realization,
 )
     @error """
     `TimePattern` form ambient temperatures currently unsupported!
@@ -134,15 +146,21 @@ function calculate_effective_ground_temperature(
     """
     return nothing
 end
-function calculate_effective_ground_temperature(ambient_temp_K::Map; coeff::Real = 1.7)
-    @error """
-    `Map` form ambient temperatures currently unsupported!
-    Please use `TimeSeries` instead.
-    """
-    return nothing
+function calculate_effective_ground_temperature(
+    ambient_temp_K::Map;
+    coeff::Real = 1.7,
+    realization::Symbol = :realization,
+)
+    return calculate_effective_ground_temperature(
+        ambient_temp_K[realization];
+        coeff = coeff,
+    )
 end
-calculate_effective_ground_temperature(ambient_temp_K::Real; coeff::Real = 1.7) =
-    ambient_temp_K
+calculate_effective_ground_temperature(
+    ambient_temp_K::Real;
+    coeff::Real = 1.7,
+    realization::Symbol = :realization,
+) = ambient_temp_K
 
 
 """

@@ -9,13 +9,16 @@ Functions for solving the heating/cooling demands of `ArchetypeBuilding`s.
     solve_heating_demand(
         archetype::ArchetypeBuilding,
         free_dynamics::Bool,
-        initial_temperatures::Union{Nothing,Dict{Object,Float64}},
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}};
+        realization::Symbol = :realization,
     )
 
 Solve the heating/cooling demand of the `archetype`.
 
 Note that this function calculates the "final energy demand" of the archetype
 building, and not the energy consumption of it's HVAC systems.
+Furthermore, the calculations are deterministic, with `realization` defining
+the true data from potentially stochastic input.
 See the [`solve_consumption`](@ref) function for that.
 Essentially, performs the following steps:
 1. Check external load data and [`determine_temporal_structure`](@ref).
@@ -85,18 +88,20 @@ while the vector selection is essentially only the selected column in vector for
 function solve_heating_demand(
     archetype::ArchetypeBuilding,
     free_dynamics::Bool,
-    initial_temperatures::Union{Nothing,Dict{Object,Float64}},
+    initial_temperatures::Union{Nothing,Dict{Object,Float64}};
+    realization::Symbol = :realization,
 )
     # Check that the external load data for the abstract nodes makes sense,
     # and determine the temporal scope and resolution for the simulation.
-    indices, delta_t = determine_temporal_structure(archetype)
+    indices, delta_t = determine_temporal_structure(archetype; realization = realization)
 
     # Form and invert the implicit Euler free dynamics matrix.
     dynamics_matrix, inverted_dynamics_matrix =
         form_and_invert_dynamics_matrix(archetype, delta_t)
 
     # Initialize the `external_load` and thermal mass vectors.
-    external_load_vector, thermal_mass_vector = initialize_rhs(archetype, indices, delta_t)
+    external_load_vector, thermal_mass_vector =
+        initialize_rhs(archetype, indices, delta_t; realization = realization)
 
     # Initialize the temperature vector and the temperature limit vectors.
     init_temperatures, min_temperatures, max_temperatures = initialize_temperatures(
@@ -152,18 +157,32 @@ end
 
 
 """
-    determine_temporal_structure(archetype::ArchetypeBuilding)
+    determine_temporal_structure(
+        archetype::ArchetypeBuilding;
+        realization::Symbol = :realization,
+    )
 
 Check that `external_load` timeseries are consistent in the `AbstractNodeNetwork`,
 and determine the time series indices and the `delta_t`.
 
 Note that the time series need to have a constant `delta_t` in order for the
 dynamic matrix to be time-invarying, speeding up the solving process significantly.
+The `realization` keyword is necessary to indicate the true data from potentially
+stochastic input.
 """
-function determine_temporal_structure(archetype::ArchetypeBuilding)
+function determine_temporal_structure(
+    archetype::ArchetypeBuilding;
+    realization::Symbol = :realization,
+)
     # Check that all nodes have identical `external_load` time series indices.
-    indices = first(archetype.abstract_nodes)[2].external_load.indexes
-    if !all(n.external_load.indexes == indices for (k, n) in archetype.abstract_nodes)
+    indices =
+        parameter_value(first(archetype.abstract_nodes)[2].external_load)(
+            scenario = realization,
+        ).indexes
+    if !all(
+        parameter_value(n.external_load)(scenario = realization).indexes == indices for
+        (k, n) in archetype.abstract_nodes
+    )
         return @error """
         `external_load` time series are indexed different for `abstract_nodes`
         of `archetype_building` `$(archetype)`!
@@ -320,11 +339,15 @@ end
     initialize_rhs(
         archetype::ArchetypeBuilding,
         indices::Vector{Dates.DateTime},
-        delta_t::Int64
+        delta_t::Int64;
+        realization::Symbol = :realization,
     )
 
 Initialize the right-hand side of the linear equation system,
 meaning the impact of the `external_load` and previous temperatures.
+
+The `realization` keyword is used to indicate the true data from potentially
+stochastic input.
 
 See the [`solve_heating_demand`](@ref) function for the overall formulation.
 This function returns the right-hand side components separately
@@ -338,12 +361,15 @@ The components are useful for the [`solve_heating_demand_loop`](@ref) function.
 function initialize_rhs(
     archetype::ArchetypeBuilding,
     indices::Vector{Dates.DateTime},
-    delta_t::Int64,
+    delta_t::Int64;
+    realization::Symbol = :realization,
 )
     # Process the nodal `external_loads` into a nested vector for easy access.
     external_load_vector = [
-        [n.external_load.values[i] for (k, n) in archetype.abstract_nodes] for
-        (i, t) in enumerate(indices)
+        [
+            parameter_value(n.external_load)(scenario = realization).values[i] for
+            (k, n) in archetype.abstract_nodes
+        ] for (i, t) in enumerate(indices)
     ]
 
     # Calculate the thermal mass vector to account for previous temperatures.
