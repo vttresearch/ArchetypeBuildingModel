@@ -896,7 +896,7 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 \\Phi_\\text{sky,n} = \\sum_{st \\in n} w_\\text{n,st} \\Phi_\\text{sky,st},
 ```
 `w_n,st` is the [structure\\_type\\_weight](@ref) of the structure `st` on this node `n`,
-and `Φ_sky,st` are the envelope radiative sky heat losses using [`calculate_envelope_solar_gains`](@ref).
+and `Φ_sky,st` are the envelope radiative sky heat losses using [`calculate_envelope_radiative_sky_losses`](@ref).
 """
 function calculate_total_envelope_radiative_sky_losses(
     node::Object,
