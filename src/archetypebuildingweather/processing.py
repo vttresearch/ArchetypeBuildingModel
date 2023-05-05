@@ -120,9 +120,7 @@ def prepare_cutout(
     return cutout
 
 
-def prepare_layout(
-    shapefile, cutout, weights, raster_path=None, resampling=5, method=0
-):
+def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     """
     Prepares a layout for aggregating the weather data.
 
@@ -140,9 +138,6 @@ def prepare_layout(
     raster_path=None : Optional path to further raster data used for generating the layout.
     resampling=5 : Setting for resampling the data, `5=average` by default.
         See [`rasterio.enums.Resampling`](https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling)
-    method=0 : By default, resampling is done during sub-shape weighting for maximum accuracy.
-        Setting to 1 will result in the raw raster being downscaled to match shapefile raster resolution prior to sub-shape weighting for faster compution.
-        Setting to 2 will downscale raster to ERA5 cutout resolution prior to sub-shape weighting for maximum speed.
 
     Returns
     -------
@@ -156,48 +151,26 @@ def prepare_layout(
 
     # If `raster_path` is defined, load the raster data and clip it with the whole shapefile.
     if raster_path is not None:
-        raster = (
-            rioxarray.open_rasterio(raster_path, masked=True)
-            .rio.clip(shapefile.data.geometry, from_disk=True)
-            .fillna(0.0)
+        raster = rioxarray.open_rasterio(raster_path, masked=True).rio.clip(
+            shapefile.data.geometry, from_disk=True
         )
     else:  # Else, use the default uniform raster created based on the `Shapefile`
-        raster = shapefile.raster.fillna(0.0)
-
-    # Method selection to tweak pre-resampling of raster data.
-    if method == 0:
-        resampled_raster = raster
-    elif method == 1:
-        resampled_raster = raster.rio.reproject_match(
-            shapefile.raster, resampling=resampling, from_disk=True, nodata=0.0
-        )
-    elif method == 2:
-        resampled_raster = raster.rio.reproject(
-            cutout.crs,
-            shape=cutout.shape,
-            transform=cutout.transform,
-            resampling=resampling,
-            from_disk=True,
-            nodata=0.0,
-        )
-    else:
-        raise RuntimeError
+        raster = shapefile.raster
 
     # Take the given weights into account and normalize the rasters.
     # Reprojection to layout resolution is done on sub-raster basis to avoid memory issues.
     rasters = []
     for lid in locations:
-        # Define a loose bounding box
+        # Define a loose bounding box based on shapefile settings
         minx, miny, maxx, maxy = gdf.geometry.loc[lid].bounds
         minx -= shapefile.loose_bound_offset
         miny -= shapefile.loose_bound_offset
         maxx += shapefile.loose_bound_offset
         maxy += shapefile.loose_bound_offset
 
-        # Clip the loose box from the original raster and drop the rest.
-        rst = resampled_raster.rio.clip_box(minx, miny, maxx, maxy)
-
-        # Clip the municipality tightly, but keep the box size to avoid issues with resampling.
+        # Clip the loose box from the original raster and drop the rest for computational efficiency
+        rst = raster.rio.clip_box(minx, miny, maxx, maxy)
+        # Clip the municipality tightly, but don't `drop` to avoid issues with resampling.
         rst = (
             rst.rio.clip(
                 [gdf.geometry.loc[lid]], all_touched=True, drop=False, from_disk=True
@@ -214,13 +187,12 @@ def prepare_layout(
         )
         rst = rst / rst.sum() * weights[lid]  # Normalize and weigh the sub-shape.
         rasters.append(rst)  # Collect the weighted sub-raster into the list.
+
     # Combine the weighted and normalized rasters into one.
     layout = sum(rasters)
+    layout = layout / layout.sum()  # Finally, normalize the whole layout
 
-    # Finally, normalize the whole layout
-    layout = layout / layout.sum()
-
-    return raster, resampled_raster, layout
+    return raster, layout
 
 
 def process_weather(cutout, layout):
