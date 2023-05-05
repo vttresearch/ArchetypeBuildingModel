@@ -187,8 +187,19 @@ def prepare_layout(
     # Reprojection to layout resolution is done on sub-raster basis to avoid memory issues.
     rasters = []
     for lid in locations:
+        # Define a loose bounding box
+        minx, miny, maxx, maxy = gdf.geometry.loc[lid].bounds
+        minx -= shapefile.loose_bound_offset
+        miny -= shapefile.loose_bound_offset
+        maxx += shapefile.loose_bound_offset
+        maxy += shapefile.loose_bound_offset
+
+        # Clip the loose box from the original raster and drop the rest.
+        rst = resampled_raster.rio.clip_box(minx, miny, maxx, maxy)
+
+        # Clip the municipality tightly, but keep the box size to avoid issues with resampling.
         rst = (
-            resampled_raster.rio.clip(
+            rst.rio.clip(
                 [gdf.geometry.loc[lid]], all_touched=True, drop=False, from_disk=True
             )
             .fillna(0.0)
@@ -209,7 +220,7 @@ def prepare_layout(
     # Finally, normalize the whole layout
     layout = layout / layout.sum()
 
-    return raster, layout
+    return raster, resampled_raster, layout
 
 
 def process_weather(cutout, layout):
