@@ -151,8 +151,10 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
 
     # If `raster_path` is defined, load the raster data and clip it with the whole shapefile.
     if raster_path is not None:
-        raster = rioxarray.open_rasterio(raster_path, masked=True).rio.clip(
-            shapefile.data.geometry, from_disk=True
+        raster = (
+            rioxarray.open_rasterio(raster_path, masked=True)
+            .rio.clip(shapefile.data.geometry, from_disk=True)
+            .squeeze()
         )
     else:  # Else, use the default uniform raster created based on the `Shapefile`
         raster = shapefile.raster
