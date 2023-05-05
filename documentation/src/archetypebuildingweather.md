@@ -47,9 +47,8 @@ essentially performs the following steps:
 1. Load the shapefile from [shapefile\_path].
 2. Prepare the `cutout` for `atlite` using [The `prepare_cutout` function](@ref).
 3. Prepare the `layout` for `atlite` using [The `prepare_layout` function](@ref).
-4. Match the `layout` to the ERA5 resolution using [The `match_layout` function](@ref).
-5. If `save_layouts == true`, plot diagnostics using [The `plot_layout` function](@ref).
-6. Return the output of [The `process_weather` function](@ref).
+4. If `save_layouts == true`, plot diagnostics using [The `plot_layout` function](@ref).
+5. Return the output of [The `process_weather` function](@ref).
 
 
 ### The `prepare_cutout` function
@@ -79,22 +78,11 @@ to match the corresponding `location_id_gfa_weights`, which are based on the
 to refine the distribution *inside* the `location_id` polygons of the `shapefile`.
 
 
-### The `match_layout` function
-
-Typically, [The `prepare_layout` function](@ref) results in a weight raster
-with a significantly better geographical resolution than the ERA5 weather data.
-Thus, the `match_layout` function is used to match the resolution of the `layout`
-to the ERA5 data. By default, this is done by averaging all the data inside each
-ERA5 pixel, but this can be changed to summation of desired. Finally,
-the reindexed `layout` is normalized to ensure weighted averaging of the weather
-data.
-
-
 ### The `plot_layout` function
 
 If the `save_layouts == true` *(true by default)* is set, the `plot_layout`
-function is called to plot both the `layout` both with its original resolution,
-as well as after [The `match_layout` function](@ref) has been called.
+function is called to plot both the original `raster` weights,
+as well as the layout from the [The `prepare_layout` function](@ref).
 The diagnostic figures are saved under the `figs/` folder in the repository.
 Here are example weather data aggregation `layouts` for Germany as plotted by
 the `plot_layout` function, before and after matching the used polulation density
