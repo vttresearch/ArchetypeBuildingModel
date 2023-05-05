@@ -295,6 +295,7 @@ def aggregate_weather(
     raster_path=None,
     filename="scope",
     save_layouts=True,
+    resampling=5,
 ):
     """
     Aggregate weather data for the given input arguments.
@@ -325,6 +326,7 @@ def aggregate_weather(
         Name of the image file displaying the final layout.
     save_layouts = True : bool
         A flag to control whether layout images are to be saved.
+    resampling=5 : Setting for resampling the data for `prepare_layout()`, `5=average` by default.
 
     Returns
     -------
