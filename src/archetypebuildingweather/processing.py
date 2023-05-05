@@ -124,7 +124,7 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     """
     Prepares a layout for aggregating the weather data.
 
-    Uses rio.reproject to resample the underlying raster data to match the
+    Uses `rio.reproject` to resample the underlying raster data to match the
     resolution required by the atlite `cutout`.
 
     Parameters
