@@ -60,11 +60,11 @@ Essentially, performs the following steps:
 """
 function SpineOptInput(
     results::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     spineopt = SpineOptInput()
     for result in values(results)
-        add_archetype_to_input!(spineopt, result; mod = mod)
+        add_archetype_to_input!(spineopt, result; mod=mod)
     end
     return spineopt
 end
@@ -98,7 +98,7 @@ The key steps taken by this function are summarized below:
 function add_archetype_to_input!(
     spineopt::SpineOptInput,
     result::ArchetypeBuildingResults;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Map `building_node` objects to unique `node` objects.
     n_map = Dict(
@@ -109,7 +109,7 @@ function add_archetype_to_input!(
     )
     # Identify the relevant system link nodes and map them to new nodes with the desired names.
     sys_link_nodes = mod.building_archetype__system_link_node(
-        building_archetype = result.archetype.archetype,
+        building_archetype=result.archetype.archetype,
     )
     # This is a bit complicated, as we have to avoid creating identical objects.
     merge!(
@@ -119,22 +119,22 @@ function add_archetype_to_input!(
                 isnothing(
                     spineopt.node(
                         mod.node_name(
-                            building_archetype = result.archetype.archetype,
-                            building_node = sys_link_node,
+                            building_archetype=result.archetype.archetype,
+                            building_node=sys_link_node,
                         ),
                     ),
                 ) ?
                 Object(
                     mod.node_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                     :node,
                 ) :
                 spineopt.node(
                     mod.node_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                 ) for sys_link_node in sys_link_nodes
         ),
@@ -153,7 +153,7 @@ function add_archetype_to_input!(
     # Add the necessary `node` objects and their parameters
     node_param_dict = Dict(
         n_map[node] => Dict(
-            :demand => parameter_value(-1 * abs_node.external_load),
+            :demand => parameter_value(-1 * abs_node.external_load_W),
             :initial_node_state => parameter_value(result.initial_temperatures[node]),
             :frac_state_loss =>
                 parameter_value(abs_node.self_discharge_coefficient_W_K),
@@ -186,7 +186,7 @@ function add_archetype_to_input!(
     )
     add_relationships!(
         spineopt.node__node,
-        [(node1 = n1, node2 = n2) for (n1, n2) in keys(nn_param_dict)],
+        [(node1=n1, node2=n2) for (n1, n2) in keys(nn_param_dict)],
     )
     merge!(spineopt.node__node.parameter_values, nn_param_dict)
     spineopt.node__node.parameter_defaults[:diff_coeff] = parameter_value(0.0)
@@ -202,7 +202,7 @@ function add_archetype_to_input!(
     )
     add_relationships!(
         spineopt.unit__from_node,
-        [(unit = u, from_node = n) for (u, n) in keys(ufn_param_dict)],
+        [(unit=u, from_node=n) for (u, n) in keys(ufn_param_dict)],
     )
     merge!(spineopt.unit__from_node.parameter_values, ufn_param_dict)
     spineopt.unit__from_node.parameter_defaults[:unit_capacity] = parameter_value(nothing)
@@ -218,7 +218,7 @@ function add_archetype_to_input!(
     )
     add_relationships!(
         spineopt.unit__to_node,
-        [(unit = u, to_node = n) for (u, n) in keys(utn_param_dict)],
+        [(unit=u, to_node=n) for (u, n) in keys(utn_param_dict)],
     )
     merge!(spineopt.unit__to_node.parameter_values, utn_param_dict)
     spineopt.unit__to_node.parameter_defaults[:unit_capacity] = parameter_value(nothing)
@@ -249,7 +249,7 @@ function add_archetype_to_input!(
     )
     add_relationships!(
         spineopt.unit__node__node,
-        [(unit = u, node1 = n1, node2 = n2) for (u, n1, n2) in keys(unn_param_dict)],
+        [(unit=u, node1=n1, node2=n2) for (u, n1, n2) in keys(unn_param_dict)],
     )
     merge!(spineopt.unit__node__node.parameter_values, unn_param_dict)
     spineopt.unit__node__node.parameter_defaults[:fix_ratio_in_out_unit_flow] =

@@ -34,20 +34,20 @@ function process_building_loads(
     scope::ScopeData,
     envelope::EnvelopeData,
     weather::WeatherData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Find the `building_loads` connected to the `archetype`
-    loads = first(mod.building_archetype__building_loads(building_archetype = archetype))
+    loads = first(mod.building_archetype__building_loads(building_archetype=archetype))
 
     # Calculate loads
-    dhw_demand = calculate_total_dhw_demand(loads, scope; mod = mod)
-    internal_gains = calculate_total_internal_heat_loads(loads, scope; mod = mod)
+    dhw_demand = calculate_total_dhw_demand(loads, scope; mod=mod)
+    internal_gains = calculate_total_internal_heat_loads(loads, scope; mod=mod)
     solar_gains =
-        calculate_total_solar_gains(archetype, scope, envelope, weather; mod = mod)
+        calculate_total_solar_gains(archetype, scope, envelope, weather; mod=mod)
     envelope_solar_gains =
-        calculate_envelope_solar_gains(archetype, scope, envelope, weather; mod = mod)
+        calculate_envelope_solar_gains(archetype, scope, envelope, weather; mod=mod)
     envelope_sky_losses =
-        calculate_envelope_radiative_sky_losses(archetype, scope, envelope; mod = mod)
+        calculate_envelope_radiative_sky_losses(archetype, scope, envelope; mod=mod)
 
     return dhw_demand,
     internal_gains,
@@ -78,11 +78,11 @@ and `A_gfa` is the gross-floor area of the building.
 function calculate_total_dhw_demand(
     loads::Object,
     scope::ScopeData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
-    mod.domestic_hot_water_demand_base_W(building_loads = loads) +
+    mod.domestic_hot_water_demand_base_W(building_loads=loads) +
     scope.average_gross_floor_area_m2_per_building *
-    mod.domestic_hot_water_demand_gfa_scaling_W_m2(building_loads = loads)
+    mod.domestic_hot_water_demand_gfa_scaling_W_m2(building_loads=loads)
 end
 
 
@@ -111,11 +111,11 @@ and `A_gfa` is the gross-floor area of the building.
 function calculate_total_internal_heat_loads(
     loads::Object,
     scope::ScopeData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
-    mod.internal_heat_loads_base_W(building_loads = loads) +
+    mod.internal_heat_loads_base_W(building_loads=loads) +
     scope.average_gross_floor_area_m2_per_building *
-    mod.internal_heat_loads_gfa_scaling_W_m2(building_loads = loads)
+    mod.internal_heat_loads_gfa_scaling_W_m2(building_loads=loads)
 end
 
 
@@ -158,17 +158,17 @@ function calculate_total_solar_gains(
     scope::ScopeData,
     envelope::EnvelopeData,
     weather::WeatherData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
-    mod.window_non_perpendicularity_correction_factor(building_archetype = archetype) *
+    mod.window_non_perpendicularity_correction_factor(building_archetype=archetype) *
     scope.total_normal_solar_energy_transmittance *
     envelope.window.surface_area_m2 *
     (
         weather.diffuse_solar_irradiation_W_m2 +
-        mod.external_shading_coefficient(building_archetype = archetype) * sum(
+        mod.external_shading_coefficient(building_archetype=archetype) * sum(
             mod.window_area_distribution_towards_cardinal_directions(
-                building_archetype = archetype;
-                cardinal_direction = dir,
+                building_archetype=archetype;
+                cardinal_direction=dir
             ) * weather.direct_solar_irradiation_W_m2[dir] for
             dir in solar_directions
         )
@@ -217,7 +217,7 @@ function calculate_envelope_solar_gains(
     scope::ScopeData,
     envelope::EnvelopeData,
     weather::WeatherData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Define applicable structure types and directions.
     st_dirs = Dict(
@@ -229,15 +229,15 @@ function calculate_envelope_solar_gains(
     # Calculate the net solar gains and sky losses for each structure type.
     return Dict(
         st => (
-            mod.exterior_resistance_m2K_W(structure_type = st) *
+            mod.exterior_resistance_m2K_W(structure_type=st) *
             scope.structure_data[st].external_U_value_to_ambient_air_W_m2K *
             getfield(envelope, st.name).surface_area_m2 *
             mod.average_structural_solar_absorption_coefficient(
-                building_archetype = archetype,
+                building_archetype=archetype,
             ) *
             (
                 weather.diffuse_solar_irradiation_W_m2 +
-                mod.external_shading_coefficient(building_archetype = archetype) *
+                mod.external_shading_coefficient(building_archetype=archetype) *
                 sum(weather.direct_solar_irradiation_W_m2[dir] for dir in dirs)
             )
         ) for (st, dirs) in st_dirs
@@ -280,7 +280,7 @@ function calculate_envelope_radiative_sky_losses(
     archetype::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Define envelope structure types and their view factors to the sky, based on EN ISO 52016-1:2017 Table B.18.
     st_F_sky = Dict(
@@ -292,15 +292,15 @@ function calculate_envelope_radiative_sky_losses(
     # Calculate the radiative sky heat losses for each structure
     return Dict(
         st => (
-            mod.exterior_resistance_m2K_W(structure_type = st) *
+            mod.exterior_resistance_m2K_W(structure_type=st) *
             scope.structure_data[st].external_U_value_to_ambient_air_W_m2K *
             getfield(envelope, st.name).surface_area_m2 *
             F_sky *
             mod.external_radiative_surface_heat_transfer_coefficient_W_m2K(
-                building_archetype = archetype,
+                building_archetype=archetype,
             ) *
             mod.average_apparent_sky_temperature_difference_K(
-                building_archetype = archetype,
+                building_archetype=archetype,
             )
         ) for (st, F_sky) in st_F_sky
     )

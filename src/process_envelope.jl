@@ -40,47 +40,47 @@ The building envelope calculations proceed as follows:
 function process_building_envelope(
     archetype::Object,
     data::ScopeData;
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Calculate envelope dimensions
     base_floor = calculate_base_floor_dimensions(
         data,
-        mod.number_of_storeys(building_archetype = archetype),
-        mod.building_frame_depth_m(building_archetype = archetype),
+        mod.number_of_storeys(building_archetype=archetype),
+        mod.building_frame_depth_m(building_archetype=archetype),
     )
     roof = calculate_roof_dimensions(
         base_floor,
-        mod.number_of_storeys(building_archetype = archetype),
-        mod.building_frame_depth_m(building_archetype = archetype),
+        mod.number_of_storeys(building_archetype=archetype),
+        mod.building_frame_depth_m(building_archetype=archetype),
     )
     separating_floor = calculate_separating_floor_dimensions(
         data,
         base_floor,
-        mod.number_of_storeys(building_archetype = archetype),
-        mod.building_frame_depth_m(building_archetype = archetype),
+        mod.number_of_storeys(building_archetype=archetype),
+        mod.building_frame_depth_m(building_archetype=archetype),
     )
     vertical_envelope_area_m2 = calculate_vertical_envelope_surface_area(
         base_floor,
         separating_floor,
-        mod.room_height_m(building_archetype = archetype),
+        mod.room_height_m(building_archetype=archetype),
     )
     window = calculate_window_dimensions(
         vertical_envelope_area_m2,
-        mod.window_area_to_external_wall_ratio_m2_m2(building_archetype = archetype),
+        mod.window_area_to_external_wall_ratio_m2_m2(building_archetype=archetype),
     )
     exterior_wall, light_exterior_wall = calculate_exterior_wall_dimensions(
         vertical_envelope_area_m2,
         window,
-        mod.external_wall_load_bearing_fraction(building_archetype = archetype),
-        mod.number_of_storeys(building_archetype = archetype),
-        mod.room_height_m(building_archetype = archetype),
+        mod.external_wall_load_bearing_fraction(building_archetype=archetype),
+        mod.number_of_storeys(building_archetype=archetype),
+        mod.room_height_m(building_archetype=archetype),
     )
     partition_wall, light_partition_wall = calculate_partition_wall_dimensions(
         vertical_envelope_area_m2,
         mod.partition_wall_length_ratio_to_external_walls_m_m(
-            building_archetype = archetype,
+            building_archetype=archetype,
         ),
-        mod.partition_wall_load_bearing_fraction(building_archetype = archetype),
+        mod.partition_wall_load_bearing_fraction(building_archetype=archetype),
     )
 
     # Return the envelope dimensions
@@ -126,8 +126,8 @@ function calculate_base_floor_dimensions(
 )
     A_bf = data.average_gross_floor_area_m2_per_building / storeys
     return (
-        linear_thermal_bridge_length_m = 2 * (A_bf / frame_depth_m + frame_depth_m),
-        surface_area_m2 = A_bf,
+        linear_thermal_bridge_length_m=2 * (A_bf / frame_depth_m + frame_depth_m),
+        surface_area_m2=A_bf,
     )
 end
 
@@ -168,9 +168,9 @@ function calculate_roof_dimensions(
     storeys::Real,
 )
     return (
-        linear_thermal_bridge_length_m = base_floor.linear_thermal_bridge_length_m +
-                                         (mod(storeys, 1) != 0 && 2 * frame_depth_m),
-        surface_area_m2 = base_floor.surface_area_m2,
+        linear_thermal_bridge_length_m=base_floor.linear_thermal_bridge_length_m +
+                                       (mod(storeys, 1) != 0 && 2 * frame_depth_m),
+        surface_area_m2=base_floor.surface_area_m2,
     )
 end
 
@@ -215,14 +215,14 @@ function calculate_separating_floor_dimensions(
     full_storeys = floor(storeys)
     partial_storey = mod(storeys, 1)
     return (
-        linear_thermal_bridge_length_m = (full_storeys - 1) *
-                                         base_floor.linear_thermal_bridge_length_m +
-                                         2 * (
+        linear_thermal_bridge_length_m=(full_storeys - 1) *
+                                       base_floor.linear_thermal_bridge_length_m +
+                                       2 * (
             partial_storey != 0 &&
             (base_floor.surface_area_m2 * partial_storey / frame_depth_m + frame_depth_m)
         ),
-        surface_area_m2 = data.average_gross_floor_area_m2_per_building -
-                          base_floor.surface_area_m2,
+        surface_area_m2=data.average_gross_floor_area_m2_per_building -
+                        base_floor.surface_area_m2,
     )
 end
 
@@ -286,8 +286,8 @@ function calculate_window_dimensions(
     window_to_wall_ratio::Real,
 )
     return (
-        linear_thermal_bridge_length_m = 0.0,
-        surface_area_m2 = vertical_envelope_area_m2 * window_to_wall_ratio,
+        linear_thermal_bridge_length_m=0.0,
+        surface_area_m2=vertical_envelope_area_m2 * window_to_wall_ratio,
     )
 end
 
@@ -337,13 +337,13 @@ function calculate_exterior_wall_dimensions(
     area_m2 = vertical_envelope_area_m2 - window.surface_area_m2
     thermal_bridge_length_m = 4 * ceil(storeys) * room_height_m
     return (
-        linear_thermal_bridge_length_m = load_bearing_fraction * thermal_bridge_length_m,
-        surface_area_m2 = load_bearing_fraction * area_m2,
+        linear_thermal_bridge_length_m=load_bearing_fraction * thermal_bridge_length_m,
+        surface_area_m2=load_bearing_fraction * area_m2,
     ),
     (
-        linear_thermal_bridge_length_m = (1 - load_bearing_fraction) *
-                                         thermal_bridge_length_m,
-        surface_area_m2 = (1 - load_bearing_fraction) * area_m2,
+        linear_thermal_bridge_length_m=(1 - load_bearing_fraction) *
+                                       thermal_bridge_length_m,
+        surface_area_m2=(1 - load_bearing_fraction) * area_m2,
     )
 end
 
@@ -387,11 +387,11 @@ function calculate_partition_wall_dimensions(
 )
     area_m2 = partition_wall_ratio * vertical_envelope_area_m2
     return (
-        linear_thermal_bridge_length_m = 0.0,
-        surface_area_m2 = load_bearing_fraction * area_m2,
+        linear_thermal_bridge_length_m=0.0,
+        surface_area_m2=load_bearing_fraction * area_m2,
     ),
     (
-        linear_thermal_bridge_length_m = 0.0,
-        surface_area_m2 = (1 - load_bearing_fraction) * area_m2,
+        linear_thermal_bridge_length_m=0.0,
+        surface_area_m2=(1 - load_bearing_fraction) * area_m2,
     )
 end

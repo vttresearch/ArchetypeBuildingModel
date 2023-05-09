@@ -51,7 +51,7 @@ Essentially, this function performs the following steps:
 6. Return the components required for constructing an [`AbstractNode`](@ref).
 
 **NOTE!** The ambient temperatures are accounted for via a combination of `self_discharge_coefficient_W_K`
-and `external_load`, instead of  `heat_transfer_coefficients_W_K` on any ambient temperature nodes,
+and `external_load_W`, instead of  `heat_transfer_coefficients_W_K` on any ambient temperature nodes,
 as illustrated by the equations below.
 Typically, the heat balance equation in simplified lumped-capacitance thermal
 models is cast as
@@ -154,7 +154,7 @@ function process_abstract_node(
     filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
 
     # External load accounting for heat transfer with ambient conditions.
-    external_load =
+    external_load_W =
         (
             node_data.heat_transfer_coefficient_structures_exterior_W_K +
             node_data.heat_transfer_coefficient_windows_W_K +
@@ -174,7 +174,7 @@ function process_abstract_node(
     return thermal_mass_Wh_K,
     self_discharge_coefficient_W_K,
     heat_transfer_coefficients_W_K,
-    external_load,
+    external_load_W,
     node_data.minimum_temperature_K,
     node_data.maximum_temperature_K
 end
