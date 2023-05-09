@@ -99,7 +99,7 @@ function solve_heating_demand(
     dynamics_matrix, inverted_dynamics_matrix =
         form_and_invert_dynamics_matrix(archetype, delta_t)
 
-    # Initialize the `external_load` and thermal mass vectors.
+    # Initialize the external load and thermal mass vectors.
     external_load_vector, thermal_mass_vector =
         initialize_rhs(archetype, indices, delta_t; realization=realization)
 
@@ -162,7 +162,7 @@ end
         realization::Symbol = :realization,
     )
 
-Check that `external_load` timeseries are consistent in the `AbstractNodeNetwork`,
+Check that `external_load_W` timeseries are consistent in the `AbstractNodeNetwork`,
 and determine the time series indices and the `delta_t`.
 
 Note that the time series need to have a constant `delta_t` in order for the
@@ -174,17 +174,17 @@ function determine_temporal_structure(
     archetype::ArchetypeBuilding;
     realization::Symbol=:realization
 )
-    # Check that all nodes have identical `external_load` time series indices.
+    # Check that all nodes have identical `external_load_W` time series indices.
     indices =
-        parameter_value(first(archetype.abstract_nodes)[2].external_load)(
+        parameter_value(first(archetype.abstract_nodes)[2].external_load_W)(
             scenario=realization,
         ).indexes
     if !all(
-        parameter_value(n.external_load)(scenario=realization).indexes == indices for
+        parameter_value(n.external_load_W)(scenario=realization).indexes == indices for
         (k, n) in archetype.abstract_nodes
     )
         return @error """
-        `external_load` time series are indexed different for `abstract_nodes`
+        `external_load_W` time series are indexed different for `abstract_nodes`
         of `archetype_building` `$(archetype)`!
         """
     end
@@ -193,7 +193,7 @@ function determine_temporal_structure(
     delta_t = getfield.(Hour.(diff(indices)), :value)
     if !all(delta_t .== first(delta_t))
         return @error """
-        `external_load` time series of `archetype` `$(archetype)` must have
+        `external_load_W` time series of `archetype` `$(archetype)` must have
         a constant time step length!
         """
     end
@@ -344,7 +344,7 @@ end
     )
 
 Initialize the right-hand side of the linear equation system,
-meaning the impact of the `external_load` and previous temperatures.
+meaning the impact of the `external_load_W` and previous temperatures.
 
 The `realization` keyword is used to indicate the true data from potentially
 stochastic input.
@@ -364,10 +364,10 @@ function initialize_rhs(
     delta_t::Int64;
     realization::Symbol=:realization
 )
-    # Process the nodal `external_loads` into a nested vector for easy access.
+    # Process the nodal `external_load_W`s into a nested vector for easy access.
     external_load_vector = [
         [
-            parameter_value(n.external_load)(scenario=realization).values[i] for
+            parameter_value(n.external_load_W)(scenario=realization).values[i] for
             (k, n) in archetype.abstract_nodes
         ] for (i, t) in enumerate(indices)
     ]

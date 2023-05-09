@@ -332,7 +332,7 @@ function add_archetype_to_input!(
             :boundStart => parameter_value(true),
             :energyStoredPerUnitOfState => parameter_value(abs_n.thermal_mass_Wh_K),
             :nodeBalance => parameter_value(true),
-            :influx => parameter_value(timeseries_to_backbone_map(abs_n.external_load)),
+            :influx => parameter_value(timeseries_to_backbone_map(abs_n.external_load_W)),
             :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
             :r_state_gnft_baseline =>
                 parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
