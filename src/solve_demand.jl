@@ -89,11 +89,11 @@ function solve_heating_demand(
     archetype::ArchetypeBuilding,
     free_dynamics::Bool,
     initial_temperatures::Union{Nothing,Dict{Object,Float64}};
-    realization::Symbol = :realization,
+    realization::Symbol=:realization
 )
     # Check that the external load data for the abstract nodes makes sense,
     # and determine the temporal scope and resolution for the simulation.
-    indices, delta_t = determine_temporal_structure(archetype; realization = realization)
+    indices, delta_t = determine_temporal_structure(archetype; realization=realization)
 
     # Form and invert the implicit Euler free dynamics matrix.
     dynamics_matrix, inverted_dynamics_matrix =
@@ -101,7 +101,7 @@ function solve_heating_demand(
 
     # Initialize the `external_load` and thermal mass vectors.
     external_load_vector, thermal_mass_vector =
-        initialize_rhs(archetype, indices, delta_t; realization = realization)
+        initialize_rhs(archetype, indices, delta_t; realization=realization)
 
     # Initialize the temperature vector and the temperature limit vectors.
     init_temperatures, min_temperatures, max_temperatures = initialize_temperatures(
@@ -172,15 +172,15 @@ stochastic input.
 """
 function determine_temporal_structure(
     archetype::ArchetypeBuilding;
-    realization::Symbol = :realization,
+    realization::Symbol=:realization
 )
     # Check that all nodes have identical `external_load` time series indices.
     indices =
         parameter_value(first(archetype.abstract_nodes)[2].external_load)(
-            scenario = realization,
+            scenario=realization,
         ).indexes
     if !all(
-        parameter_value(n.external_load)(scenario = realization).indexes == indices for
+        parameter_value(n.external_load)(scenario=realization).indexes == indices for
         (k, n) in archetype.abstract_nodes
     )
         return @error """
@@ -235,7 +235,7 @@ function form_and_invert_dynamics_matrix(archetype::ArchetypeBuilding, delta_t::
                 M[i, j] =
                     n1.thermal_mass_Wh_K / delta_t +
                     n1.self_discharge_coefficient_W_K +
-                    reduce(+, values(n1.heat_transfer_coefficients_W_K); init = 0.0)
+                    reduce(+, values(n1.heat_transfer_coefficients_W_K); init=0.0)
             else
                 M[i, j] = -get(n1.heat_transfer_coefficients_W_K, k2, 0.0)
             end
@@ -362,12 +362,12 @@ function initialize_rhs(
     archetype::ArchetypeBuilding,
     indices::Vector{Dates.DateTime},
     delta_t::Int64;
-    realization::Symbol = :realization,
+    realization::Symbol=:realization
 )
     # Process the nodal `external_loads` into a nested vector for easy access.
     external_load_vector = [
         [
-            parameter_value(n.external_load)(scenario = realization).values[i] for
+            parameter_value(n.external_load)(scenario=realization).values[i] for
             (k, n) in archetype.abstract_nodes
         ] for (i, t) in enumerate(indices)
     ]
@@ -465,12 +465,12 @@ function solve_heating_demand_loop(
                         .+,
                         dynamics_matrix[:, j] .* min_temperatures[j] for
                         j in fixed_min_temp_inds;
-                        init = 0.0,
+                        init=0.0
                     ) .- reduce(
                         .+,
                         dynamics_matrix[:, j] .* max_temperatures[j] for
                         j in fixed_max_temp_inds;
-                        init = 0.0,
+                        init=0.0
                     )
                 )
 

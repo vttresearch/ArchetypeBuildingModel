@@ -24,19 +24,19 @@ Essentially, performs the following steps:
 3. Aggregate the gross-floor area weights using [`aggregate_gfa_weights`](@ref).
 4. Return the necessary pieces to construct a [`ScopeData`](@ref).
 """
-function process_building_stock_scope(scope::Object; mod::Module = @__MODULE__)
+function process_building_stock_scope(scope::Object; mod::Module=@__MODULE__)
     # Find the relevant building stock statistics with all `building_periods`.
     relevant_building_stock_statistics = mod.building_stock_statistics(
-        building_stock = mod.building_scope__building_stock(building_scope = scope),
-        building_type = mod.building_scope__building_type(building_scope = scope),
-        location_id = mod.building_scope__location_id(building_scope = scope),
-        heat_source = mod.building_scope__heat_source(building_scope = scope);
-        _compact = false,
+        building_stock=mod.building_scope__building_stock(building_scope=scope),
+        building_type=mod.building_scope__building_type(building_scope=scope),
+        location_id=mod.building_scope__location_id(building_scope=scope),
+        heat_source=mod.building_scope__heat_source(building_scope=scope);
+        _compact=false
     )
 
     # Find the relevant `building_period` weights as limited by `scope_period_start_year` and `scope_period_end_year`
     building_period_weights = Dict(
-        bp => _building_period_weight(bp, scope; mod = mod) for
+        bp => _building_period_weight(bp, scope; mod=mod) for
         bp in unique(getfield.(relevant_building_stock_statistics, :building_period))
     )
     filter!(pair -> pair[2] > 0, building_period_weights)
@@ -62,7 +62,7 @@ function process_building_stock_scope(scope::Object; mod::Module = @__MODULE__)
         scope,
         relevant_building_stock_statistics,
         building_period_weights;
-        mod = mod,
+        mod=mod
     )
 
     # Calculate the aggregated weights for ventilation/infiltration and weather data processing.
@@ -92,12 +92,12 @@ in its entirety [1], only partially (0,1), or if at all [0].
 w_\\text{bp} = \\text{max}\\left( \\text{min} \\left( \\frac{\\text{end}_\\text{scope} - \\text{start}_\\text{bp}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, \\frac{\\text{end}_\\text{bp} - \\text{start}_\\text{scope}}{\\text{end}_\\text{bp} - \\text{start}_\\text{bp}}, 1 \\right), 0 \\right)
 ```
 """
-function _building_period_weight(period::Object, scope::Object; mod::Module = @__MODULE__)
+function _building_period_weight(period::Object, scope::Object; mod::Module=@__MODULE__)
     # Fetch period and scope years.
-    bp_start = mod.period_start(building_period = period)
-    bp_end = mod.period_end(building_period = period)
-    scope_start = mod.scope_period_start_year(building_scope = scope)
-    scope_end = mod.scope_period_end_year(building_scope = scope)
+    bp_start = mod.period_start(building_period=period)
+    bp_end = mod.period_end(building_period=period)
+    scope_start = mod.scope_period_start_year(building_scope=scope)
+    scope_end = mod.scope_period_end_year(building_scope=scope)
 
     # Check that the years are sensible.
     if bp_end < bp_start
@@ -158,23 +158,23 @@ function calculate_gross_floor_area_weights(
     scope::Object,
     relevant_building_stock_statistics::Vector,
     building_period_weights::Dict{Object,T} where {T<:Real};
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Initialize gross-floor area weights by calculating the weighted number of buildings.
     gross_floor_area_weights = [
         (bs, bt, bp, lid, hs) =>
             mod.number_of_buildings(
-                building_stock = bs,
-                building_type = bt,
-                building_period = bp,
-                location_id = lid,
-                heat_source = hs,
+                building_stock=bs,
+                building_type=bt,
+                building_period=bp,
+                location_id=lid,
+                heat_source=hs,
             ) *
-            mod.building_stock_weight(building_scope = scope, building_stock = bs) *
-            mod.building_type_weight(building_scope = scope, building_type = bt) *
+            mod.building_stock_weight(building_scope=scope, building_stock=bs) *
+            mod.building_type_weight(building_scope=scope, building_type=bt) *
             building_period_weights[bp] *
-            mod.location_id_weight(building_scope = scope, location_id = lid) *
-            mod.heat_source_weight(building_scope = scope, heat_source = hs) for
+            mod.location_id_weight(building_scope=scope, location_id=lid) *
+            mod.heat_source_weight(building_scope=scope, heat_source=hs) for
         (bs, bt, bp, lid, hs) in relevant_building_stock_statistics
     ]
     # Record total weighted number of buildings and check that its non-zero.
@@ -192,11 +192,11 @@ function calculate_gross_floor_area_weights(
     gross_floor_area_weights = [
         (bs, bt, bp, lid, hs) =>
             val * mod.average_gross_floor_area_m2_per_building(
-                building_stock = bs,
-                building_type = bt,
-                building_period = bp,
-                location_id = lid,
-                heat_source = hs,
+                building_stock=bs,
+                building_type=bt,
+                building_period=bp,
+                location_id=lid,
+                heat_source=hs,
             ) for ((bs, bt, bp, lid, hs), val) in gross_floor_area_weights
     ]
     # Calculate total weighted GFA, and use it to normalize the weights.
@@ -293,12 +293,12 @@ where `p` is any of the above listed properties to be aggregated.
 """
 function process_ventilation_and_fenestration_scope(
     aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     # Calculate the aggregated ventilation and fenestration parameters.
     hru_efficiency, inf_rate, sol_transm, ven_rate, win_U = [
         sum(
-            param(building_type = bt, building_period = bp, location_id = lid) * weight
+            param(building_type=bt, building_period=bp, location_id=lid) * weight
             for ((bt, bp, lid), weight) in aggregated_gfa_weights
         ) for param in [
             mod.HRU_efficiency,
@@ -339,17 +339,17 @@ where `p` is any of the above listed properties to be aggregated.
 """
 function process_structure_scope(
     aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
-    mod::Module = @__MODULE__,
+    mod::Module=@__MODULE__
 )
     structure_data = Dict{Object,StructureData}()
     for st in mod.structure_type()
         design_U, eff_mass, ext_U_air, ext_U_grd, int_U, lin_therm, tot_U = [
             sum(
                 param(
-                    building_type = bt,
-                    building_period = bp,
-                    location_id = lid,
-                    structure_type = st,
+                    building_type=bt,
+                    building_period=bp,
+                    location_id=lid,
+                    structure_type=st,
                 ) * weight for ((bt, bp, lid), weight) in aggregated_gfa_weights
             ) for param in [
                 mod.design_U_value_W_m2K,

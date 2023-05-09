@@ -22,7 +22,7 @@ Performs the following steps:
 3. Factor COP mode into the `maximum_flows` dictionary.
 4. Return the components for [`AbstractProcess`](@ref).
 """
-function process_abstract_system(process::BuildingProcessData; mod::Module = @__MODULE__)
+function process_abstract_system(process::BuildingProcessData; mod::Module=@__MODULE__)
     # COP sign used to indicate heating (positive) or cooling (negative).
     if process.coefficient_of_performance_mode == :heating
         coefficient_of_performance = process.coefficient_of_performance
@@ -39,8 +39,8 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
     if any( # Takes input from the system link node.
         in.(
             mod.building_process__direction__building_node(
-                building_process = process.building_process,
-                direction = mod.direction(:from_node),
+                building_process=process.building_process,
+                direction=mod.direction(:from_node),
             ),
             Ref(process.system_link_nodes),
         ),
@@ -49,8 +49,8 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
     elseif any( # Produces output to the system link node.
         in.(
             mod.building_process__direction__building_node(
-                building_process = process.building_process,
-                direction = mod.direction(:to_node),
+                building_process=process.building_process,
+                direction=mod.direction(:to_node),
             ),
             Ref(process.system_link_nodes),
         ),
@@ -73,7 +73,7 @@ function process_abstract_system(process::BuildingProcessData; mod::Module = @__
                 process.maximum_power_base_W[(dir, node)] +
                 process.maximum_power_gfa_scaled_W[(dir, node)]
             ) for (dir, node) in mod.building_process__direction__building_node(
-            building_process = process.building_process,
+            building_process=process.building_process,
         )
     )
     filter!(pair -> pair[2] != 0, maximum_flows)

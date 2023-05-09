@@ -72,10 +72,10 @@ end
 ## Make the documentation.
 
 makedocs(
-    sitename = "ArchetypeBuildingModel",
-    format = Documenter.HTML(),
-    modules = [ArchetypeBuildingModel],
-    pages = [
+    sitename="ArchetypeBuildingModel",
+    format=Documenter.HTML(),
+    modules=[ArchetypeBuildingModel],
+    pages=[
         "index.md",
         "defining_archetype_buildings.md",
         "model_workflow.md",
