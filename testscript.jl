@@ -35,8 +35,8 @@ realization = :realization # Realization data scenario name from stochastic inpu
 lmt = Inf
 @info "Running input data and definition tests..."
 @testset begin
-    @time run_parameter_tests(m; limit = lmt)
-    @time run_object_class_tests(m; limit = lmt)
+    @time run_parameter_tests(m; limit=lmt)
+    @time run_object_class_tests(m; limit=lmt)
     @time run_structure_type_tests(m)
 end
 
@@ -190,7 +190,7 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 
 @info "Processing `ArchetypeBuilding` objects..."
 @time archetype_dictionary = Dict(
-    archetype => ArchetypeBuilding(archetype; mod = m, realization = realization) for
+    archetype => ArchetypeBuilding(archetype; mod=m, realization=realization) for
     archetype in m.building_archetype()
 )
 
@@ -201,9 +201,9 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 @time archetype_results = Dict(
     archetype => ArchetypeBuildingResults(
         val;
-        free_dynamics = false,
-        mod = m,
-        realization = realization,
+        free_dynamics=false,
+        mod=m,
+        realization=realization
     ) for (archetype, val) in archetype_dictionary
 )
 
@@ -220,14 +220,14 @@ results__system_link_node = initialize_result_classes!(m)
     results__building_archetype__building_process,
     results__system_link_node,
     archetype_results;
-    mod = m,
+    mod=m
 )
 
 
 ## Test creating and writing SpineOpt input
 
 @info "Creating `SpineOptInput`..."
-@time spineopt = SpineOptInput(archetype_results; mod = m)
+@time spineopt = SpineOptInput(archetype_results; mod=m)
 #write_to_url(output_url, spineopt)
 
 
@@ -242,20 +242,35 @@ results__system_link_node = initialize_result_classes!(m)
 
 results = first(values(archetype_results))
 
-temp_plt = plot(; title = "Node temperatures in [C]")
+weather_plt = plot(; title="Ambient temperatures in [C]")
+plot!(
+    weather_plt,
+    results.archetype.weather_data.ambient_temperature_K.indexes,
+    results.archetype.weather_data.ambient_temperature_K.values .- 273.15;
+    label="Ambient"
+)
+plot!(
+    weather_plt,
+    results.archetype.weather_data.ground_temperature_K.indexes,
+    results.archetype.weather_data.ground_temperature_K.values .- 273.15;
+    label="Ground"
+)
+display(weather_plt)
+
+temp_plt = plot(; title="Node temperatures in [C]")
 for (n, ts) in results.temperatures
-    plot!(temp_plt, ts.indexes, ts.values .- 273.15, label = string(n))
+    plot!(temp_plt, ts.indexes, ts.values .- 273.15, label=string(n))
 end
 display(temp_plt)
 
-hvac_plt = plot(; title = "Heating/cooling demand in [W]")
+hvac_plt = plot(; title="Heating/cooling demand in [W]")
 for (n, ts) in results.hvac_demand
-    plot!(hvac_plt, ts.indexes, ts.values, label = string(n))
+    plot!(hvac_plt, ts.indexes, ts.values, label=string(n))
 end
 display(hvac_plt)
 
-process_plt = plot(; title = "HVAC consumption in [MW]")
+process_plt = plot(; title="HVAC consumption in [MW]")
 for (p, ts) in results.hvac_consumption
-    plot!(process_plt, ts.indexes, ts.values, label = string(p))
+    plot!(process_plt, ts.indexes, ts.values, label=string(p))
 end
 display(process_plt)
