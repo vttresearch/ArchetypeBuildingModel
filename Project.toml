@@ -11,4 +11,4 @@ SpineInterface = "0cda1612-498a-11e9-3c92-77fa82595a4f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-SpineInterface = "0.10.0"
+SpineInterface = ">= 0.10.0"
