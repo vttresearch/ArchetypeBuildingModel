@@ -26,11 +26,11 @@ Essentially, performs the following steps:
 """
 function process_weather(
     weather::Object;
-    mod::Module = @__MODULE__,
-    realization::Symbol = realization,
+    mod::Module=@__MODULE__,
+    realization::Symbol=realization
 )
     # Fetch ambient temperature data and check that it's ok.
-    ambient_temp_K = mod.ambient_temperature_K(building_weather = weather)
+    ambient_temp_K = mod.ambient_temperature_K(building_weather=weather)
     all(collect_leaf_values(ambient_temp_K) .>= 0) || @warn """
     `ambient_temperature_K` for `$(weather)` shouldn't have negative values!
     $(count(collect_leaf_values(ambient_temp_K) .< 0)) violations found,
@@ -47,7 +47,7 @@ function process_weather(
 
     # Fetch diffuse solar irradiation data and check it's ok.
     diff_solar_irradiation_W_m2 =
-        mod.diffuse_solar_irradiation_W_m2(building_weather = weather)
+        mod.diffuse_solar_irradiation_W_m2(building_weather=weather)
     all(collect_leaf_values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
     `diffuse_solar_irradiation_W_m2` for `$(weather)` shouldn't have negative values!
     $(count(collect_leaf_values(diff_solar_irradiation_W_m2) .< 0)) violations found,
@@ -57,8 +57,8 @@ function process_weather(
     # Fetch direct solar irradiation data and check it's ok.
     dir_solar_irradiation_W_m2 = Dict(
         dir => mod.direct_solar_irradiation_W_m2(
-            building_weather = weather;
-            cardinal_direction = dir,
+            building_weather=weather;
+            cardinal_direction=dir
         ) for dir in solar_directions
     )
     for dir in solar_directions
@@ -98,21 +98,21 @@ the annual and 3-month moving averages.
 """
 function calculate_effective_ground_temperature(
     ambient_temp_K::TimeSeries;
-    coeff::Real = 1.7,
-    realization::Symbol = :realization,
+    coeff::Real=1.7,
+    realization::Symbol=:realization
 )
     # Ambient temperature assumed to repeat when calculating moving averages
-    repeating_ambient = TimeSeries(
+    repeating_ambient = parameter_value(TimeSeries(
         ambient_temp_K.indexes,
         ambient_temp_K.values,
         ambient_temp_K.ignore_year,
         true,
-    )
+    ))
 
     # Calculate the moving annual average
     annual_MA_timeslices = [TimeSlice(ts - Year(1), ts) for ts in ambient_temp_K.indexes]
     annual_MA_values =
-        [parameter_value(repeating_ambient)(ts) for ts in annual_MA_timeslices]
+        [repeating_ambient(t=ts) for ts in annual_MA_timeslices]
     annual_MA = TimeSeries(
         ambient_temp_K.indexes,
         annual_MA_values,
@@ -124,7 +124,7 @@ function calculate_effective_ground_temperature(
     three_month_MA_timeslices =
         [TimeSlice(ts - Month(3), ts) for ts in ambient_temp_K.indexes]
     three_month_MA_values =
-        [parameter_value(repeating_ambient)(ts) for ts in three_month_MA_timeslices]
+        [repeating_ambient(t=ts) for ts in three_month_MA_timeslices]
     three_month_MA = TimeSeries(
         ambient_temp_K.indexes,
         three_month_MA_values,
@@ -137,8 +137,8 @@ function calculate_effective_ground_temperature(
 end
 function calculate_effective_ground_temperature(
     ambient_temp_K::TimePattern;
-    coeff::Real = 1.7,
-    realization::Symbol = :realization,
+    coeff::Real=1.7,
+    realization::Symbol=:realization
 )
     @error """
     `TimePattern` form ambient temperatures currently unsupported!
@@ -148,18 +148,18 @@ function calculate_effective_ground_temperature(
 end
 function calculate_effective_ground_temperature(
     ambient_temp_K::Map;
-    coeff::Real = 1.7,
-    realization::Symbol = :realization,
+    coeff::Real=1.7,
+    realization::Symbol=:realization
 )
     return calculate_effective_ground_temperature(
         ambient_temp_K[realization];
-        coeff = coeff,
+        coeff=coeff
     )
 end
 calculate_effective_ground_temperature(
     ambient_temp_K::Real;
-    coeff::Real = 1.7,
-    realization::Symbol = :realization,
+    coeff::Real=1.7,
+    realization::Symbol=:realization
 ) = ambient_temp_K
 
 
@@ -198,16 +198,16 @@ its parameter values.
 function create_building_weather(
     archetype::Object,
     scopedata::ScopeData;
-    ignore_year::Bool = false,
-    repeat::Bool = true,
-    save_layouts::Bool = true,
-    mod::Module = @__MODULE__
+    ignore_year::Bool=false,
+    repeat::Bool=true,
+    save_layouts::Bool=true,
+    mod::Module=@__MODULE__
 )
     # Import `ArchetypeBuildingWeather.py`, doesn't work outside the function for some reason...
     abw = pyimport("archetypebuildingweather")
     # Fetch the information necessary for `ArchetypeBuildingWeather.py`.
-    w_start = string(mod.weather_start(building_archetype = archetype))
-    w_end = string(mod.weather_end(building_archetype = archetype))
+    w_start = string(mod.weather_start(building_archetype=archetype))
+    w_end = string(mod.weather_end(building_archetype=archetype))
     weights =
         Dict(string(key.name) => val for (key, val) in scopedata.location_id_gfa_weights)
     bw_name = string(scopedata.building_scope.name) * '_' * w_start * '_' * w_end
@@ -226,20 +226,20 @@ function create_building_weather(
     # Convert the `PyObjects` to Spine data structures.
     ambient_temperature = _pyseries_to_timeseries(
         ambient_temperature;
-        ignore_year = ignore_year,
-        repeat = repeat,
+        ignore_year=ignore_year,
+        repeat=repeat
     )
     diffuse_irradiation = _pyseries_to_timeseries(
         diffuse_irradiation;
-        ignore_year = ignore_year,
-        repeat = repeat,
+        ignore_year=ignore_year,
+        repeat=repeat
     )
     direct_irradiation = Map(
         Symbol.(keys(direct_irradiation)),
         _pyseries_to_timeseries.(
             values(direct_irradiation);
-            ignore_year = ignore_year,
-            repeat = repeat,
+            ignore_year=ignore_year,
+            repeat=repeat
         ),
     )
 
@@ -270,8 +270,8 @@ Default is a year-aware repeating timeseries.
 """
 function _pyseries_to_timeseries(
     pyseries::PyCall.PyObject;
-    ignore_year::Bool = false,
-    repeat::Bool = true,
+    ignore_year::Bool=false,
+    repeat::Bool=true
 )
     TimeSeries(collect(pyseries.index), pyseries.values, ignore_year, repeat)
 end
