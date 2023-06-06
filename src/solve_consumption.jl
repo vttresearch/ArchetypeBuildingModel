@@ -29,7 +29,7 @@ Heating and cooling are handled separately, though.
 function solve_consumption(
     archetype::ArchetypeBuilding,
     hvac_demand::Dict{Object,T} where {T<:SpineDataType};
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     # Initialize a Dict for storing the results, and convert `hvac_demand`
     # into a parameter value for easier access.
@@ -50,7 +50,7 @@ function solve_consumption(
             +,
             hvac_demand[node] / abstract_process.coefficient_of_performance for
             node in output_nodes;
-            init=0.0
+            init = 0.0,
         )
 
         # Remove negative consumption, as that indicates heating/cooling equipment

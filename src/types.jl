@@ -104,27 +104,27 @@ struct ScopeData <: BuildingDataType
 
     Construct a new `ScopeData` based on the given `scope`.
     """
-    function ScopeData(scope::Object; mod::Module=@__MODULE__)
+    function ScopeData(scope::Object; mod::Module = @__MODULE__)
         (
             avg_gfa_m2_per_building,
             num_buildings,
             gfa_weights,
             aggregated_gfa_weights,
             location_id_gfa_weights,
-        ) = process_building_stock_scope(scope; mod=mod)
+        ) = process_building_stock_scope(scope; mod = mod)
         hru_eff, inf_rate, sol_transm, ven_rate, win_U =
-            process_ventilation_and_fenestration_scope(aggregated_gfa_weights; mod=mod)
-        structure_data = process_structure_scope(aggregated_gfa_weights; mod=mod)
+            process_ventilation_and_fenestration_scope(aggregated_gfa_weights; mod = mod)
+        structure_data = process_structure_scope(aggregated_gfa_weights; mod = mod)
         shape_path = string(
             mod.shapefile_path(
-                building_stock=first(
-                    mod.building_scope__building_stock(building_scope=scope),
+                building_stock = first(
+                    mod.building_scope__building_stock(building_scope = scope),
                 ),
             ),
         )
         raster_path = mod.raster_weight_path(
-            building_stock=first(
-                mod.building_scope__building_stock(building_scope=scope),
+            building_stock = first(
+                mod.building_scope__building_stock(building_scope = scope),
             ),
         )
         !isnothing(raster_path) ? raster_path = string(raster_path) : nothing
@@ -208,12 +208,12 @@ struct WeatherData <: BuildingDataType
     """
     function WeatherData(
         weather::Object;
-        mod::Module=@__MODULE__,
-        realization::Symbol=:realization
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     )
         WeatherData(
             weather,
-            process_weather(weather; mod=mod, realization=realization)...,
+            process_weather(weather; mod = mod, realization = realization)...,
         )
     end
     function WeatherData(weather::Object, args...)
@@ -288,8 +288,8 @@ struct EnvelopeData <: BuildingDataType
 
     Construct a new `EnvelopeData` based on the `archetype` and `data`.    
     """
-    function EnvelopeData(archetype::Object, data::ScopeData; mod::Module=@__MODULE__)
-        EnvelopeData(archetype, process_building_envelope(archetype, data; mod=mod)...)
+    function EnvelopeData(archetype::Object, data::ScopeData; mod::Module = @__MODULE__)
+        EnvelopeData(archetype, process_building_envelope(archetype, data; mod = mod)...)
     end
     function EnvelopeData(archetype::Object, args...)
         for (i, arg) in enumerate(args)
@@ -351,10 +351,10 @@ struct LoadsData <: BuildingDataType
         scope::ScopeData,
         envelope::EnvelopeData,
         weather::WeatherData;
-        mod::Module=@__MODULE__
+        mod::Module = @__MODULE__
     )
         dhw_demand, int_gains, sol_gains, envelope_gains, sky_losses =
-            process_building_loads(archetype, scope, envelope, weather; mod=mod)
+            process_building_loads(archetype, scope, envelope, weather; mod = mod)
         LoadsData(archetype, dhw_demand, int_gains, sol_gains, envelope_gains, sky_losses)
     end
     function LoadsData(archetype::Object, args...)
@@ -463,11 +463,11 @@ struct BuildingNodeData <: BuildingDataType
         scope::ScopeData,
         envelope::EnvelopeData,
         loads::LoadsData;
-        mod::Module=@__MODULE__
+        mod::Module = @__MODULE__
     )
         BuildingNodeData(
             node,
-            process_building_node(archetype, node, scope, envelope, loads; mod=mod)...,
+            process_building_node(archetype, node, scope, envelope, loads; mod = mod)...,
         )
     end
     function BuildingNodeData(building_node::Object, args...)
@@ -545,11 +545,11 @@ struct BuildingProcessData <: BuildingDataType
         process::Object,
         scope::ScopeData,
         weather::WeatherData;
-        mod::Module=@__MODULE__
+        mod::Module = @__MODULE__
     )
         new(
             process,
-            process_building_system(archetype, process, scope, weather; mod=mod)...,
+            process_building_system(archetype, process, scope, weather; mod = mod)...,
         )
     end
 end
@@ -650,10 +650,10 @@ struct AbstractProcess <: BuildingDataType
 
     Creates a new `AbstractProcess` based on `process_data`.
     """
-    function AbstractProcess(process_data::BuildingProcessData; mod::Module=@__MODULE__)
+    function AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__)
         new(
             process_data.building_process,
-            process_abstract_system(process_data; mod=mod)...,
+            process_abstract_system(process_data; mod = mod)...,
         )
     end
 end
@@ -733,52 +733,52 @@ struct ArchetypeBuilding
     """
     function ArchetypeBuilding(
         archetype::Object;
-        mod::Module=@__MODULE__,
-        realization::Symbol=:realization
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     )
         # Fetch and process the scope and weather data related to the archetype.
         if length(
-            mod.building_archetype__building_weather(building_archetype=archetype),
+            mod.building_archetype__building_weather(building_archetype = archetype),
         ) != 1
             @error "`$(archetype)` should have exactly one `building_weather` defined!"
         end
         weather_data = WeatherData(
-            first(mod.building_archetype__building_weather(building_archetype=archetype));
-            mod=mod,
-            realization=realization
+            first(mod.building_archetype__building_weather(building_archetype = archetype));
+            mod = mod,
+            realization = realization,
         )
-        if length(mod.building_archetype__building_scope(building_archetype=archetype)) !=
+        if length(mod.building_archetype__building_scope(building_archetype = archetype)) !=
            1
             @error "`$(archetype)` should have exactly one `building_scope` defined!"
         end
         scope_data = ScopeData(
-            first(mod.building_archetype__building_scope(building_archetype=archetype));
-            mod=mod
+            first(mod.building_archetype__building_scope(building_archetype = archetype));
+            mod = mod,
         )
 
         # Create the ArchetypeBuilding using the latter constructor
-        ArchetypeBuilding(archetype, scope_data, weather_data; mod=mod)
+        ArchetypeBuilding(archetype, scope_data, weather_data; mod = mod)
     end
     function ArchetypeBuilding(
         archetype::Object,
         scope_data::ScopeData,
         weather_data::WeatherData;
-        mod::Module=@__MODULE__
+        mod::Module = @__MODULE__
     )
         # Fetch the definitions related to the archetype.
         scope = scope_data.building_scope
         fabrics =
-            first(mod.building_archetype__building_fabrics(building_archetype=archetype))
+            first(mod.building_archetype__building_fabrics(building_archetype = archetype))
         systems =
-            first(mod.building_archetype__building_systems(building_archetype=archetype))
+            first(mod.building_archetype__building_systems(building_archetype = archetype))
         loads =
-            first(mod.building_archetype__building_loads(building_archetype=archetype))
+            first(mod.building_archetype__building_loads(building_archetype = archetype))
         weather = weather_data.building_weather
 
         # Process the data related to the archetype.
-        envelope_data = EnvelopeData(archetype, scope_data; mod=mod)
+        envelope_data = EnvelopeData(archetype, scope_data; mod = mod)
         loads_data =
-            LoadsData(archetype, scope_data, envelope_data, weather_data; mod=mod)
+            LoadsData(archetype, scope_data, envelope_data, weather_data; mod = mod)
         building_node_network = create_building_node_network(
             archetype,
             fabrics,
@@ -786,7 +786,7 @@ struct ArchetypeBuilding
             scope_data,
             envelope_data,
             loads_data;
-            mod=mod
+            mod = mod,
         )
         building_processes = Dict(
             process => BuildingProcessData(
@@ -794,15 +794,15 @@ struct ArchetypeBuilding
                 process,
                 scope_data,
                 weather_data;
-                mod=mod
+                mod = mod,
             ) for process in
-            mod.building_systems__building_process(building_systems=systems)
+            mod.building_systems__building_process(building_systems = systems)
         )
 
         # Process the abstract nodes and processes.
         abstract_nodes = create_abstract_node_network(building_node_network, weather_data)
         abstract_processes = Dict{Object,AbstractProcess}(
-            process => AbstractProcess(process_data; mod=mod) for
+            process => AbstractProcess(process_data; mod = mod) for
             (process, process_data) in building_processes
         )
 
@@ -883,18 +883,18 @@ struct ArchetypeBuildingResults <: BuildingDataType
     """
     function ArchetypeBuildingResults(
         archetype::ArchetypeBuilding;
-        free_dynamics::Bool=false,
-        initial_temperatures::Union{Nothing,Dict{Object,Float64}}=nothing,
-        mod::Module=@__MODULE__,
-        realization::Symbol=:realization
+        free_dynamics::Bool = false,
+        initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     )
         initial_temperatures, temperatures, hvac_demand = solve_heating_demand(
             archetype,
             free_dynamics,
             initial_temperatures;
-            realization=realization
+            realization = realization,
         )
-        hvac_consumption = solve_consumption(archetype, hvac_demand; mod=mod)
+        hvac_consumption = solve_consumption(archetype, hvac_demand; mod = mod)
         new(
             archetype,
             free_dynamics,

@@ -30,35 +30,35 @@ function process_building_system(
     process::Object,
     scope::ScopeData,
     weather::WeatherData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     # Record the number of processes and system link nodes for input/output scaling of AbstractProcess
     number_of_processes = scope.number_of_buildings
     system_link_nodes =
-        mod.building_archetype__system_link_node(building_archetype=archetype)
+        mod.building_archetype__system_link_node(building_archetype = archetype)
 
     # Fetch/calculate the different elements of the coefficient of performance.
-    COP_mode = mod.coefficient_of_performance_mode(building_process=process)
-    COP = calculate_cop(weather, COP_mode, process; mod=mod)
+    COP_mode = mod.coefficient_of_performance_mode(building_process = process)
+    COP = calculate_cop(weather, COP_mode, process; mod = mod)
 
     # Fetch and calculate the process flow maximum power terms.
     maximum_power_basis_W = Dict(
         (dir, node) => mod.maximum_power_base_W(
-            building_process=process,
-            direction=dir,
-            building_node=node,
+            building_process = process,
+            direction = dir,
+            building_node = node,
         ) for (dir, node) in
-        mod.building_process__direction__building_node(building_process=process)
+        mod.building_process__direction__building_node(building_process = process)
     )
     maximum_power_gfa_scaled_W = Dict(
         (dir, node) =>
             scope.average_gross_floor_area_m2_per_building *
             mod.maximum_power_gfa_scaling_W_m2(
-                building_process=process,
-                direction=dir,
-                building_node=node,
+                building_process = process,
+                direction = dir,
+                building_node = node,
             ) for (dir, node) in
-        mod.building_process__direction__building_node(building_process=process)
+        mod.building_process__direction__building_node(building_process = process)
     )
 
     # Return the components of `BuildingProcessData`.
@@ -104,13 +104,13 @@ function calculate_cop(
     weather::WeatherData,
     COP_mode::Symbol,
     process::Object;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     # Check if source and sink temperatures are defined, return 1.0 if not.
     if (
-        mod.coefficient_of_performance_sink_temperature_K(building_process=process) isa
+        mod.coefficient_of_performance_sink_temperature_K(building_process = process) isa
         Map{Symbol,Nothing} &&
-        mod.coefficient_of_performance_source_temperature_K(building_process=process) isa
+        mod.coefficient_of_performance_source_temperature_K(building_process = process) isa
         Map{Symbol,Nothing}
     )
         COP_multiplier = 1.0
@@ -128,39 +128,39 @@ function calculate_cop(
         )
 
             # Find the proper control temperature
-            if temp(building_process=process, property=:temperature_K) == :ambient
+            if temp(building_process = process, property = :temperature_K) == :ambient
                 control_temperature_K = weather.ambient_temperature_K
-            elseif temp(building_process=process, property=:temperature_K) == :ground
+            elseif temp(building_process = process, property = :temperature_K) == :ground
                 control_temperature_K = weather.ground_temperature_K
             else
                 control_temperature_K =
-                    temp(building_process=process, property=:temperature_K)
+                    temp(building_process = process, property = :temperature_K)
             end
 
             # Determine the heating curve if possible
             temps = [
                 temp(
-                    building_process=process,
-                    property=:heating_curve_control_temperature_min_K,
+                    building_process = process,
+                    property = :heating_curve_control_temperature_min_K,
                 ),
                 temp(
-                    building_process=process,
-                    property=:heating_curve_control_temperature_max_K,
+                    building_process = process,
+                    property = :heating_curve_control_temperature_max_K,
                 ),
                 temp(
-                    building_process=process,
-                    property=:heating_curve_output_temperature_min_K,
+                    building_process = process,
+                    property = :heating_curve_output_temperature_min_K,
                 ),
                 temp(
-                    building_process=process,
-                    property=:heating_curve_output_temperature_max_K,
+                    building_process = process,
+                    property = :heating_curve_output_temperature_max_K,
                 ),
             ]
             if !all(isnothing.(temps))
                 lin = LinearInterpolation(
                     [temps[1], temps[2]],
                     [temps[4], temps[3]];
-                    extrapolation_bc=Flat()
+                    extrapolation_bc = Flat(),
                 )
                 heating_curve = x -> lin(x) # Generic function for linear interpolation.
             else
@@ -183,14 +183,14 @@ function calculate_cop(
                 max,
                 denom,
                 mod.coefficient_of_performance_minimum_temperature_delta(
-                    building_process=process,
+                    building_process = process,
                 ),
             )
         else
             denom = max(
                 denom,
                 mod.coefficient_of_performance_minimum_temperature_delta(
-                    building_process=process,
+                    building_process = process,
                 ),
             )
         end
@@ -210,5 +210,5 @@ function calculate_cop(
     end
 
     # Return the coefficient of performance.
-    return COP_multiplier * mod.coefficient_of_performance_base(building_process=process)
+    return COP_multiplier * mod.coefficient_of_performance_base(building_process = process)
 end

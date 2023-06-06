@@ -32,16 +32,16 @@ function create_building_node_network(
     scope::ScopeData,
     envelope::EnvelopeData,
     loads::LoadsData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     merge(
         Dict{Object,BuildingNodeData}(
-            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod=mod) for
-            node in mod.building_fabrics__building_node(building_fabrics=fabrics)
+            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod = mod) for
+            node in mod.building_fabrics__building_node(building_fabrics = fabrics)
         ),
         Dict{Object,BuildingNodeData}(
-            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod=mod) for
-            node in mod.building_systems__building_node(building_systems=systems)
+            node => BuildingNodeData(archetype, node, scope, envelope, loads; mod = mod) for
+            node in mod.building_systems__building_node(building_systems = systems)
         ),
     )::BuildingNodeNetwork
 end
@@ -101,73 +101,73 @@ function process_building_node(
     scope::ScopeData,
     envelope::EnvelopeData,
     loads::LoadsData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     # Fetch the interior weight of the node.
-    interior_weight = mod.interior_air_and_furniture_weight(building_node=node)
+    interior_weight = mod.interior_air_and_furniture_weight(building_node = node)
 
     # Fetch user defined thermal mass components of the node.
-    thermal_mass_base_J_K = mod.effective_thermal_mass_base_J_K(building_node=node)
+    thermal_mass_base_J_K = mod.effective_thermal_mass_base_J_K(building_node = node)
     thermal_mass_gfa_scaled_J_K =
         scope.average_gross_floor_area_m2_per_building *
-        mod.effective_thermal_mass_gfa_scaling_J_m2K(building_node=node)
+        mod.effective_thermal_mass_gfa_scaling_J_m2K(building_node = node)
 
     # Fetch user-defined self-discharge rates.
     self_discharge_base_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
-        mod.self_discharge_rate_base_W_K(building_node=node)
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
+        mod.self_discharge_rate_base_W_K(building_node = node)
     self_discharge_gfa_scaled_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         scope.average_gross_floor_area_m2_per_building *
-        mod.self_discharge_rate_gfa_scaling_W_m2K(building_node=node)
+        mod.self_discharge_rate_gfa_scaling_W_m2K(building_node = node)
 
     # Set temperature bounds with a potential override for indoor air temperature set points.
     if (
         interior_weight > 0 &&
         !isnothing(
-            mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype),
+            mod.indoor_air_cooling_set_point_override_K(building_archetype = archetype),
         )
     )
         maximum_temperature_K =
-            mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
+            mod.indoor_air_cooling_set_point_override_K(building_archetype = archetype)
     else
-        maximum_temperature_K = mod.maximum_permitted_temperature_K(building_node=node)
+        maximum_temperature_K = mod.maximum_permitted_temperature_K(building_node = node)
     end
     if (
         interior_weight > 0 &&
         !isnothing(
-            mod.indoor_air_heating_set_point_override_K(building_archetype=archetype),
+            mod.indoor_air_heating_set_point_override_K(building_archetype = archetype),
         )
     )
         minimum_temperature_K =
-            mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
+            mod.indoor_air_heating_set_point_override_K(building_archetype = archetype)
     else
-        minimum_temperature_K = mod.minimum_permitted_temperature_K(building_node=node)
+        minimum_temperature_K = mod.minimum_permitted_temperature_K(building_node = node)
     end
 
     # Determine the valid nodes for heat transfer coefficients
-    fabrics = only(mod.building_archetype__building_fabrics(building_archetype=archetype))
-    systems = only(mod.building_archetype__building_systems(building_archetype=archetype))
+    fabrics = only(mod.building_archetype__building_fabrics(building_archetype = archetype))
+    systems = only(mod.building_archetype__building_systems(building_archetype = archetype))
     valid_nodes = vcat(
-        mod.building_fabrics__building_node(building_fabrics=fabrics),
-        mod.building_systems__building_node(building_systems=systems),
+        mod.building_fabrics__building_node(building_fabrics = fabrics),
+        mod.building_systems__building_node(building_systems = systems),
     )
     # Fetch the user-defined heat transfer coefficients for the valid nodes
     heat_transfer_coefficients_base_W_K = Dict(
         n => mod.heat_transfer_coefficient_base_W_K(
-            building_node1=node,
-            building_node2=n,
+            building_node1 = node,
+            building_node2 = n,
         ) for
-        n in mod.building_node__building_node(building_node1=node) if n in valid_nodes
+        n in mod.building_node__building_node(building_node1 = node) if n in valid_nodes
     )
     heat_transfer_coefficients_gfa_scaled_W_K = Dict(
         n =>
             scope.average_gross_floor_area_m2_per_building *
             mod.heat_transfer_coefficient_gfa_scaling_W_m2K(
-                building_node1=node,
-                building_node2=n,
+                building_node1 = node,
+                building_node2 = n,
             ) for
-        n in mod.building_node__building_node(building_node1=node) if n in valid_nodes
+        n in mod.building_node__building_node(building_node1 = node) if n in valid_nodes
     )
 
     # Calculate interior air and structural thermal masses.
@@ -176,10 +176,10 @@ function process_building_node(
             archetype,
             scope,
             interior_weight;
-            mod=mod
+            mod = mod,
         )
     thermal_mass_structures_J_K =
-        calculate_structural_thermal_mass(node, scope, envelope; mod=mod)
+        calculate_structural_thermal_mass(node, scope, envelope; mod = mod)
 
     # Calculate the heat transfer coefficients of the included structures.
     heat_transfer_coefficient_structures_interior_W_K =
@@ -188,54 +188,54 @@ function process_building_node(
             scope,
             envelope,
             interior_weight;
-            mod=mod
+            mod = mod,
         )
     heat_transfer_coefficient_structures_exterior_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_structural_exterior_heat_transfer_coefficient(
             node,
             scope,
             envelope,
             interior_weight;
-            mod=mod
+            mod = mod,
         )
     heat_transfer_coefficient_structures_ground_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_structural_ground_heat_transfer_coefficient(
             archetype,
             node,
             scope,
             envelope;
-            mod=mod
+            mod = mod,
         )
 
     # Calculate the heat transfer coefficients for fenestration, ventilation, and thermal bridges
     heat_transfer_coefficient_windows_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_window_heat_transfer_coefficient(scope, envelope, interior_weight)
     heat_transfer_coefficient_ventilation_and_infiltration_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_ventilation_and_infiltration_heat_transfer_coefficient(
             archetype,
             scope,
             interior_weight;
-            mod=mod
+            mod = mod,
         )
     heat_transfer_coefficient_thermal_bridges_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
+        mod.energy_efficiency_override_multiplier(building_archetype = archetype) *
         calculate_total_thermal_bridge_heat_transfer_coefficient(
             archetype,
             scope,
             envelope,
             interior_weight;
-            mod=mod
+            mod = mod,
         )
 
     # Fetch the DHW demand, as well as internal and solar heat gains for the node.
-    if mod.domestic_hot_water_demand_weight(building_node=node) > 0
+    if mod.domestic_hot_water_demand_weight(building_node = node) > 0
         domestic_hot_water_demand_W =
             loads.domestic_hot_water_demand_W *
-            mod.domestic_hot_water_demand_weight(building_node=node)
+            mod.domestic_hot_water_demand_weight(building_node = node)
     else
         domestic_hot_water_demand_W = 0
     end
@@ -249,7 +249,7 @@ function process_building_node(
         archetype,
         loads,
         interior_weight;
-        mod=mod
+        mod = mod,
     )
     internal_heat_gains_structures_W = calculate_radiative_internal_heat_gains(
         archetype,
@@ -257,26 +257,26 @@ function process_building_node(
         envelope,
         loads,
         total_structure_area_m2;
-        mod=mod
+        mod = mod,
     )
 
     # Calculate the solar heat gains for the node, first for internal air and then structures.
     solar_heat_gains_air_W =
-        calculate_convective_solar_gains(archetype, loads, interior_weight; mod=mod)
+        calculate_convective_solar_gains(archetype, loads, interior_weight; mod = mod)
     solar_heat_gains_structures_W = calculate_radiative_solar_gains(
         archetype,
         node,
         envelope,
         loads,
         total_structure_area_m2;
-        mod=mod
+        mod = mod,
     )
 
     # Calculate the solar heat gains through the building envelope for the node, as well as the envelope radiative sky losses.
     solar_heat_gains_envelope_W =
-        calculate_total_envelope_solar_gains(node, loads; mod=mod)
+        calculate_total_envelope_solar_gains(node, loads; mod = mod)
     radiative_envelope_sky_losses_W =
-        calculate_total_envelope_radiative_sky_losses(node, loads; mod=mod)
+        calculate_total_envelope_radiative_sky_losses(node, loads; mod = mod)
 
     # Return all the stuff in the correct order.
     return thermal_mass_base_J_K,
@@ -335,11 +335,11 @@ function calculate_interior_air_and_furniture_thermal_mass(
     archetype::Object,
     scope::ScopeData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     scope.average_gross_floor_area_m2_per_building *
     mod.effective_thermal_capacity_of_interior_air_and_furniture_J_m2K(
-        building_archetype=archetype,
+        building_archetype = archetype,
     ) *
     interior_weight
 end
@@ -372,15 +372,15 @@ function calculate_structural_thermal_mass(
     node::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     reduce(
         +,
         scope.structure_data[st].effective_thermal_mass_J_m2K *
         getfield(envelope, st.name).surface_area_m2 *
-        mod.structure_type_weight(building_node=node, structure_type=st) for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0
+        mod.structure_type_weight(building_node = node, structure_type = st) for
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0,
     )
 end
 
@@ -426,21 +426,21 @@ function calculate_structural_interior_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     reduce(
         +,
         (
             scope.structure_data[st].internal_U_value_to_structure_W_m2K + (
-                mod.is_internal(structure_type=st) ?
+                mod.is_internal(structure_type = st) ?
                 scope.structure_data[st].external_U_value_to_ambient_air_W_m2K : 0
             )
         ) *
         (1 - interior_weight) * # If an external structure is lumped together with air node, it's internal heat coefficient adds to the external heat transfer.
         getfield(envelope, st.name).surface_area_m2 *
-        mod.structure_type_weight(building_node=node, structure_type=st) for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0
+        mod.structure_type_weight(building_node = node, structure_type = st) for
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0,
     )
 end
 
@@ -480,7 +480,7 @@ function calculate_structural_exterior_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     reduce(
         +,
@@ -490,10 +490,10 @@ function calculate_structural_exterior_heat_transfer_coefficient(
             scope.structure_data[st].internal_U_value_to_structure_W_m2K
         ) *
         getfield(envelope, st.name).surface_area_m2 *
-        mod.structure_type_weight(building_node=node, structure_type=st) for
-        st in mod.building_node__structure_type(building_node=node) if
-        !(mod.is_internal(structure_type=st));
-        init=0
+        mod.structure_type_weight(building_node = node, structure_type = st) for
+        st in mod.building_node__structure_type(building_node = node) if
+        !(mod.is_internal(structure_type = st));
+        init = 0,
     )
 end
 
@@ -534,22 +534,22 @@ function calculate_structural_ground_heat_transfer_coefficient(
     node::Object,
     scope::ScopeData,
     envelope::EnvelopeData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     (
         1 + min(
-            mod.building_frame_depth_m(building_archetype=archetype)^2 /
+            mod.building_frame_depth_m(building_archetype = archetype)^2 /
             envelope.base_floor.surface_area_m2,
             envelope.base_floor.surface_area_m2 /
-            mod.building_frame_depth_m(building_archetype=archetype)^2,
+            mod.building_frame_depth_m(building_archetype = archetype)^2,
         )
     ) * reduce(
         +,
         scope.structure_data[st].external_U_value_to_ground_W_m2K *
         getfield(envelope, st.name).surface_area_m2 *
-        mod.structure_type_weight(building_node=node, structure_type=st) for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0
+        mod.structure_type_weight(building_node = node, structure_type = st) for
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0,
     )
 end
 
@@ -611,11 +611,11 @@ function calculate_ventilation_and_infiltration_heat_transfer_coefficient(
     archetype::Object,
     scope::ScopeData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
-    mod.room_height_m(building_archetype=archetype) *
+    mod.room_height_m(building_archetype = archetype) *
     scope.average_gross_floor_area_m2_per_building *
-    mod.volumetric_heat_capacity_of_interior_air_J_m3K(building_archetype=archetype) /
+    mod.volumetric_heat_capacity_of_interior_air_J_m3K(building_archetype = archetype) /
     3600 *
     (
         scope.ventilation_rate_1_h * (1 - scope.HRU_efficiency) +
@@ -656,16 +656,16 @@ function calculate_total_thermal_bridge_heat_transfer_coefficient(
     scope::ScopeData,
     envelope::EnvelopeData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     interior_weight * (
-        mod.window_area_thermal_bridge_surcharge_W_m2K(building_archetype=archetype) *
+        mod.window_area_thermal_bridge_surcharge_W_m2K(building_archetype = archetype) *
         envelope.window.surface_area_m2 + reduce(
             +,
             scope.structure_data[st].linear_thermal_bridges_W_mK *
             getfield(envelope, st.name).linear_thermal_bridge_length_m for
             st in mod.structure_type();
-            init=0
+            init = 0,
         )
     )
 end
@@ -700,11 +700,11 @@ function calculate_convective_internal_heat_gains(
     archetype::Object,
     loads::LoadsData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     loads.internal_heat_gains_W *
     interior_weight *
-    mod.internal_heat_gain_convective_fraction(building_archetype=archetype)
+    mod.internal_heat_gain_convective_fraction(building_archetype = archetype)
 end
 
 
@@ -745,16 +745,16 @@ function calculate_radiative_internal_heat_gains(
     envelope::EnvelopeData,
     loads::LoadsData,
     total_structure_area_m2::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     loads.internal_heat_gains_W *
-    (1 - mod.internal_heat_gain_convective_fraction(building_archetype=archetype)) *
+    (1 - mod.internal_heat_gain_convective_fraction(building_archetype = archetype)) *
     reduce(
         +,
-        mod.structure_type_weight(building_node=node, structure_type=st) *
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         getfield(envelope, st.name).surface_area_m2 / total_structure_area_m2 for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0,
     )
 end
 
@@ -788,11 +788,11 @@ function calculate_convective_solar_gains(
     archetype::Object,
     loads::LoadsData,
     interior_weight::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     loads.solar_heat_gains_W *
     interior_weight *
-    mod.solar_heat_gain_convective_fraction(building_archetype=archetype)
+    mod.solar_heat_gain_convective_fraction(building_archetype = archetype)
 end
 
 
@@ -833,16 +833,16 @@ function calculate_radiative_solar_gains(
     envelope::EnvelopeData,
     loads::LoadsData,
     total_structure_area_m2::Real;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     loads.solar_heat_gains_W *
-    (1 - mod.solar_heat_gain_convective_fraction(building_archetype=archetype)) *
+    (1 - mod.solar_heat_gain_convective_fraction(building_archetype = archetype)) *
     reduce(
         +,
-        mod.structure_type_weight(building_node=node, structure_type=st) *
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         getfield(envelope, st.name).surface_area_m2 / total_structure_area_m2 for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0,
     )
 end
 
@@ -868,14 +868,14 @@ and `Φ_sol,st` are the heat gains through envelope structures using [`calculate
 function calculate_total_envelope_solar_gains(
     node::Object,
     loads::LoadsData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     reduce(
         +,
-        mod.structure_type_weight(building_node=node, structure_type=st) *
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         get(loads.envelope_solar_gains_W, st, 0.0) for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0.0
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0.0,
     )
 end
 
@@ -901,13 +901,13 @@ and `Φ_sky,st` are the envelope radiative sky heat losses using [`calculate_env
 function calculate_total_envelope_radiative_sky_losses(
     node::Object,
     loads::LoadsData;
-    mod::Module=@__MODULE__
+    mod::Module = @__MODULE__
 )
     reduce(
         +,
-        mod.structure_type_weight(building_node=node, structure_type=st) *
+        mod.structure_type_weight(building_node = node, structure_type = st) *
         get(loads.envelope_radiative_sky_losses_W, st, 0.0) for
-        st in mod.building_node__structure_type(building_node=node);
-        init=0.0
+        st in mod.building_node__structure_type(building_node = node);
+        init = 0.0,
     )
 end
