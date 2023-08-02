@@ -13,7 +13,7 @@ Write model `input` data into the database at the `url`.
 
 The `alternative` the parameter values are saved to depends on the given keyword
 """
-function write_to_url(url::String, input::ModelInput; alternative::String = "")
+function write_to_url(url::String, input::ModelInput; alternative::String="")
     # Convert object and relationship classes to their Dict representations.
     data =
         SpineInterface._to_dict.([

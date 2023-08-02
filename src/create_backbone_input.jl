@@ -122,13 +122,13 @@ Essentially, performs the following steps:
 """
 function BackboneInput(
     results::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = @__MODULE__
+    mod::Module=@__MODULE__
 )
     backbone = BackboneInput()
     for result in values(results)
-        add_archetype_to_input!(backbone, result; mod = mod)
+        add_archetype_to_input!(backbone, result; mod=mod)
     end
-    add_system_link_node_parameters!(backbone, results; mod = mod)
+    add_system_link_node_parameters!(backbone, results; mod=mod)
     return backbone
 end
 
@@ -167,7 +167,7 @@ The key steps taken by this function are summarized below:
 function add_archetype_to_input!(
     backbone::BackboneInput,
     result::ArchetypeBuildingResults;
-    mod::Module = @__MODULE__
+    mod::Module=@__MODULE__
 )
     # Map `direction` objects to `io` objects.
     io_map = Dict(
@@ -183,7 +183,7 @@ function add_archetype_to_input!(
     )
     # Identify the relevant system link nodes and map them to new nodes with the desired names.
     sys_link_nodes = mod.building_archetype__system_link_node(
-        building_archetype = result.archetype.archetype,
+        building_archetype=result.archetype.archetype,
     )
     # This is a bit complicated, as we have to avoid creating identical objects.
     merge!(
@@ -193,22 +193,22 @@ function add_archetype_to_input!(
                 isnothing(
                     backbone.node(
                         mod.node_name(
-                            building_archetype = result.archetype.archetype,
-                            building_node = sys_link_node,
+                            building_archetype=result.archetype.archetype,
+                            building_node=sys_link_node,
                         ),
                     ),
                 ) ?
                 Object(
                     mod.node_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                     :node,
                 ) :
                 backbone.node(
                     mod.node_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                 ) for sys_link_node in sys_link_nodes
         ),
@@ -225,22 +225,22 @@ function add_archetype_to_input!(
                 isnothing(
                     backbone.grid(
                         mod.grid_name(
-                            building_archetype = result.archetype.archetype,
-                            building_node = sys_link_node,
+                            building_archetype=result.archetype.archetype,
+                            building_node=sys_link_node,
                         ),
                     ),
                 ) ?
                 Object(
                     mod.grid_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                     :grid,
                 ) :
                 backbone.grid(
                     mod.grid_name(
-                        building_archetype = result.archetype.archetype,
-                        building_node = sys_link_node,
+                        building_archetype=result.archetype.archetype,
+                        building_node=sys_link_node,
                     ),
                 ) for sys_link_node in sys_link_nodes
         ),
@@ -321,14 +321,14 @@ function add_archetype_to_input!(
     add_relationships!(
         backbone.effLevel__effSelector__unit,
         [
-            (effLevel = lvl, effSelector = backbone.effSelector(:directOff), unit = u) for
+            (effLevel=lvl, effSelector=backbone.effSelector(:directOff), unit=u) for
             lvl in backbone.effLevel() for u in backbone.unit()
         ],
     )
 
     # `grid__node` and its parameters from `abstract_nodes`
     gn_param_dict = Dict(
-        (grid = g_map[n], node = n_map[n]) => Dict(
+        (grid=g_map[n], node=n_map[n]) => Dict(
             :boundStart => parameter_value(true),
             :energyStoredPerUnitOfState => parameter_value(abs_n.thermal_mass_Wh_K),
             :nodeBalance => parameter_value(true),
@@ -348,7 +348,7 @@ function add_archetype_to_input!(
 
     # `grid__node__boundary` based on the maximum and minimum temperatures.
     gnb_param_dict = Dict(
-        (grid = g_map[n], node = n_map[n], boundary = backbone.boundary(:upwardLimit)) => Dict(
+        (grid=g_map[n], node=n_map[n], boundary=backbone.boundary(:upwardLimit)) => Dict(
             :constant => parameter_value(abs_n.maximum_temperature_K),
             :useConstant => parameter_value(true),
         ) for (n, abs_n) in result.archetype.abstract_nodes
@@ -357,9 +357,9 @@ function add_archetype_to_input!(
         gnb_param_dict,
         Dict(
             (
-                grid = g_map[n],
-                node = n_map[n],
-                boundary = backbone.boundary(:downwardLimit),
+                grid=g_map[n],
+                node=n_map[n],
+                boundary=backbone.boundary(:downwardLimit),
             ) => Dict(
                 :constant => parameter_value(abs_n.minimum_temperature_K),
                 :useConstant => parameter_value(true),
@@ -369,7 +369,7 @@ function add_archetype_to_input!(
     merge!(
         gnb_param_dict,
         Dict(
-            (grid = g_map[n], node = n_map[n], boundary = backbone.boundary(:reference)) =>
+            (grid=g_map[n], node=n_map[n], boundary=backbone.boundary(:reference)) =>
                 Dict(
                     :constant => parameter_value(result.initial_temperatures[n]),
                     :useConstant => parameter_value(true),
@@ -384,7 +384,7 @@ function add_archetype_to_input!(
 
     # `grid__node__node` based on the heat transfer coefficients
     gnn_param_dict = Dict(
-        (grid = g_map[n1], node1 = n_map[n1], node2 = n_map[n2]) =>
+        (grid=g_map[n1], node1=n_map[n1], node2=n_map[n2]) =>
             Dict(:diffCoeff => parameter_value(val)) for
         (n1, abs_n1) in result.archetype.abstract_nodes for
         (n2, val) in abs_n1.heat_transfer_coefficients_W_K
@@ -397,7 +397,7 @@ function add_archetype_to_input!(
 
     # `grid__node__unit__io` based on maximum flows
     gnuio_param_dict = Dict(
-        (grid = g_map[n], node = n_map[n], unit = u_map[p], io = io_map[d]) => Dict(
+        (grid=g_map[n], node=n_map[n], unit=u_map[p], io=io_map[d]) => Dict(
             :capacity => parameter_value(abs(val)),
             :conversionCoeff => parameter_value(val / abs(val)),
             :unitSize => parameter_value(abs(val)),
@@ -415,7 +415,7 @@ function add_archetype_to_input!(
     # `unit__unittype` simply attaching `HVAC` to every unit.
     add_relationships!(
         backbone.unit__unittype,
-        [(unit = u, unittype = backbone.unittype(:HVAC)) for u in values(u_map)],
+        [(unit=u, unittype=backbone.unittype(:HVAC)) for u in values(u_map)],
     )
 end
 
@@ -432,7 +432,7 @@ Add system link node parameters into [`BackboneInput`](@ref).
 function add_system_link_node_parameters!(
     backbone::BackboneInput,
     results::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = @__MODULE__
+    mod::Module=@__MODULE__
 )
     # Initialize parameter dicts for looping
     node_balance_dict = Dict()
@@ -442,41 +442,41 @@ function add_system_link_node_parameters!(
     for r in values(results)
         # Identify system link nodes
         system_link_nodes = mod.building_archetype__system_link_node(
-            building_archetype = r.archetype.archetype,
+            building_archetype=r.archetype.archetype,
         )
         # Create grid and node mappings for system link nodes
         g_map = Dict(
             sys_node => backbone.grid(
                 mod.grid_name(
-                    building_archetype = r.archetype.archetype,
-                    building_node = sys_node,
+                    building_archetype=r.archetype.archetype,
+                    building_node=sys_node,
                 ),
             ) for sys_node in system_link_nodes
         )
         n_map = Dict(
             sys_node => backbone.node(
                 mod.node_name(
-                    building_archetype = r.archetype.archetype,
-                    building_node = sys_node,
+                    building_archetype=r.archetype.archetype,
+                    building_node=sys_node,
                 ),
             ) for sys_node in system_link_nodes
         )
         # Set node balance and merge with existing values.
         merge!(
             node_balance_dict,
-            Dict((grid = g_map[n], node = n_map[n]) => true for n in system_link_nodes),
+            Dict((grid=g_map[n], node=n_map[n]) => true for n in system_link_nodes),
         )
         # Calculate total HVAC consumption and add it to existing values.
         merge!(
             +,
             influx_building_baseline_consumption,
             Dict(
-                (grid = g_map[n], node = n_map[n]) =>
+                (grid=g_map[n], node=n_map[n]) =>
                     -sum( # Backbone ts_influx is negative for consumption!
                         get(r.hvac_consumption, p, 0.0) for
                         p in mod.building_process__direction__building_node(
-                            direction = mod.direction(:from_node),
-                            building_node = n,
+                            direction=mod.direction(:from_node),
+                            building_node=n,
                         )
                     ) for n in system_link_nodes
             ),
@@ -513,7 +513,7 @@ function timeseries_to_backbone_map(ts::TimeSeries)
         [
             Map(
                 [
-                    Symbol("t" * string(i; pad = 6)) for
+                    Symbol("t" * string(i; pad=6)) for
                     (i, timestamp) in enumerate(ts.indexes)
                 ],
                 ts.values,

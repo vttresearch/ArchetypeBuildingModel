@@ -14,7 +14,7 @@ Essentially performs the following steps:
 2. Call [`run_parameter_tests`](@ref)
 3. Call [`run_structure_type_tests`](@ref)
 """
-function run_input_data_tests(mod::Module = @__MODULE__)
+function run_input_data_tests(mod::Module=@__MODULE__)
     @time @testset "Datastore tests" begin
         run_object_class_tests(mod)
         run_parameter_tests(mod)
@@ -55,14 +55,14 @@ This function performs the following steps:
 function archetype_building_processing(
     weather_url::String,
     save_layouts::Bool;
-    weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}} = nothing,
-    mod::Module = @__MODULE__,
-    realization::Symbol = :realization,
+    weather_data_dictionary::Union{Nothing,Dict{Object,WeatherData}}=nothing,
+    mod::Module=@__MODULE__,
+    realization::Symbol=:realization
 )
     # Process relevant `ScopeData` objects.
     @info "Processing `building_scope` objects into `ScopeData` for `scope_data_dictionary`..."
     @time scope_data_dictionary = Dict(
-        archetype => ScopeData(scope; mod = mod) for
+        archetype => ScopeData(scope; mod=mod) for
         (archetype, scope) in mod.building_archetype__building_scope()
     )
 
@@ -81,12 +81,12 @@ function archetype_building_processing(
                 bw, bw_params = create_building_weather(
                     archetype,
                     scope_data_dictionary[archetype];
-                    save_layouts = save_layouts,
+                    save_layouts=save_layouts
                 )
                 add_object_parameter_values!(mod.building_weather, bw_params)
                 add_relationships!(
                     mod.building_archetype__building_weather,
-                    [(building_archetype = archetype, building_weather = bw)],
+                    [(building_archetype=archetype, building_weather=bw)],
                 )
             end
             @info "Importing auto-generated `building_weather` into `$(weather_url)`..."
@@ -98,7 +98,7 @@ function archetype_building_processing(
         end
         @info "Processing `building_weather` objects into `WeatherData` for `weather_data_dictionary`..."
         @time weather_data_dictionary = Dict(
-            archetype => WeatherData(weather; mod = mod, realization = realization) for
+            archetype => WeatherData(weather; mod=mod, realization=realization) for
             (archetype, weather) in mod.building_archetype__building_weather()
         )
     else
@@ -112,7 +112,7 @@ function archetype_building_processing(
             archetype,
             scope_data_dictionary[archetype],
             weather_data_dictionary[archetype];
-            mod = mod,
+            mod=mod
         ) for archetype in mod.building_archetype()
     )
 
@@ -147,23 +147,23 @@ Essentially, performs the following steps:
 """
 function solve_archetype_building_hvac_demand(
     archetype_dictionary::Dict{Object,ArchetypeBuilding};
-    free_dynamics::Bool = false,
-    initial_temperatures::Dict{Object,Dict{Object,Float64}} = Dict{
+    free_dynamics::Bool=false,
+    initial_temperatures::Dict{Object,Dict{Object,Float64}}=Dict{
         Object,
         Dict{Object,Float64},
     }(),
-    mod::Module = @__MODULE__,
-    realization::Symbol = :realization,
+    mod::Module=@__MODULE__,
+    realization::Symbol=:realization
 )
     # Heating/cooling demand calculations.
     @info "Calculating heating/cooling demand..."
     @time archetype_results_dictionary = Dict(
         archetype => ArchetypeBuildingResults(
             archetype_building;
-            free_dynamics = free_dynamics,
-            initial_temperatures = get(initial_temperatures, archetype, nothing),
-            mod = mod,
-            realization = realization,
+            free_dynamics=free_dynamics,
+            initial_temperatures=get(initial_temperatures, archetype, nothing),
+            mod=mod,
+            realization=realization
         ) for (archetype, archetype_building) in archetype_dictionary
     )
 
@@ -259,7 +259,7 @@ function add_results!(
     results__building_archetype__building_process::RelationshipClass,
     results__system_link_node::ObjectClass,
     results_dictionary::Dict{Object,ArchetypeBuildingResults};
-    mod::Module = @__MODULE__
+    mod::Module=@__MODULE__
 )
     # Collect `ArchetypeBuildingResults`
     results = values(results_dictionary)
@@ -268,7 +268,7 @@ function add_results!(
     add_relationship_parameter_values!(
         results__building_archetype__building_node,
         Dict(
-            (building_archetype = r.archetype.archetype, building_node = node) => Dict(
+            (building_archetype=r.archetype.archetype, building_node=node) => Dict(
                 :initial_temperature_K => parameter_value(r.initial_temperatures[node]),
                 :temperature_K => parameter_value(r.temperatures[node]),
                 :hvac_demand_W => parameter_value(r.hvac_demand[node]),
@@ -280,7 +280,7 @@ function add_results!(
     add_relationship_parameter_values!(
         results__building_archetype__building_process,
         Dict(
-            (building_archetype = r.archetype.archetype, building_process = process) =>
+            (building_archetype=r.archetype.archetype, building_process=process) =>
                 Dict(:hvac_consumption_MW => parameter_value(r.hvac_consumption[process]))
             for r in results for process in keys(r.hvac_consumption)
         ),
@@ -296,13 +296,13 @@ function add_results!(
                     sum(
                         get(total_cons_MW, p, 0.0) for
                         p in mod.building_process__direction__building_node(
-                            direction = mod.direction(:from_node),
-                            building_node = sys_link_n,
+                            direction=mod.direction(:from_node),
+                            building_node=sys_link_n,
                         )
                     ),
                 ),
             ) for sys_link_n in mod.building_archetype__system_link_node(
-                building_archetype = mod.building_archetype(),
+                building_archetype=mod.building_archetype(),
             )
         ),
     )

@@ -102,17 +102,18 @@ function calculate_effective_ground_temperature(
     realization::Symbol=:realization
 )
     # Ambient temperature assumed to repeat when calculating moving averages
-    repeating_ambient = parameter_value(TimeSeries(
-        ambient_temp_K.indexes,
-        ambient_temp_K.values,
-        ambient_temp_K.ignore_year,
-        true,
-    ))
+    repeating_ambient = parameter_value(
+        TimeSeries(
+            ambient_temp_K.indexes,
+            ambient_temp_K.values,
+            ambient_temp_K.ignore_year,
+            true,
+        ),
+    )
 
     # Calculate the moving annual average
     annual_MA_timeslices = [TimeSlice(ts - Year(1), ts) for ts in ambient_temp_K.indexes]
-    annual_MA_values =
-        [repeating_ambient(t=ts) for ts in annual_MA_timeslices]
+    annual_MA_values = [repeating_ambient(t=ts) for ts in annual_MA_timeslices]
     annual_MA = TimeSeries(
         ambient_temp_K.indexes,
         annual_MA_values,
@@ -123,8 +124,7 @@ function calculate_effective_ground_temperature(
     # Calculate the previous 3-month moving average
     three_month_MA_timeslices =
         [TimeSlice(ts - Month(3), ts) for ts in ambient_temp_K.indexes]
-    three_month_MA_values =
-        [repeating_ambient(t=ts) for ts in three_month_MA_timeslices]
+    three_month_MA_values = [repeating_ambient(t=ts) for ts in three_month_MA_timeslices]
     three_month_MA = TimeSeries(
         ambient_temp_K.indexes,
         three_month_MA_values,

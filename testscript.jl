@@ -20,7 +20,7 @@ m = Module()
 # Open database
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
-url = "sqlite:///<REDACTED>"
+url = "sqlite:///C:\\_SPINEPROJECTS\\mopo_ambience_test\\.spinetoolbox\\items\\abm_data\\ABM_data.sqlite"
 
 # Output url
 #output_url = <ADD OUTPUT URL IF DESIRED>
