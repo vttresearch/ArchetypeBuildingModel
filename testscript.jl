@@ -245,32 +245,32 @@ results = first(values(archetype_results))
 weather_plt = plot(; title="Ambient temperatures in [C]")
 plot!(
     weather_plt,
-    results.archetype.weather_data.ambient_temperature_K.indexes,
-    results.archetype.weather_data.ambient_temperature_K.values .- 273.15;
+    keys(results.archetype.weather_data.ambient_temperature_K),
+    values(results.archetype.weather_data.ambient_temperature_K) .- 273.15;
     label="Ambient"
 )
 plot!(
     weather_plt,
-    results.archetype.weather_data.ground_temperature_K.indexes,
-    results.archetype.weather_data.ground_temperature_K.values .- 273.15;
+    keys(results.archetype.weather_data.ground_temperature_K),
+    values(results.archetype.weather_data.ground_temperature_K) .- 273.15;
     label="Ground"
 )
 display(weather_plt)
 
 temp_plt = plot(; title="Node temperatures in [C]")
 for (n, ts) in results.temperatures
-    plot!(temp_plt, ts.indexes, ts.values .- 273.15, label=string(n))
+    plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=string(n))
 end
 display(temp_plt)
 
 hvac_plt = plot(; title="Heating/cooling demand in [W]")
 for (n, ts) in results.hvac_demand
-    plot!(hvac_plt, ts.indexes, ts.values, label=string(n))
+    plot!(hvac_plt, keys(ts), values(ts), label=string(n))
 end
 display(hvac_plt)
 
 process_plt = plot(; title="HVAC consumption in [MW]")
 for (p, ts) in results.hvac_consumption
-    plot!(process_plt, ts.indexes, ts.values, label=string(p))
+    plot!(process_plt, keys(ts), values(ts), label=string(p))
 end
 display(process_plt)
