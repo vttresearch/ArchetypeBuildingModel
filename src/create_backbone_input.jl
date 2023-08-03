@@ -408,7 +408,7 @@ function add_archetype_to_input!(
     merge!(
         backbone.grid__node__unit__io.parameter_defaults,
         Dict(
-            param => parameter_value(nothing) for param in keys(first(gnuio_param_dict)[2])
+            param => parameter_value(nothing) for param in [:capacity, :conversionCoeff, :unitSize]
         ),
     )
 
@@ -519,5 +519,23 @@ function timeseries_to_backbone_map(ts::TimeSeries)
                 ts.values,
             ),
         ],
+    )
+end
+
+
+"""
+    timeseries_to_backbone_map(x::Real)
+
+Convert `Real` into Backbone input data `Map`.
+"""
+function timeseries_to_backbone_map(x::Real)
+    Map(
+        [:f00],
+        [
+            Map(
+                [:t000000],
+                [x]
+            )
+        ]
     )
 end
