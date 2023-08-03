@@ -67,9 +67,42 @@ struct GenericInput <: ModelInput
             [:building_archetype, :building_node_data],
             Array{RelationshipLike,1}()
         )
-        building_archetype__building_process_data::RelationshipClass
-        building_archetype__loads_data::RelationshipClass
-        building_archetype__abstract_node_data::RelationshipClass
-        building_archetype__abstract_process_data::RelationshipClass
+        building_archetype__building_process_data = RelationshipClass(
+            :building_archetype__building_process_data,
+            [:building_archetype, :building_process_data],
+            Array{RelationshipLike,1}()
+        )
+        building_archetype__loads_data = RelationshipClass(
+            :building_archetype__loads_data,
+            [:building_archetype, :loads_data],
+            Array{RelationshipLike,1}()
+        )
+        building_archetype__abstract_node_data = RelationshipClass(
+            :building_archetype__abstract_node_data,
+            [:building_archetype, :abstract_node_data],
+            Array{RelationshipLike,1}()
+        )
+        building_archetype__abstract_process_data = RelationshipClass(
+            :building_archetype__abstract_process_data,
+            [:building_archetype, :abstract_process_data],
+            Array{RelationshipLike,1}()
+        )
+        new(
+            building_archetype,
+            scope_data,
+            envelope_data,
+            building_node_data,
+            building_process_data,
+            loads_data,
+            abstract_node_data,
+            abstract_process_data,
+            building_archetype__scope_data,
+            building_archetype__envelope_data,
+            building_archetype__building_node_data,
+            building_archetype__building_process_data,
+            building_archetype__loads_data,
+            building_archetype__abstract_node_data,
+            building_archetype__abstract_process_data,
+        )
     end
 end
