@@ -193,7 +193,7 @@ function determine_temporal_structure(
 
     # Indices must be a Vector{DateTime}, 24-hours simulated by default.
     if !isa(indices, Vector{DateTime})
-        indices = [DateTime(0) + Hour(i) for i in 0:23]
+        indices = [DateTime(1) + Hour(i) for i in 0:23]
     end
 
     # Calculate the delta t in hours, all time steps need to have constant value.
