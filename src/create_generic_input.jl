@@ -106,3 +106,33 @@ struct GenericInput <: ModelInput
         )
     end
 end
+
+
+"""
+    GenericInput(
+        archetypes::Dict{Object,ArchetypeBuilding};
+        mod::Module=@__MODULE__,
+    )
+
+Create [`GenericInput`](@ref) based on a given archetype building dictionary.
+
+NOTE! The `mod` keyword changes from which Module data is accessed from,
+`@__MODULE__` by default.
+
+Essentially, performs the following steps:
+1. Initialize an empty [`GenericInput`](@ref).
+2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
+"""
+function GenericInput(
+    archetypes::Dict{Object,ArchetypeBuilding};
+    mod::Module=@__MODULE__
+)
+    generic = GenericInput()
+    for archetype in values(archetypes)
+        add_archetype_to_input!(
+            generic, archetype; mod=mod
+        )
+    end
+    return generic
+end
+
