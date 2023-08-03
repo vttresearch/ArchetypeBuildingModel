@@ -129,3 +129,97 @@ function GenericInput(
     return generic
 end
 
+
+"""
+    add_archetype_to_input!(
+        generic::GenericInput,
+        archetype::ArchetypeBuilding
+    )
+
+Add [`ArchetypeBuilding`](@ref) to [`GenericInput`](@ref).
+
+Essentially loops over the 
+"""
+function add_archetype_to_input!(
+    generic::GenericInput,
+    archetype::ArchetypeBuilding
+)
+    # Define the fields of ArchetypeBuilding to loop over first.
+    fields = [ # These don't contain deeper levels.
+        :scope_data,
+        :envelope_data,
+        :loads_data,
+        :building_nodes,
+        :building_processes,
+        :abstract_nodes,
+        :abstract_processes,
+    ]
+
+    # Generate the required archetype and field objects with mapping.
+    ao_map = Dict(
+        (archetype, field, data) => Object(
+            Symbol(string(archetype.archetype, name) * "__" * string((getfield(data, 1))))
+        )
+        for field in fields
+        for data in values(getfield(archetype, field))
+    )
+
+    # Loop over the mappings to populate GenericInput
+    for ((archetype, field, data), obj) in ao_map
+        # Process objects and their properties into GenericInput
+        properties = fieldnames(typeof(data))[2:end] # Skip first property as it contains the object.
+        param_dict = Dict(
+            obj => Dict(
+                key => parameter_value(getfield(data, key))
+                for key in properties
+            )
+        )
+        add_object_parameter_values!(getfield(generic, field), param_dict)
+        merge!(
+            getfield(getfield(generic, field), :parameter_defaults),
+            Dict(
+                key => parameter_value(nothing)
+                for key in properties
+            )
+        )
+        # Process relationships
+        relclass = Symbol("building_archetype__" * string(field))
+        add_relationships!(
+            getfield(generic, relclass),
+            [NamedTuple{(:building_archetype, field)}(archetype, obj)]
+        )
+    end
+
+    return nothing
+end
+
+
+"""
+    SpineInterface.parameter_value(d::Dict)
+
+Extend `SpineInterface.parameter_value` to dictionaries.
+"""
+function SpineInterface.parameter_value(d::Dict)
+    return parameter_value(
+        Map(
+            keys(d),
+            parameter_value.(values(d))
+        )
+    )
+end
+
+
+"""
+    SpineInterface.parameter_value(sd::StructureData)
+
+Extend `SpineInterface.parameter_value` to [`StructureData`](@ref).
+"""
+function SpineInterface.parameter_value(sd::StructureData)
+    keys = fieldnames(sd)[2:end] # Skip first value as it's the structure type object.
+    return parameter_value(
+        Map(
+            keys,
+            [getfield(sd, k) for k in keys]
+        )
+    )
+end

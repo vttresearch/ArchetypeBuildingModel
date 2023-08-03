@@ -233,9 +233,14 @@ results__system_link_node = initialize_result_classes!(m)
 
 ## Test creating and writing Backbone input
 
-#@info "Creating `BackboneInput`..."
-#@time backbone = BackboneInput(archetype_results; mod = m)
+@info "Creating `BackboneInput`..."
+@time backbone = BackboneInput(archetype_results; mod=m)
 #write_to_url(output_url, backbone)
+
+
+## Test creating generic input
+@info "Creating `GenericInput`..."
+@time generic = GenericInput(archetype_dictionary)
 
 
 ## Plot diagnostics.
