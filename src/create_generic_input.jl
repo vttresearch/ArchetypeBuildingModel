@@ -10,99 +10,34 @@ mostly for debugging purposes.
 
 Create and store the ArchetypeBuildingModel.jl structure for Spine Data Stores.
 
+NOTE! The `mod` keyword changes from which Module data is accessed from,
+`@__MODULE__` by default.
+
 Contains the following fields:
-- `building_archetype::ObjectClass`: The original `building_archetype` object.
-- `scope_data::ObjectClass`: The processed [`ScopeData`](@ref).
-- `envelope_data::ObjectClass`: The processed [`EnvelopeData`](@ref).
-- `building_nodes::ObjectClass`: The processed [`BuildingNodeData`](@ref).
-- `building_processes::ObjectClass`: The processed [`BuildingProcessData`](@ref).
-- `loads_data::ObjectClass`: The processed [`LoadsData`](@ref).
-- `abstract_nodes::ObjectClass`: The processed [`AbstractNode`](@ref).
-- `abstract_processes::ObjectClass`: The processed [`AbstractProcess`](@ref).
-- `building_archetype__scope_data::RelationshipClass`: Link archetype to its [`ScopeData`](@ref).
-- `building_archetype__envelope_data::RelationshipClass`: Link archetype to its [`EnvelopeData`](@ref).
-- `building_archetype__building_nodes::RelationshipClass`: Link archetype to its [`BuildingNodeData`](@ref).
-- `building_archetype__building_processes::RelationshipClass`: Link archetype to its [`BuildingProcessData`](@ref).
-- `building_archetype__loads_data::RelationshipClass`: Link archetype to its [`LoadsData`](@ref).
-- `building_archetype__abstract_nodes::RelationshipClass`: Link archetype to its [`AbstractNode`](@ref).
-- `building_archetype__abstract_processes::RelationshipClass`: Link archetype to its [`AbstractProcess`](@ref).
+ - `building_archetype::ObjectClass`: Stores [`ArchetypeBuilding`](@ref) information and definitions.
+ - `building_scope::ObjectClass`: Stores [`ScopeData`](@ref) information and definitions.
+ - `building_weather::ObjectClass`: Stores [`WeatherData`](@ref) information and definitions.
+ - `building_archetype__building_scope::RelationshipClass`: Links [`ArchetypeBuilding`](@ref) to its corresponding [`ScopeData`](@ref).
+ - `building_archetype__building_weather::RelationshipClass`: Links [`ArchetypeBuilding`](@ref) to its corresponding [`WeatherData`](@ref).
 """
 struct GenericInput <: ModelInput
     building_archetype::ObjectClass
-    scope_data::ObjectClass
-    envelope_data::ObjectClass
-    building_nodes::ObjectClass
-    building_processes::ObjectClass
-    loads_data::ObjectClass
-    abstract_nodes::ObjectClass
-    abstract_processes::ObjectClass
-    building_archetype__scope_data::RelationshipClass
-    building_archetype__envelope_data::RelationshipClass
-    building_archetype__building_nodes::RelationshipClass
-    building_archetype__building_processes::RelationshipClass
-    building_archetype__loads_data::RelationshipClass
-    building_archetype__abstract_nodes::RelationshipClass
-    building_archetype__abstract_processes::RelationshipClass
-    function GenericInput()
-        building_archetype = ObjectClass(:building_archetype, Array{ObjectLike,1}())
-        scope_data = ObjectClass(:scope_data, Array{ObjectLike,1}())
-        envelope_data = ObjectClass(:envelope_data, Array{ObjectLike,1}())
-        building_nodes = ObjectClass(:building_nodes, Array{ObjectLike,1}())
-        building_processes = ObjectClass(:building_processes, Array{ObjectLike,1}())
-        loads_data = ObjectClass(:loads_data, Array{ObjectLike,1}())
-        abstract_nodes = ObjectClass(:abstract_nodes, Array{ObjectLike,1}())
-        abstract_processes = ObjectClass(:abstract_processes, Array{ObjectLike,1}())
-        building_archetype__scope_data = RelationshipClass(
-            :building_archetype__scope_data,
-            [:building_archetype, :scope_data],
-            Array{RelationshipLike,1}(),
-        )
-        building_archetype__envelope_data = RelationshipClass(
-            :building_archetype__envelope_data,
-            [:building_archetype, :envelope_data],
-            Array{RelationshipLike,1}()
-        )
-        building_archetype__building_nodes = RelationshipClass(
-            :building_archetype__building_nodes,
-            [:building_archetype, :building_nodes],
-            Array{RelationshipLike,1}()
-        )
-        building_archetype__building_processes = RelationshipClass(
-            :building_archetype__building_processes,
-            [:building_archetype, :building_processes],
-            Array{RelationshipLike,1}()
-        )
-        building_archetype__loads_data = RelationshipClass(
-            :building_archetype__loads_data,
-            [:building_archetype, :loads_data],
-            Array{RelationshipLike,1}()
-        )
-        building_archetype__abstract_nodes = RelationshipClass(
-            :building_archetype__abstract_nodes,
-            [:building_archetype, :abstract_nodes],
-            Array{RelationshipLike,1}()
-        )
-        building_archetype__abstract_processes = RelationshipClass(
-            :building_archetype__abstract_processes,
-            [:building_archetype, :abstract_processes],
-            Array{RelationshipLike,1}()
-        )
+    building_scope::ObjectClass
+    building_weather::ObjectClass
+    building_archetype__building_scope::RelationshipClass
+    building_archetype__building_weather::RelationshipClass
+    function GenericInput(; mod=@__MODULE__)
+        building_archetype = deepcopy(mod.building_archetype)
+        building_scope = deepcopy(mod.building_scope)
+        building_weather = deepcopy(mod.building_weather)
+        building_archetype__building_scope = deepcopy(mod.building_archetype__building_scope)
+        building_archetype__building_weather = deepcopy(mod.building_archetype__building_weather)
         new(
             building_archetype,
-            scope_data,
-            envelope_data,
-            building_nodes,
-            building_processes,
-            loads_data,
-            abstract_nodes,
-            abstract_processes,
-            building_archetype__scope_data,
-            building_archetype__envelope_data,
-            building_archetype__building_nodes,
-            building_archetype__building_processes,
-            building_archetype__loads_data,
-            building_archetype__abstract_nodes,
-            building_archetype__abstract_processes,
+            building_scope,
+            building_weather,
+            building_archetype__building_scope,
+            building_archetype__building_weather
         )
     end
 end
@@ -110,19 +45,24 @@ end
 
 """
     GenericInput(
-        archetypes::Dict{Object,ArchetypeBuilding}
+        archetypes::Dict{Object,ArchetypeBuilding};
+        mod::Module=@__MODULE__
     )
 
 Create [`GenericInput`](@ref) based on a given archetype building dictionary.
+
+NOTE! The `mod` keyword changes from which Module data is accessed from,
+`@__MODULE__` by default.
 
 Essentially, performs the following steps:
 1. Initialize an empty [`GenericInput`](@ref).
 2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
 """
 function GenericInput(
-    archetypes::Dict{Object,ArchetypeBuilding}
+    archetypes::Dict{Object,ArchetypeBuilding};
+    mod::Module=@__MODULE__
 )
-    generic = GenericInput()
+    generic = GenericInput(; mod=mod)
     for archetype in values(archetypes)
         add_archetype_to_input!(generic, archetype)
     end
@@ -144,82 +84,83 @@ function add_archetype_to_input!(
     generic::GenericInput,
     archetype::ArchetypeBuilding
 )
-    # Define the fields of ArchetypeBuilding to loop over first.
-    fields = [ # These don't contain deeper levels.
-        :scope_data,
+    # Add effective ground temperature to weather.
+    add_object_parameter_values!(
+        generic.building_weather,
+        Dict(
+            archetype.weather => Dict(
+                :ground_temperature_K => parameter_value(archetype.weather_data.ground_temperature_K)
+            )
+        )
+    )
+    generic.building_weather.parameter_defaults[:ground_temperature_K] = parameter_value(nothing)
+
+    # Add scope data.
+    add_object_parameter_values!(
+        generic.building_scope,
+        Dict(
+            archetype.scope => Dict(:scope_data => parameter_value(archetype.scope_data))
+        )
+    )
+    generic.building_scope.parameter_defaults[:scope_data] = parameter_value(nothing)
+
+    # Define archetype fields of interest
+    fields = [
         :envelope_data,
-        :loads_data,
         :building_nodes,
         :building_processes,
+        :loads_data,
         :abstract_nodes,
         :abstract_processes,
     ]
 
-    # Generate the required archetype and field objects with mapping.
-    ao_map = Dict(
-        (archetype, field, data) => Object(
-            Symbol(string(archetype.archetype, name) * "__" * string((getfield(data, 1))))
+    # Loop over archetype fields of interest and add data
+    add_object_parameter_values!(
+        generic.building_archetype,
+        Dict(
+            archetype.archetype => Dict(
+                f => parameter_value(getfield(archetype, f))
+                for f in fields
+            )
         )
-        for field in fields
-        for data in values(getfield(archetype, field))
     )
-
-    # Loop over the mappings to populate GenericInput
-    for ((archetype, field, data), obj) in ao_map
-        # Process objects and their properties into GenericInput
-        properties = fieldnames(typeof(data))[2:end] # Skip first property as it contains the object.
-        param_dict = Dict(
-            obj => Dict(
-                key => parameter_value(getfield(data, key))
-                for key in properties
-            )
-        )
-        add_object_parameter_values!(getfield(generic, field), param_dict)
-        merge!(
-            getfield(getfield(generic, field), :parameter_defaults),
-            Dict(
-                key => parameter_value(nothing)
-                for key in properties
-            )
-        )
-        # Process relationships
-        relclass = Symbol("building_archetype__" * string(field))
-        add_relationships!(
-            getfield(generic, relclass),
-            [NamedTuple{(:building_archetype, field)}(archetype, obj)]
-        )
-    end
-
+    merge!(
+        generic.building_archetype.parameter_defaults,
+        Dict(f => parameter_value(nothing) for f in fields)
+    )
     return nothing
 end
 
 
 """
-    SpineInterface.parameter_value(d::Dict)
+    SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
 
 Extend `SpineInterface.parameter_value` to dictionaries.
 """
-function SpineInterface.parameter_value(d::Dict)
+function SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
     return parameter_value(
         Map(
-            keys(d),
-            parameter_value.(values(d))
+            collect(keys(d)),
+            collect(values(d))
         )
     )
 end
 
 
 """
-    SpineInterface.parameter_value(sd::StructureData)
+    SpineInterface.parameter_value(bdt::BuildingDataType)
 
-Extend `SpineInterface.parameter_value` to [`StructureData`](@ref).
+Extend `SpineInterface.parameter_value` to [`BuildingDataType`](@ref).
 """
-function SpineInterface.parameter_value(sd::StructureData)
-    keys = fieldnames(sd)[2:end] # Skip first value as it's the structure type object.
+function SpineInterface.parameter_value(bdt::BuildingDataType)
+    ks = collect(fieldnames(typeof(bdt)))
     return parameter_value(
         Map(
-            keys,
-            [getfield(sd, k) for k in keys]
+            ks,
+            [getfield(bdt, k) for k in ks]
         )
     )
 end
+
+
+SpineInterface.parameter_value(obj::Object) = parameter_value(obj.name)
