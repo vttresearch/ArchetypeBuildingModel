@@ -20,7 +20,8 @@ m = Module()
 # Open database
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
-url = "sqlite:///<REDACTED>"
+#url = "sqlite:///C:\\_SPINEPROJECTS\\mopo_ambience_test\\.spinetoolbox\\items\\abm_data\\ABM_data.sqlite"
+url = "sqlite:///C:\\_SPINEPROJECTS\\flexib_ida_comparisons\\.spinetoolbox\\items\\ice_processed_inputs_and_definitions\\ICE_processed_inputs_and_definitions.sqlite"
 
 # Output url
 #output_url = <ADD OUTPUT URL IF DESIRED>
@@ -233,29 +234,51 @@ results__system_link_node = initialize_result_classes!(m)
 
 ## Test creating and writing Backbone input
 
-#@info "Creating `BackboneInput`..."
-#@time backbone = BackboneInput(archetype_results; mod = m)
+@info "Creating `BackboneInput`..."
+@time backbone = BackboneInput(archetype_results; mod=m)
 #write_to_url(output_url, backbone)
+
+
+## Test creating generic input
+
+@info "Creating `GenericInput`..."
+@time generic = GenericInput(archetype_results; mod=m)
+#@time write_to_url(output_url, generic)
 
 
 ## Plot diagnostics.
 
 results = first(values(archetype_results))
 
+weather_plt = plot(; title="Ambient temperatures in [C]")
+plot!(
+    weather_plt,
+    keys(results.archetype.weather_data.ambient_temperature_K),
+    values(results.archetype.weather_data.ambient_temperature_K) .- 273.15;
+    label="Ambient"
+)
+plot!(
+    weather_plt,
+    keys(results.archetype.weather_data.ground_temperature_K),
+    values(results.archetype.weather_data.ground_temperature_K) .- 273.15;
+    label="Ground"
+)
+display(weather_plt)
+
 temp_plt = plot(; title="Node temperatures in [C]")
 for (n, ts) in results.temperatures
-    plot!(temp_plt, ts.indexes, ts.values .- 273.15, label=string(n))
+    plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=string(n))
 end
 display(temp_plt)
 
 hvac_plt = plot(; title="Heating/cooling demand in [W]")
 for (n, ts) in results.hvac_demand
-    plot!(hvac_plt, ts.indexes, ts.values, label=string(n))
+    plot!(hvac_plt, keys(ts), values(ts), label=string(n))
 end
 display(hvac_plt)
 
 process_plt = plot(; title="HVAC consumption in [MW]")
 for (p, ts) in results.hvac_consumption
-    plot!(process_plt, ts.indexes, ts.values, label=string(p))
+    plot!(process_plt, keys(ts), values(ts), label=string(p))
 end
 display(process_plt)

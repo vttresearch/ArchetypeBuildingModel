@@ -70,7 +70,7 @@ This struct contains the following fields:
 - `number_of_buildings::Float64`: Number of buildings included in this `scope`.
 - `average_gross_floor_area_m2_per_building::Float64`: Average GFA per building in [m2] of the buildings included in this `scope`.
 - `HRU_efficiency::Float64`: Average ventilation heat-recovery unit efficiency of the buildings included in this `scope`.
-- `infiltration_rate_1_h::Float64`: Average infiltration rate in [1/h] of teh buildings included in this `scope`.
+- `infiltration_rate_1_h::Float64`: Average infiltration rate in [1/h] of the buildings included in this `scope`.
 - `total_normal_solar_energy_transmittance::Float64`: Average total normal solar energy transmittance of the windows included in this `scope`.
 - `ventilation_rate_1_h::Float64`: Average ventilation rate in [1/h] of the buildings included in this `scope`.
 - `window_U_value_W_m2K::Float64`: Average window U-value in [W/m2K] of the buildings included in this `scope`.

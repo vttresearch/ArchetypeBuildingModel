@@ -176,17 +176,24 @@ function determine_temporal_structure(
 )
     # Check that all nodes have identical `external_load_W` time series indices.
     indices =
-        parameter_value(first(archetype.abstract_nodes)[2].external_load_W)(
-            scenario=realization,
-        ).indexes
+        keys(
+            parameter_value(first(archetype.abstract_nodes)[2].external_load_W)(
+                scenario=realization,
+            )
+        )
     if !all(
-        parameter_value(n.external_load_W)(scenario=realization).indexes == indices for
+        keys(parameter_value(n.external_load_W)(scenario=realization)) == indices for
         (k, n) in archetype.abstract_nodes
     )
         return @error """
         `external_load_W` time series are indexed different for `abstract_nodes`
         of `archetype_building` `$(archetype)`!
         """
+    end
+
+    # Indices must be a Vector{DateTime}, 24-hours simulated by default.
+    if !isa(indices, Vector{DateTime})
+        indices = [DateTime(2) + Hour(i) for i in 0:23]
     end
 
     # Calculate the delta t in hours, all time steps need to have constant value.
@@ -307,11 +314,11 @@ function initialize_temperatures(
         max_init_temperatures = deepcopy(max_temperatures)
     end
 
-    # Solve the initial temperatures via repeatedly solving the first 24 hours
+    # Solve the initial temperatures via repeatedly solving the first up-to 24 hours
     # until the temperatures converge, starting from the permitted minimums.
     for i = 1:1000
         temps, hvac = solve_heating_demand_loop(
-            indices[1:24],
+            indices[1:min(24, end)],
             dynamics_matrix,
             inverted_dynamics_matrix,
             init_temperatures,
@@ -367,7 +374,7 @@ function initialize_rhs(
     # Process the nodal `external_load_W`s into a nested vector for easy access.
     external_load_vector = [
         [
-            parameter_value(n.external_load_W)(scenario=realization).values[i] for
+            parameter_value(n.external_load_W)(scenario=realization, t=t) for
             (k, n) in archetype.abstract_nodes
         ] for (i, t) in enumerate(indices)
     ]

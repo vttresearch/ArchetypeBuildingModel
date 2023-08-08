@@ -332,7 +332,8 @@ function add_archetype_to_input!(
             :boundStart => parameter_value(true),
             :energyStoredPerUnitOfState => parameter_value(abs_n.thermal_mass_Wh_K),
             :nodeBalance => parameter_value(true),
-            :influx => parameter_value(timeseries_to_backbone_map(abs_n.external_load_W)),
+            :influx =>
+                parameter_value(timeseries_to_backbone_map(abs_n.external_load_W)),
             :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
             :r_state_gnft_baseline =>
                 parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
@@ -407,7 +408,7 @@ function add_archetype_to_input!(
     merge!(
         backbone.grid__node__unit__io.parameter_defaults,
         Dict(
-            param => parameter_value(nothing) for param in keys(first(gnuio_param_dict)[2])
+            param => parameter_value(nothing) for param in [:capacity, :conversionCoeff, :unitSize]
         ),
     )
 
@@ -518,5 +519,23 @@ function timeseries_to_backbone_map(ts::TimeSeries)
                 ts.values,
             ),
         ],
+    )
+end
+
+
+"""
+    timeseries_to_backbone_map(x::Real)
+
+Convert `Real` into Backbone input data `Map`.
+"""
+function timeseries_to_backbone_map(x::Real)
+    Map(
+        [:f00],
+        [
+            Map(
+                [:t000000],
+                [x]
+            )
+        ]
     )
 end
