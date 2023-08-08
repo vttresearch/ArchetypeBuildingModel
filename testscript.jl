@@ -242,7 +242,7 @@ results__system_link_node = initialize_result_classes!(m)
 ## Test creating generic input
 
 @info "Creating `GenericInput`..."
-@time generic = GenericInput(archetype_dictionary; mod=m)
+@time generic = GenericInput(archetype_results; mod=m)
 
 
 ## Plot diagnostics.

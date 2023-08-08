@@ -45,11 +45,11 @@ end
 
 """
     GenericInput(
-        archetypes::Dict{Object,ArchetypeBuilding};
+        results::Dict{Object,ArchetypeBuildingResults};
         mod::Module=@__MODULE__
     )
 
-Create [`GenericInput`](@ref) based on a given archetype building dictionary.
+Create [`GenericInput`](@ref) based on a given archetype building results.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -59,12 +59,12 @@ Essentially, performs the following steps:
 2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
 """
 function GenericInput(
-    archetypes::Dict{Object,ArchetypeBuilding};
+    results::Dict{Object,ArchetypeBuildingResults};
     mod::Module=@__MODULE__
 )
     generic = GenericInput(; mod=mod)
-    for archetype in values(archetypes)
-        add_archetype_to_input!(generic, archetype)
+    for result in values(results)
+        add_archetype_to_input!(generic, result)
     end
     return generic
 end
@@ -73,17 +73,21 @@ end
 """
     add_archetype_to_input!(
         generic::GenericInput,
-        archetype::ArchetypeBuilding
+        result::ArchetypeBuildingResults
     )
 
-Add [`ArchetypeBuilding`](@ref) to [`GenericInput`](@ref).
+Add [`ArchetypeBuildingResults`](@ref) to [`GenericInput`](@ref).
 
-Essentially loops over the 
+Essentially goes over the fields of the contained [`ArchetypeBuilding`](@ref)
+and parses them into [`Map`](@ref) for Spine export.
 """
 function add_archetype_to_input!(
     generic::GenericInput,
-    archetype::ArchetypeBuilding
+    result::ArchetypeBuildingResults
 )
+    # Fetch the contained `ArchetypeBuilding`
+    archetype = result.archetype
+
     # Add effective ground temperature to weather.
     add_object_parameter_values!(
         generic.building_weather,
