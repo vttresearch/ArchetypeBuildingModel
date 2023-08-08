@@ -80,16 +80,16 @@ else
     )
 
     # Process input data if requested
-    for (input_url, name) in [
-        spineopt_url => "SpineOpt",
-        backbone_url => "Backbone",
-        generic_url => "Generic",
+    for (input_url, name, input) in [
+        (spineopt_url, "SpineOpt", SpineOptInput),
+        (backbone_url, "Backbone", BackboneInput),
+        (generic_url, "Generic", GenericInput),
     ]
         if !isnothing(input_url)
-            @info "Processing and writing $(name) input data into `$(spineopt_url)`..."
+            @info "Processing and writing $(name) input data into `$(input_url)`..."
             @time write_to_url(
                 String(input_url),
-                SpineOptInput(archetype_results_dictionary);
+                input(archetype_results_dictionary; mod=m);
                 alternative=alternative
             )
         end
