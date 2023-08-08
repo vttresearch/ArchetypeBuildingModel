@@ -79,7 +79,7 @@ end
 Add [`ArchetypeBuildingResults`](@ref) to [`GenericInput`](@ref).
 
 Essentially goes over the fields of the contained [`ArchetypeBuilding`](@ref)
-and parses them into [`Map`](@ref) for Spine export.
+and parses them into `Map` for Spine export.
 """
 function add_archetype_to_input!(
     generic::GenericInput,
