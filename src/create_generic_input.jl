@@ -144,7 +144,7 @@ Extend `SpineInterface.parameter_value` to dictionaries.
 function SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
     return parameter_value(
         Map(
-            collect(keys(d)),
+            collect(string.(keys(d))),
             collect(values(d))
         )
     )
@@ -166,5 +166,6 @@ function SpineInterface.parameter_value(bdt::BuildingDataType)
     )
 end
 
-
+# Extensions to `SpineInterface.parameter_value` to handle objects within maps and vectors.
 SpineInterface.parameter_value(obj::Object) = parameter_value(obj.name)
+SpineInterface.parameter_value(v::Vector{Object}) = parameter_value(string.(getfield.(v, :name)))

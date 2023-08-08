@@ -243,6 +243,7 @@ results__system_link_node = initialize_result_classes!(m)
 
 @info "Creating `GenericInput`..."
 @time generic = GenericInput(archetype_results; mod=m)
+#@time write_to_url(output_url, generic)
 
 
 ## Plot diagnostics.
