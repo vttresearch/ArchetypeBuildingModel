@@ -22,6 +22,7 @@ ArchetypeBuildingResults
 BackboneInput
 BuildingProcessData
 EnvelopeData
+GenericInput
 LoadsData
 ScopeData
 SpineOptInput

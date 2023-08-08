@@ -136,11 +136,8 @@ function add_archetype_to_input!(
 end
 
 
-"""
-    SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
+## Extensions to `SpineInterface.parameter_value`.
 
-Extend `SpineInterface.parameter_value` to dictionaries.
-"""
 function SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
     return parameter_value(
         Map(
@@ -149,13 +146,6 @@ function SpineInterface.parameter_value(d::Union{Dict,NamedTuple})
         )
     )
 end
-
-
-"""
-    SpineInterface.parameter_value(bdt::BuildingDataType)
-
-Extend `SpineInterface.parameter_value` to [`BuildingDataType`](@ref).
-"""
 function SpineInterface.parameter_value(bdt::BuildingDataType)
     ks = collect(fieldnames(typeof(bdt)))
     return parameter_value(
@@ -165,7 +155,5 @@ function SpineInterface.parameter_value(bdt::BuildingDataType)
         )
     )
 end
-
-# Extensions to `SpineInterface.parameter_value` to handle objects within maps and vectors.
 SpineInterface.parameter_value(obj::Object) = parameter_value(obj.name)
 SpineInterface.parameter_value(v::Vector{Object}) = parameter_value(string.(getfield.(v, :name)))
