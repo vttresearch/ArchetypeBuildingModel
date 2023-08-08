@@ -23,6 +23,7 @@ include("process_weather.jl")
 include("tests.jl")
 include("create_backbone_input.jl")
 include("create_spineopt_input.jl")
+include("create_generic_input.jl")
 include("solve_demand.jl")
 include("solve_consumption.jl")
 include("export.jl")
@@ -39,7 +40,8 @@ export using_spinedb,
     import_data,
     write_to_url,
     SpineOptInput,
-    BackboneInput
+    BackboneInput,
+    GenericInput
 # Exports for documentation
 export BuildingNodeData, AbstractNode, AbstractProcess
 # Exports for `testscript.jl`

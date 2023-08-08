@@ -20,7 +20,8 @@ m = Module()
 # Open database
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
-url = "sqlite:///C:\\_SPINEPROJECTS\\mopo_ambience_test\\.spinetoolbox\\items\\abm_data\\ABM_data.sqlite"
+#url = "sqlite:///C:\\_SPINEPROJECTS\\mopo_ambience_test\\.spinetoolbox\\items\\abm_data\\ABM_data.sqlite"
+url = "sqlite:///C:\\_SPINEPROJECTS\\flexib_ida_comparisons\\.spinetoolbox\\items\\ice_processed_inputs_and_definitions\\ICE_processed_inputs_and_definitions.sqlite"
 
 # Output url
 #output_url = <ADD OUTPUT URL IF DESIRED>
@@ -236,6 +237,13 @@ results__system_link_node = initialize_result_classes!(m)
 @info "Creating `BackboneInput`..."
 @time backbone = BackboneInput(archetype_results; mod=m)
 #write_to_url(output_url, backbone)
+
+
+## Test creating generic input
+
+@info "Creating `GenericInput`..."
+@time generic = GenericInput(archetype_results; mod=m)
+#@time write_to_url(output_url, generic)
 
 
 ## Plot diagnostics.

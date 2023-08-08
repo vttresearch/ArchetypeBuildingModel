@@ -679,6 +679,48 @@ Object class: `direction`
 
 Object class: `direction`
 
+### `base_floor`
+
+>The base floor of the building, in contact with either the ground or some form of ventilated crawlspace.
+
+Object class: `structure_type`
+
+### `exterior_wall`
+
+>Potentially load-bearing envelope walls of the building, in direct contact with ambient air.
+
+Object class: `structure_type`
+
+### `light_exterior_wall`
+
+>Non-load-bearing envelope walls of the building, in direct contact with ambient air.
+
+Object class: `structure_type`
+
+### `light_partition_wall`
+
+>Non-load-bearing walls within the building envelope, not in contact with ambient conditions.
+
+Object class: `structure_type`
+
+### `partition_wall`
+
+>Potentially load-bearing walls within the building envelope, not in contact with ambient conditions.
+
+Object class: `structure_type`
+
+### `roof`
+
+>Roof of the building envelope, in contact with ambient air.
+
+Object class: `structure_type`
+
+### `separating_floor`
+
+>Floors dividing storeys within the building envelope, not in contact with ambient conditions.
+
+Object class: `structure_type`
+
 ## Relationship classes
 
 ### `building_archetype__building_fabrics`
