@@ -308,10 +308,12 @@ function initialize_temperatures(
         max_init_temperatures = deepcopy(max_temperatures)
         fixed_inds = findall(init_temperatures .!= min_temperatures)
         max_init_temperatures[fixed_inds] = init_temperatures[fixed_inds]
+        free_dyn = false # If initial temperatures are given, dynamics aren't free.
     else
         init_temperatures = deepcopy(min_temperatures)
         min_init_temperatures = deepcopy(min_temperatures)
         max_init_temperatures = deepcopy(max_temperatures)
+        free_dyn = free_dynamics
     end
 
     # Solve the initial temperatures via repeatedly solving the first up-to 24 hours
@@ -326,7 +328,7 @@ function initialize_temperatures(
             max_init_temperatures,
             external_load_vector,
             thermal_mass_vector,
-            free_dynamics,
+            free_dyn,
         )
         if isapprox(last(temps), init_temperatures)
             println("Stable initial temperatures found with $(i) iterations.")
