@@ -331,13 +331,12 @@ function initialize_temperatures(
             free_dyn,
         )
         if isapprox(last(temps), init_temperatures)
-            println("Stable initial temperatures found with $(i) iterations.")
             return last(temps), min_temperatures, max_temperatures
         end
         init_temperatures = last(temps)
     end
     println("""
-            No stable initial temperatures found!
+            No stable initial temperatures found for $(archetype)!
             Using minimum permitted temperatures instead.
             """)
     return deepcopy(min_temperatures), min_temperatures, max_temperatures
