@@ -35,6 +35,7 @@ The key outputs from this module, however, are the readily made
 [SpineOpt](https://github.com/Spine-project/SpineOpt.jl) input datasets
 that can be plugged into their respective energy system models for
 depicting the flexible heating/cooling demand of the depicted building stock.
+See the figure below for a high-level illustration of the workflow.
 
 This documentation is organized as follows:
 The [Defining archetype buildings](@ref) section explains how the archetype
@@ -56,6 +57,8 @@ and [SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
 Finally, the [Input data reference](@ref) and the [Library](@ref)
 sections provide comprehensive documentation of the definition/input
 data format and the modelling code respectively.
+
+![ABMWorkflow](ABMFlow.png)
 
 
 ## Contents
