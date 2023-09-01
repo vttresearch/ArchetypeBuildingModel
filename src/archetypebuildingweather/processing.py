@@ -117,6 +117,16 @@ def prepare_cutout(
         time=slice(weather_start, weather_end),
     )
     cutout.prepare(features=features)
+
+    # Check that cutout and shapefile have the same coordinate reference system
+    if shapefile.data.crs != cutout.crs:
+        raise ValueError(
+            f"""
+            The coordinate reference systems of the shapefile and the cutout don't match!
+            Shapefile CRS: {shapefile.crs}
+            Cutout CRS: {cutout.crs}
+            """
+        )
     return cutout
 
 
@@ -158,6 +168,16 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
         )
     else:  # Else, use the default uniform raster created based on the `Shapefile`
         raster = shapefile.raster
+
+    # Check if raster and cutout CRS matches
+    if raster.rio.crs != cutout.crs:
+        raise ValueError(
+            f"""
+            The coordinate reference systems of the cutout and the raster don't match!
+            Cutout CRS: {cutout.crs}
+            Raster CRS: {raster.rio.crs}
+            """
+        )
 
     # Take the given weights into account and normalize the rasters.
     # Reprojection to layout resolution is done on sub-raster basis to avoid memory issues.

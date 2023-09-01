@@ -238,10 +238,12 @@ using [`calculate_gross_floor_area_weights`](@ref).
 """
 function aggregate_gfa_weights(gross_floor_area_weights::Dict{NTuple{5,Object},Float64})
     # Aggregate the GFA-weights to match the dimensions of the ventilation and fenestration (and structural) data.
-    aggregated_gfa_weights = Dict{NTuple{3,Object},Float64}()
+    aggregated_gfa_weights = Dict{NTuple{3,Object},Float64}(
+        (bt, bp, lid) => 0.0
+        for (bs, bt, bp, lid, hs) in keys(gross_floor_area_weights)
+    )
     for ((bs, bt, bp, lid, hs), weight) in gross_floor_area_weights
-        aggregated_gfa_weights[(bt, bp, lid)] =
-            get(aggregated_gfa_weights, (bt, bp, lid), 0.0) + weight
+        aggregated_gfa_weights[(bt, bp, lid)] += weight
     end
     if !isapprox(sum(values(aggregated_gfa_weights)), 1)
         error("""
@@ -251,9 +253,12 @@ function aggregate_gfa_weights(gross_floor_area_weights::Dict{NTuple{5,Object},F
     end
 
     # Aggregate the GFA-weights for potential weather data processing.
-    location_id_gfa_weights = Dict{Object,Float64}()
+    location_id_gfa_weights = Dict{Object,Float64}(
+        lid => 0.0
+        for (bt, bp, lid) in keys(aggregated_gfa_weights)
+    )
     for ((bt, bp, lid), weight) in aggregated_gfa_weights
-        location_id_gfa_weights[lid] = get(location_id_gfa_weights, lid, 0.0) + weight
+        location_id_gfa_weights[lid] += weight
     end
     if !isapprox(sum(values(location_id_gfa_weights)), 1)
         error(
@@ -341,36 +346,28 @@ function process_structure_scope(
     aggregated_gfa_weights::Dict{NTuple{3,Object},Float64};
     mod::Module=@__MODULE__
 )
-    structure_data = Dict{Object,StructureData}()
-    for st in mod.structure_type()
-        design_U, eff_mass, ext_U_air, ext_U_grd, int_U, lin_therm, tot_U = [
-            sum(
-                param(
-                    building_type=bt,
-                    building_period=bp,
-                    location_id=lid,
-                    structure_type=st,
-                ) * weight for ((bt, bp, lid), weight) in aggregated_gfa_weights
-            ) for param in [
-                mod.design_U_value_W_m2K,
-                mod.effective_thermal_mass_J_m2K,
-                mod.external_U_value_to_ambient_air_W_m2K,
-                mod.external_U_value_to_ground_W_m2K,
-                mod.internal_U_value_to_structure_W_m2K,
-                mod.linear_thermal_bridges_W_mK,
-                mod.total_U_value_W_m2K,
-            ]
-        ]
-        structure_data[st] = StructureData(
+    return Dict{Object,StructureData}(
+        st => StructureData(
             st,
-            design_U,
-            eff_mass,
-            ext_U_air,
-            ext_U_grd,
-            int_U,
-            lin_therm,
-            tot_U,
+            [
+                sum(
+                    param(
+                        building_type=bt,
+                        building_period=bp,
+                        location_id=lid,
+                        structure_type=st,
+                    ) * weight for ((bt, bp, lid), weight) in aggregated_gfa_weights
+                ) for param in [
+                    mod.design_U_value_W_m2K,
+                    mod.effective_thermal_mass_J_m2K,
+                    mod.external_U_value_to_ambient_air_W_m2K,
+                    mod.external_U_value_to_ground_W_m2K,
+                    mod.internal_U_value_to_structure_W_m2K,
+                    mod.linear_thermal_bridges_W_mK,
+                    mod.total_U_value_W_m2K,
+                ]
+            ]...
         )
-    end
-    return structure_data
+        for st in mod.structure_type()
+    )
 end

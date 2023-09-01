@@ -308,10 +308,12 @@ function initialize_temperatures(
         max_init_temperatures = deepcopy(max_temperatures)
         fixed_inds = findall(init_temperatures .!= min_temperatures)
         max_init_temperatures[fixed_inds] = init_temperatures[fixed_inds]
+        free_dyn = false # If initial temperatures are given, dynamics aren't free.
     else
         init_temperatures = deepcopy(min_temperatures)
         min_init_temperatures = deepcopy(min_temperatures)
         max_init_temperatures = deepcopy(max_temperatures)
+        free_dyn = free_dynamics
     end
 
     # Solve the initial temperatures via repeatedly solving the first up-to 24 hours
@@ -326,16 +328,15 @@ function initialize_temperatures(
             max_init_temperatures,
             external_load_vector,
             thermal_mass_vector,
-            free_dynamics,
+            free_dyn,
         )
         if isapprox(last(temps), init_temperatures)
-            println("Stable initial temperatures found with $(i) iterations.")
             return last(temps), min_temperatures, max_temperatures
         end
         init_temperatures = last(temps)
     end
     println("""
-            No stable initial temperatures found!
+            No stable initial temperatures found for $(archetype)!
             Using minimum permitted temperatures instead.
             """)
     return deepcopy(min_temperatures), min_temperatures, max_temperatures
@@ -426,14 +427,21 @@ function solve_heating_demand_loop(
 )
     # Initialize the temperature vector, the HVAC heating/cooling demand vector,
     # and the heating/cooling demand solving matrix Dict
-    temperatures = [initial_temperatures]
-    hvac_demand = Vector{Vector{Float64}}()
-    inverse_hvac_matrices = Dict{Vector{Int64},Matrix{Float64}}()
+    len = length(initial_temperatures)
+    temperatures = vcat(
+        [initial_temperatures],
+        repeat([zeros(len)], length(indices))
+    )
+    hvac_demand = repeat([zeros(len)], length(indices))
+    inverse_hvac_matrices = Dict{Vector{Bool},Matrix{Float64}}(
+        fill(false, len) => zeros(len, len)
+    )
+    sizehint!(inverse_hvac_matrices, 2^2)
 
     # Loop over the indices, and solve the dynamics/HVAC demand.
     for (i, t) in enumerate(indices)
         # Calculate the new temperatures without HVAC.
-        previous_temperature_effect_vector = thermal_mass_vector .* last(temperatures)
+        previous_temperature_effect_vector = thermal_mass_vector .* temperatures[i]
         new_temperatures =
             inverted_dynamics_matrix *
             (external_load_vector[i] + previous_temperature_effect_vector)
@@ -444,8 +452,8 @@ function solve_heating_demand_loop(
         temp_check = max_temp_check .* min_temp_check
         if free_dynamics || all(temp_check)
             # If yes, simply save the new temperatures & zero demand, and move on.
-            push!(temperatures, new_temperatures)
-            push!(hvac_demand, zeros(size(new_temperatures)))
+            temperatures[i+1] = new_temperatures
+            hvac_demand[i] = zeros(size(new_temperatures))
         else
             # Else, calculate the required HVAC demand.
             # Check if we've already calculated the inverse HVAC matrix for this case,
@@ -490,8 +498,8 @@ function solve_heating_demand_loop(
             hvac = zeros(size(hvac_solution))
             hvac[fixed_max_temp_inds] = hvac_solution[fixed_max_temp_inds]
             hvac[fixed_min_temp_inds] = hvac_solution[fixed_min_temp_inds]
-            push!(temperatures, new_temperatures)
-            push!(hvac_demand, hvac)
+            temperatures[i+1] = new_temperatures
+            hvac_demand[i] = hvac
         end
     end
     return temperatures, hvac_demand
@@ -527,6 +535,5 @@ function form_and_invert_hvac_matrix(
         hvac_matrix[:, i] .= 0.0
         hvac_matrix[i, i] = -1.0
     end
-
     return inv(hvac_matrix)
 end
