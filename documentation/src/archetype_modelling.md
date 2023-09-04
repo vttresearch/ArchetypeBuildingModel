@@ -45,15 +45,19 @@ The key assumptions for forming the archetype building envelope are as follows:
     - [building\_frame\_depth\_m](@ref): The assumed average depth of the archetype building. Since dwellings typically have requirements for natural light *(at least in Finland)*, there's a limit for how deep the building frame can reasonably be when fenestrated from both sides. Naturally, this varies from building to building depending on their age and exact shape, but in general, I find it more reliable than using e.g. some assumption about the width-to-depth ratio of the buildings.
     - [room\_height\_m](@ref): The assumed average height of the rooms. In combination with the [number\_of\_storeys](@ref), this parameter determines how tall the archetype buildings are. For simplicity, all storeys are assumed to be equally high, and non-integer [number\_of\_storeys](@ref) are rounded up for estimating the height of the building.
 
+![Geometryfig](Geometry.drawio.png)
+
+- Fenestration and partition walls are controlled using the following parameters:
+    - [partition\_wall\_length\_ratio\_to\_external\_walls\_m\_m](@ref) controls the amount of partition walls relative to external walls.
+    - [window\_area\_distribution\_towards\_cardinal\_directions](@ref) controls the facing of windows *(North, East, South, West, Horizontal)*.
+    - [window\_area\_to\_external\_wall\_ratio\_m2\_m2](@ref) controls the share of windows relative to vertical facade area.
+
 See the [`ArchetypeBuildingModel.process_building_envelope`](@ref) docstring
 for a detailed explanation of how the envelope shape related parameters
 affect the calculations.
 The actual equations for the surface areas and linear thermal
 bridge lengths of the structures can be found from the docstrings of the
 dedicated functions linked therein.
-The geometry parameters and assumptions are illustrated below:
-
-![Geometryfig](Geometry.drawio.png)
 
 
 ## Preparing the building loads
