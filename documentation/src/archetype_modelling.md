@@ -51,6 +51,9 @@ affect the calculations.
 The actual equations for the surface areas and linear thermal
 bridge lengths of the structures can be found from the docstrings of the
 dedicated functions linked therein.
+The geometry parameters and assumptions are illustrated below:
+
+![Geometryfig](Geometry.drawio.png)
 
 
 ## Preparing the building loads
@@ -160,6 +163,9 @@ See the [Processing thermal nodes into `AbstractNode`s](@ref) section for
 how the data is adapted for use with large-scale energy system models,
 which also happens to simplify
 [Solving the baseline heating demand and HVAC equipment consumption](@ref).
+Ultimately, the end result will look something like this:
+
+![RCDiag](RCdiag.drawio.png)
 
 
 ## Calculating the properties of the HVAC equipment
