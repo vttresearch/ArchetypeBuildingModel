@@ -359,10 +359,8 @@ def aggregate_weather(
     cutout = prepare_cutout(shapefile, weather_start, weather_end)
     raster, layout = prepare_layout(shapefile, cutout, weights, raster_path, resampling)
     if save_layouts:
-        f = plot_layout(shapefile, raster, dpi=600, title=filename + " raster")
-        f.savefig("figs/" + filename + "_raster.png", dpi=600)
-        plt.cla()
-        f = plot_layout(shapefile, layout, dpi=600, title=filename + " layout")
-        f.savefig("figs/" + filename + "_layout.png", dpi=600)
-        plt.close(f)
+        for rst, name in [(raster, "raster"), (layout, "layout")]:
+            f = plot_layout(shapefile, rst, dpi=600, title=filename + " " + name)
+            f.savefig("figs/" + filename + "_" + name + ".png", dpi=600)
+            plt.close(f)
     return process_weather(cutout, layout)
