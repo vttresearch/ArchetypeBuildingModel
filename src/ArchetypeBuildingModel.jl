@@ -6,6 +6,7 @@ import SpineInterface._check
 using Test
 using PyCall
 using Interpolations
+using JSON
 
 # Define the set of possible solar directions, currently hard-coded.
 const solar_directions = [:horizontal, :north, :east, :south, :west]

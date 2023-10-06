@@ -16,3 +16,13 @@ end
 function collect_leaf_values(x::Union{Map,AbstractDict,AbstractArray})
     return vcat(collect_leaf_values.(values(x))...)
 end
+
+
+"""
+    load_definitions_template()
+
+Read the `archetype_definitions.json` into `Dict``.
+"""
+function load_definitions_template()
+    JSON.parsefile(@__DIR__ * "\\..\\archetype_definitions.json")
+end
