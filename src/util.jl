@@ -24,5 +24,5 @@ end
 Read the `archetype_definitions.json` into `Dict``.
 """
 function load_definitions_template()
-    JSON.parsefile(@__DIR__ * "\\..\\archetype_definitions.json")
+    JSON.parsefile(*(@__DIR__, "\\..\\archetype_definitions.json"))
 end
