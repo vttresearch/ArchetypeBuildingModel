@@ -81,7 +81,8 @@ function archetype_building_processing(
                 bw, bw_params = create_building_weather(
                     archetype,
                     scope_data_dictionary[archetype];
-                    save_layouts=save_layouts
+                    save_layouts=save_layouts,
+                    mod=mod
                 )
                 add_object_parameter_values!(mod.building_weather, bw_params)
                 add_relationships!(
