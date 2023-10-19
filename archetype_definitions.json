@@ -443,9 +443,9 @@
         [
             "building_archetype",
             "window_area_to_external_wall_ratio_m2_m2",
-            0.2,
+            0.1,
             null,
-            "Assumed average ratio between external wall surface area and the surface area of windows [m2/m2]."
+            "Assumed average ratio between external wall surface area and the surface area of windows [m2/m2]. Default value loosely based on `Final report --- Average EU building heat load for HVAC equipment (2014)` and `RAKENTEELLINEN ENERGIATEHOKKUUS --- OPAS (2015)`."
         ],
         [
             "building_archetype",
