@@ -116,41 +116,6 @@
     ],
     "object_parameter_values": [
         [
-            "building_node",
-            "DHWT_daily_YM_150-500l",
-            "domestic_hot_water_demand_weight",
-            1.0,
-            "Base"
-        ],
-        [
-            "building_node",
-            "DHWT_daily_YM_150-500l",
-            "effective_thermal_mass_gfa_scaling_J_m2K",
-            6427.0,
-            "Base"
-        ],
-        [
-            "building_node",
-            "DHWT_daily_YM_150-500l",
-            "maximum_permitted_temperature_K",
-            353.15,
-            "Base"
-        ],
-        [
-            "building_node",
-            "DHWT_daily_YM_150-500l",
-            "minimum_permitted_temperature_K",
-            333.15,
-            "Base"
-        ],
-        [
-            "building_node",
-            "DHWT_daily_YM_150-500l",
-            "self_discharge_rate_gfa_scaling_W_m2K",
-            0.0019,
-            "Base"
-        ],
-        [
             "building_process",
             "ideal_cooling",
             "coefficient_of_performance_mode",
