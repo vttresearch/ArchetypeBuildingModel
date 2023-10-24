@@ -23,12 +23,12 @@
         [
             "building_process",
             "ideal_cooling",
-            "Ideal cooling equipment with a fixed COP of 1."
+            "Ideal cooling equipment with a fixed COP of 1. Default sizing loosely based on `LVI 34-10203 Rakennuksen jäähdytystarpeen määrittäminen`."
         ],
         [
             "building_process",
             "ideal_heating",
-            "Ideal heating equipment with a fixed COP of 1."
+            "Ideal heating equipment with a fixed COP of 1. Default sizing loosely based on `RT 52-10797 Vesikiertoinen patterilämmitys` Table 1."
         ],
         [
             "building_systems",
@@ -189,7 +189,7 @@
                 "@system_link_node_1"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            25.0,
+            20.0,
             "Base"
         ],
         [
@@ -200,7 +200,7 @@
                 "interior_air_and_furniture"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            25.0,
+            20.0,
             "Base"
         ],
         [
@@ -211,7 +211,7 @@
                 "@system_link_node_1"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            100.0,
+            70.0,
             "Base"
         ],
         [
@@ -222,7 +222,7 @@
                 "interior_air_and_furniture"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            100.0,
+            70.0,
             "Base"
         ]
     ]
