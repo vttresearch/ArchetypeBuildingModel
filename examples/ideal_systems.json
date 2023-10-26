@@ -132,7 +132,7 @@
                 "@system_link_node_1"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            15.0,
+            20.0,
             "Base"
         ],
         [
@@ -143,7 +143,7 @@
                 "DHWT_daily_YM_150-500l"
             ],
             "maximum_power_gfa_scaling_W_m2",
-            15.0,
+            20.0,
             "Base"
         ],
         [
