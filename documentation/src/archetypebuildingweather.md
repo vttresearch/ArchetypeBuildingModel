@@ -22,7 +22,7 @@ The weather data aggregation is controlled by a few parameters in the
 - [shapefile\_path](@ref): Filepath pointing to a shapefile describing the geographical shape of the [building\_stock](@ref) in question.
 - [weather\_start](@ref): The desired start of the weather period for the [building\_archetype](@ref).
 - [weather\_end](@ref): The desired end of the weather period for the [building\_archetype](@ref).
-- [raster\_weight\_path](@ref): An optional filepath to weighting raster data.
+- [raster\_weight\_path](@ref): An optional filepath to weighting raster data. *(See e.g. [Hotmaps residential heated gross floor area density data](https://gitlab.com/hotmaps/gfa_res_curr_density))*
 
 While the [weather\_start](@ref) and [weather\_end](@ref) are more or less self-explanatory,
 there are a few important things to know about the shapefile and optional
@@ -44,7 +44,7 @@ Under the hood, the [`create_building_weather`](@ref) calls the
 of the `ArchetypeBuildingWeather.py` sub-module. The `aggregate_weather` function
 essentially performs the following steps:
 
-1. Load the shapefile from [shapefile\_path].
+1. Load the shapefile from [shapefile\_path](@ref).
 2. Prepare the `cutout` for `atlite` using [The `prepare_cutout` function](@ref).
 3. Prepare the `layout` for `atlite` using [The `prepare_layout` function](@ref).
 4. If `save_layouts == true`, plot diagnostics using [The `plot_layout` function](@ref).
@@ -80,7 +80,7 @@ to refine the distribution *inside* the `location_id` polygons of the `shapefile
 
 ### The `plot_layout` function
 
-If the `save_layouts == true` *(true by default)* is set, the `plot_layout`
+If the `save_layouts == true` *(false by default)* is set, the `plot_layout`
 function is called to plot both the original `raster` weights,
 as well as the layout from the [The `prepare_layout` function](@ref).
 The diagnostic figures are saved under the `figs/` folder in the repository.
@@ -100,8 +100,8 @@ parameters required for the `ArchetypeBuildingModel.jl`. Essentially,
 this means calculating the following:
 1. Ambient temperature in [K].
 2. Diffuse irradiation on a horizontal surface in [W/m2].
-3. Direct irradiation on vertical surfaces facing in the cardinal directions in [W/m2].
+3. Direct irradiation on a horizontal surface, as well as vertical surfaces facing in the cardinal directions in [W/m2].
 
 So ultimately, out of all this weather data processing,
-we're left with only six timeseries representing the weighted average weather
+we're left with only seven timeseries representing the weighted average weather
 over the [building\_scope](@ref).

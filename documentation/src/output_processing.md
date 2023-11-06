@@ -20,7 +20,7 @@ sections focus on the processing workflows of their respective models models.
 
 ### Processing thermal nodes into `AbstractNode`s
 
-[`BuildingNodeData`](@ref), has been designed to be as human-readable
+[`BuildingNodeData`](@ref) has been designed to be as human-readable
 and understandable as possible from a building-domain point-of-view,
 including a plethora of different parameters related to archetype definitions,
 assumptions, sizing, etc.

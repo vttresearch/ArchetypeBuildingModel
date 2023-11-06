@@ -21,15 +21,15 @@ section as input, processes them according to the workflow detailed in the
 [Overview of the workflow](@ref) section, and produces
 lumped-capacitance thermal models of the desired synthetic average archetype
 buildings depicting the heating/cooling demand and HVAC energy consumption
-of a building stock,
-explained in the [Archetype building modelling](@ref) section.
+of a building stock, explained in the [Archetype building modelling](@ref) section.
 While weather data can be provided by the user if desired,
 the [ArchetypeBuildingWeather.py](@ref) python sub-module provides automatic
 fetching and processing of the necessary weather data based on the provided
 archetype building definitions.
-A baseline heating/cooling demand and HVAC consumption is also calculated
-using very simple rule-based control aiming to keep the node temperatures
-within permitted limits.
+[Solving the baseline heating demand and HVAC equipment consumption](@ref)
+is also calculated using very simple rule-based control keeping the node
+temperatures within permitted limits.
+
 The key outputs from this module, however, are the readily made
 [Backbone](https://cris.vtt.fi/en/publications/backbone) or
 [SpineOpt](https://github.com/Spine-project/SpineOpt.jl) input datasets
