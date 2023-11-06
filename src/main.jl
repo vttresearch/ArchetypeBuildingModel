@@ -81,7 +81,8 @@ function archetype_building_processing(
                 bw, bw_params = create_building_weather(
                     archetype,
                     scope_data_dictionary[archetype];
-                    save_layouts=save_layouts
+                    save_layouts=save_layouts,
+                    mod=mod
                 )
                 add_object_parameter_values!(mod.building_weather, bw_params)
                 add_relationships!(
@@ -287,25 +288,33 @@ function add_results!(
     )
 
     # Add `results__system_link_node` results.
-    total_cons_MW = merge(+, getfield.(results, :hvac_consumption)...)
-    add_object_parameter_values!(
-        results__system_link_node,
-        Dict(
-            sys_link_n => Dict(
-                :total_consumption_MW => parameter_value(
-                    sum(
-                        get(total_cons_MW, p, 0.0) for
-                        p in mod.building_process__direction__building_node(
-                            direction=mod.direction(:from_node),
-                            building_node=sys_link_n,
-                        )
+    try
+        total_cons_MW = merge(+, getfield.(results, :hvac_consumption)...)
+        add_object_parameter_values!(
+            results__system_link_node,
+            Dict(
+                sys_link_n => Dict(
+                    :total_consumption_MW => parameter_value(
+                        sum(
+                            get(total_cons_MW, p, 0.0) for
+                            p in mod.building_process__direction__building_node(
+                                direction=mod.direction(:from_node),
+                                building_node=sys_link_n,
+                            )
+                        ),
                     ),
-                ),
-            ) for sys_link_n in mod.building_archetype__system_link_node(
-                building_archetype=mod.building_archetype(),
-            )
-        ),
-    )
+                ) for sys_link_n in mod.building_archetype__system_link_node(
+                    building_archetype=mod.building_archetype(),
+                )
+            ),
+        )
+    catch
+        @warn """
+        Could not calculate total `results__system_link_node`!
+        This is most likely due to non-uniform timespans between
+        the modelled `building_archetype`s.
+        """
+    end
 
     # Return the results of interest
     return results__building_archetype__building_node,

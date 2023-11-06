@@ -119,7 +119,7 @@ Value list: `nothing`
 
 ### `energy_efficiency_override_multiplier`
 
->A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients.
+>A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients. Default value of 1, zero would remove all losses.
 
 Object class: `building_archetype`
 
@@ -289,11 +289,11 @@ Value list: `nothing`
 
 ### `window_area_to_external_wall_ratio_m2_m2`
 
->Assumed average ratio between external wall surface area and the surface area of windows [m2/m2].
+>Assumed average ratio between external wall surface area and the surface area of windows [m2/m2]. Default value loosely based on `Final report --- Average EU building heat load for HVAC equipment (2014)` and `RAKENTEELLINEN ENERGIATEHOKKUUS --- OPAS (2015)`.
 
 Object class: `building_archetype`
 
-Default value: `0.2`
+Default value: `0.1`
 
 Value list: `nothing`
 

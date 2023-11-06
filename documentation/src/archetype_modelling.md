@@ -4,7 +4,7 @@ This section aims to explain the lumped-capacitance *(resistance-capacitance)*
 modelling approach and the inherent assumptions used by this module in more detail,
 aimed at a more expert audience interested in the inner workings of the module.
 However, a lot of the techical details are not reproduced here,
-but instead reference the relevant docstrings in the [Library](@ref) section.
+but instead refer to the relevant docstrings in the [Library](@ref) section.
 In general, the used method is loosely based on the international standard
 [EN ISO 52016-1:2017](https://www.iso.org/obp/ui/#iso:std:iso:52016:-1:ed-1:v1:en),
 and majority of the same assumptions apply.
@@ -214,7 +214,7 @@ and the functions linked therein.
 However, there are a few things worth noting about how the heating/cooling demand
 and HVAC equipment consumption are solved:
 
- - **If not explicitly provided, lumped-capacitance thermal node initial temperatures are solved by starting the temperatures at their lowest permitted temperatures, and repeatedly solving the first 24-hours and replacing the initial temperatures with the ones on hour 24 until the temperatures no longer change.**
+ - **If not explicitly provided, lumped-capacitance thermal node initial temperatures are solved by starting the temperatures at their lowest permitted temperatures, and repeatedly solving the first 24-hours, replacing the initial temperatures with the ones on hour 24 until the temperatures at the beginning and end of the simulated 24-hour period converge.**
  - **The simulation of the heating/cooling demand uses implicit Euler discretization of the lumped-capacitance thermal node energy balance equations.**
      - This is mainly done to conform with the energy balance equations of [Backbone](https://cris.vtt.fi/en/publications/backbone) and [SpineOpt](https://github.com/Spine-project/SpineOpt.jl), as they both also use implicit Euler discretization for their energy balance constraints.
  - **The simple rule-based controller used in determining the heating/cooling demand for the lumped-capacitance thermal nodes has the following rules:**
