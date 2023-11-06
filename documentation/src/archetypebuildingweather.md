@@ -71,11 +71,9 @@ the *capacity layouts* described in the documentation, except that ours is
 normalized so that it results into a weighted average value,
 instead of a cumulative value.
 
-**NOTE!** The `location_id_gfa_weights` have precedence over the optional
-`raster_path` weights. When both are used, the raster weights are normalized
-to match the corresponding `location_id_gfa_weights`, which are based on the
-`shapefile` vector GIS data. Thus, the `raster_path` is essentially only used
-to refine the distribution *inside* the `location_id` polygons of the `shapefile`.
+!!! note
+    The `location_id_gfa_weights` have precedence over the optional
+    `raster_path` weights. When both are used, the raster weights are normalized to match the corresponding `location_id_gfa_weights`, which are based on the `shapefile` vector GIS data. Thus, the `raster_path` is essentially only used to refine the distribution *inside* the `location_id` polygons of the `shapefile`.
 
 
 ### The `plot_layout` function

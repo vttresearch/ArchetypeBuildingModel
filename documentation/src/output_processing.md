@@ -32,7 +32,8 @@ as well as ambient condition and external load related parameters
 into the bare essentials required for depicting the node in large-scale
 energy system modelling frameworks, represented by an [`AbstractNode`](@ref).
 
-> **NOTE!** Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArchetypeBuildingModel.process_abstract_node`](@ref) docstring.
+!!! note 
+    Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArchetypeBuildingModel.process_abstract_node`](@ref) docstring.
 
 As this abstraction reduces the amounts of different terms in the equations,
 it also happens to simplify
@@ -50,7 +51,8 @@ However, for large-scale energy system model input, these are processed to
 their bare essentials via the [`ArchetypeBuildingModel.process_abstract_system`](@ref) function
 and stored as an [`AbstractProcess`](@ref).
 
-> **NOTE!** The `coefficient_of_performance` and `maximum_flows` properties of the [`AbstractProcess`](@ref) account for the `number_of_processes` and W -> MW scaling for the total conversion from energy-system- to archetype-building-scale, making the units of measurement not immediately obvious. If you want to avoid this scaling, the easiest way to bypass it is to model 1,000,000 identical buildings, in which case the W -> MW scaling negates itself.
+!!! note
+    The `coefficient_of_performance` and `maximum_flows` properties of the [`AbstractProcess`](@ref) account for the `number_of_processes` and W -> MW scaling for the total conversion from energy-system- to archetype-building-scale, making the units of measurement not immediately obvious. If you want to avoid this scaling, the easiest way to bypass it is to model 1,000,000 identical buildings, in which case the W -> MW scaling negates itself.
 
 Again, this abstraction happens to simplify
 [Solving the baseline heating demand and HVAC equipment consumption](@ref),
