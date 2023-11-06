@@ -142,9 +142,9 @@ save the processed [`ArchetypeBuildingResults`](@ref) in the
 `archetype_results_dictionary` in their entirety into the
 *Spine Datastore* at the given `url`.
 Essentially, this means saving all of the following:
-- [`building_weather`](@ref) definitions, with the addition of the effective ground temperature from [`calculate_effective_ground_temperature`](@ref).
-- [`building_scope`](@ref) definitions with their associated [`ScopeData`](@ref).
-- [`building_archetype`](@ref) definitions, with their associated [`EnvelopeData`](@ref), [`BuildingNodeData`](@ref),  [`BuildingProcessData`](@ref), [`LoadsData`](@ref), [`AbstractNode`](@ref), and [`AbstractProcess`](@ref).
+- [building\_weather](@ref) definitions, with the addition of the effective ground temperature from [`ArchetypeBuildingModel.calculate_effective_ground_temperature`](@ref).
+- [building\_scope](@ref) definitions with their associated [`ScopeData`](@ref).
+- [building\_archetype](@ref) definitions, with their associated [`EnvelopeData`](@ref), [`BuildingNodeData`](@ref),  [`BuildingProcessData`](@ref), [`LoadsData`](@ref), [`AbstractNode`](@ref), and [`AbstractProcess`](@ref).
 
 The name "Generic" is perhaps a bit misleading, and should probably be renamed
 to e.g. "Raw" at some future point in time?
