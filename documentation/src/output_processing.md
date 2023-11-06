@@ -83,7 +83,7 @@ model structure, the key points are:
 
 1. Each [building\_archetype](@ref) is mapped into a `grid`.
 2. Each [`AbstractNode`](@ref) is mapped into a `node` in the corresponding archetype `grid`.
-3. Each [`AbstractProcess`](@ref) is mapped into a `unit`.
+2. Each [`AbstractProcess`](@ref) in each [building\_archetype](@ref) is mapped into a unique `unit`.
 4. System link nodes defined by [building\_archetype\_\_system\_link\_node](@ref) relationships and the associated [node\_name](@ref) and [grid\_name](@ref) are created to serve as connection points to potential energy system datasets.
 
 Since [ArchetypeBuildingModel.jl](@ref) is based on
@@ -100,7 +100,35 @@ by [Backbone](https://cris.vtt.fi/en/publications/backbone).
 
 ## SpineOpt input data processing
 
-Implemented, but no documentation yet. Feel free to look at the docstrings:
-- `src/process_spineopt_input.jl`
-- [`SpineOptInput`](@ref),
-- [`ArchetypeBuildingModel.add_archetype_to_input!`](@ref)
+This section aims to provide and overview of the processing done for
+producing [SpineOpt](https://github.com/Spine-project/SpineOpt.jl)
+input data, explaining the logic and functions within
+`src/create_spineopt_input.jl`.
+
+The [`SpineOptInput`](@ref) `struct` contains the relevant input data structure
+for representing the produced archetype building models within
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
+The similarly named constructor takes as input a dictionary containing the
+defined [building\_archetype](@ref) linked to its processed
+[`ArchetypeBuildingResults`](@ref),
+loops over the archetypes, and adds them to the [`SpineOptInput`](@ref)
+one by one.
+The actual processing is handled by the
+[`ArchetypeBuildingModel.add_archetype_to_input!`](@ref) function,
+which essentially maps the [`AbstractNode`](@ref) and [`AbstractProcess`](@ref)
+parameters to their [SpineOpt](https://github.com/Spine-project/SpineOpt.jl) 
+counterparts. For people familiar with
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl),
+the key points are:
+
+1. Each [`AbstractNode`](@ref) in each [building\_archetype](@ref) is mapped into a unique `node`.
+2. Each [`AbstractProcess`](@ref) in each [building\_archetype](@ref) is mapped into a unique `unit`.
+3. System link nodes defined by [building\_archetype\_\_system\_link\_node](@ref) relationships and the associated [node\_name](@ref) are created to serve as connection points to potential energy system datasets.
+
+Since both [ArchetypeBuildingModel.jl](@ref) and
+[SpineOpt](https://github.com/Spine-project/SpineOpt.jl) are based on
+[SpineInterface.jl](https://github.com/Spine-project/SpineInterface.jl),
+the produced SpineOpt input data is immediately compatible.
+However, note that the produced SpineOpt input data only contains the
+data describing the modelled building stock, without all the necessary
+definitions to run the model in any meaningful way.
