@@ -119,7 +119,7 @@ Value list: `nothing`
 
 ### `energy_efficiency_override_multiplier`
 
->A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients. Default value of 1, zero would remove all heat transfer.
+>A coefficient that can be used to tweak the overall energy efficiency of the archetype building. Essentially multiplies all heat transfer coefficients related to ambient heat losses, as well as self-discharge coefficients. Default value of 1, zero would remove all losses.
 
 Object class: `building_archetype`
 
