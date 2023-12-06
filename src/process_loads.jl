@@ -200,7 +200,7 @@ and the impact of the incident irradiation is applied to the structural node dir
 The solar gains `Φ_sol,st` need to be calculated separately for
 each [structure\\_type](@ref), as they are dependent on the exterior surface resistance:
 ```math
-\\Phi_\\text{sol,st} = R_\\text{e,st} U_\\text{ext,st} A_\\text{st} a_\\text{sol} \\left( I_\\text{diff} + F_\\text{shading} \\sum_{d \\in D_\\text{st}} I_\\text{dir,d} \\right)
+\\Phi_\\text{sol,st} = R_\\text{e,st} U_\\text{ext,st} A_\\text{st} a_\\text{sol} \\left( I_\\text{diff} + F_\\text{shading} \\frac{\\sum_{d \\in D_\\text{st}} I_\\text{dir,d}}{\\sum_{d \\in D_\\text{st}} 1} \\right)
 ```
 where `R_e,st` is the [exterior\\_resistance\\_m2K\\_W](@ref) of structure `st`,
 `U_ext,st` is the [external\\_U\\_value\\_to\\_ambient\\_air\\_W\\_m2K](@ref) of structure `st`,
@@ -210,6 +210,8 @@ where `R_e,st` is the [exterior\\_resistance\\_m2K\\_W](@ref) of structure `st`,
 `F_shading` is the assumed [external\\_shading\\_coefficient](@ref),
 `d` represents either horizontal or cardinal directions,
 and `I_dir,d` is the [direct\\_solar\\_irradiation\\_W\\_m2](@ref).
+
+NOTE! The walls are assumed to be distributed equally towards all the cardinal directions.
 """
 function calculate_envelope_solar_gains(
     archetype::Object,
@@ -237,7 +239,8 @@ function calculate_envelope_solar_gains(
             (
                 weather.diffuse_solar_irradiation_W_m2 +
                 mod.external_shading_coefficient(building_archetype=archetype) *
-                sum(weather.direct_solar_irradiation_W_m2[dir] for dir in dirs)
+                sum(weather.direct_solar_irradiation_W_m2[dir] for dir in dirs) /
+                length(dirs)
             )
         ) for (st, dirs) in st_dirs
     )
