@@ -15,6 +15,11 @@ Requires building stock data processed by e.g. [FinnishBuildingStockData.jl](htt
 as well as archetype building definitions according to the template provided in `archetype_definitions.json` as input.
 For automatic weather data processing, this module uses the Python sub-module `archetypebuildingweather`.
 
+>[!IMPORTANT]
+>2024-02-06: Enabling investment modelling options for the aggregated building stock heating/cooling demand modelling requires revising the modelling approach,
+>making it less suitable for modelling individual buildings. Future developments *(and breaking changes)* will take place in the forked
+>[ArBuMo](https://github.com/vttresearch/ArBuMo) repository for now, making this repository less likely to receive further updates.
+
 
 ## Key contents
 
