@@ -1,4 +1,4 @@
-name = "ArchetypeBuildingModel"
+name = "ArBuMo"
 uuid = "83d8b715-256d-42a8-83e0-f336dff6771c"
 authors = ["Topi Rasku <topi.rasku@vtt.fi>"]
 version = "2.6.6"
