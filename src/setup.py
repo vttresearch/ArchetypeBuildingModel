@@ -3,7 +3,7 @@ from setuptools import setup
 from meta import __version__, description
 
 setup(
-    name="ArchetypeBuildingWeather",
+    name="ArBuWe",
     python_requires=">=3.6",
     py_modules=["src/archetypebuildingweather", "meta"],
     install_requires=[

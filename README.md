@@ -12,7 +12,7 @@ energy system models like [Backbone](https://cris.vtt.fi/en/publications/backbon
 or [SpineOpt](https://github.com/Spine-project/SpineOpt.jl).
 Requires building stock data processed by e.g. [FinnishBuildingStockData.jl](https://github.com/vttresearch/FinnishBuildingStockData) or similar,
 as well as archetype building definitions according to the template provided in `archetype_definitions.json` as input.
-For automatic weather data processing, this module uses the Python sub-module `arbuwe`.
+For automatic weather data processing, this module uses the Python sub-module `ArBuWe`.
 
 ArBuMo.jl is a fork of [ArchetypeBuildingModel.jl](https://github.com/vttresearch/ArchetypeBuildingModel) for further developments,
 as implementing investment modelling options requires reformulating the building stock heating/cooling demand modelling
@@ -39,7 +39,7 @@ as well as the lumped-capacitance thermal models.
 10. `figs/` contains automatically output diagnostic figures about the automatic weather data aggregation. 
 
 
-## arbuwe.py
+## ArBuWe.py
 
 >[!IMPORTANT]
 >The weather data processing will need to be heavily revised in order to enable investment modelling options.
@@ -89,7 +89,7 @@ with the following rough steps:
 
 In case you need to familiarize yourself with the inner workings of this module,
 see `testscript.jl` for examples on how to use the `ArBuMo.jl`,
-and `testscript.ipynb` for examples on how to use the `arbuwe.py` sub-module.
+and `testscript.ipynb` for examples on how to use the `ArBuWe.py` sub-module.
 Note that it is recommended to store the relevant geographical information system (GIS)
 data used via the module within the `data/` folder in the repository for the moment.
 

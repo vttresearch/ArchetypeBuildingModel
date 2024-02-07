@@ -1,6 +1,6 @@
 # __init__.py
 
-# Initializes the `ArchetypeBuildingWeather` module.
+# Initializes the `ArBuWe` module.
 
 import logging
 
