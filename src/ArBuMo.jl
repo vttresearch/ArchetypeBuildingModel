@@ -1,4 +1,4 @@
-module ArchetypeBuildingModel
+module ArBuMo
 
 using Dates
 using SpineInterface
