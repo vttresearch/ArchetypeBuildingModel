@@ -81,14 +81,15 @@ end
 @time building_node_network = Dict(
     archetype => create_building_node_network(
         archetype,
-        first(building_archetype__building_fabrics(building_archetype = archetype)),
-        first(building_archetype__building_systems(building_archetype = archetype)),
+        first(m.building_archetype__building_fabrics(building_archetype = archetype)),
+        first(m.building_archetype__building_systems(building_archetype = archetype)),
         scope_data_final[first(
-            building_archetype__building_scope(building_archetype = archetype),
+            m.building_archetype__building_scope(building_archetype = archetype),
         )],
         envelope_data[archetype],
-        loads_data[archetype],
-    ) for archetype in building_archetype()
+        loads_data[archetype];
+        mod=m
+    ) for archetype in m.building_archetype()
 )
 
 

@@ -15,6 +15,8 @@ Contains functions for processing the properties of lumped-capacitance thermal n
         mod::Module = @__MODULE__,
     )
 
+TODO: REVISE DOCUMENTATION!
+
 Map all `archetype` `building_nodes` to their [`BuildingNodeData`](@ref)s.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
@@ -55,6 +57,8 @@ end
         loads::LoadsData;
         mod::Module = @__MODULE__,
     )
+
+TODO: REVISE DOCUMENTATION!
 
 Calculates the properties of a `node` using the provided `scope`, `envelope`, and `loads` data.
 
@@ -260,21 +264,7 @@ function process_building_node(
         mod=mod
     )
 
-    # Calculate the solar heat gains for the node, first for internal air and then structures.
-    solar_heat_gains_air_W =
-        calculate_convective_solar_gains(archetype, loads, interior_weight; mod=mod)
-    solar_heat_gains_structures_W = calculate_radiative_solar_gains(
-        archetype,
-        node,
-        envelope,
-        loads,
-        total_structure_area_m2;
-        mod=mod
-    )
-
-    # Calculate the solar heat gains through the building envelope for the node, as well as the envelope radiative sky losses.
-    solar_heat_gains_envelope_W =
-        calculate_total_envelope_solar_gains(node, loads; mod=mod)
+    # Calculate envelope radiative sky heat losses.
     radiative_envelope_sky_losses_W =
         calculate_total_envelope_radiative_sky_losses(node, loads; mod=mod)
 
@@ -298,9 +288,6 @@ function process_building_node(
     domestic_hot_water_demand_W,
     internal_heat_gains_air_W,
     internal_heat_gains_structures_W,
-    solar_heat_gains_air_W,
-    solar_heat_gains_structures_W,
-    solar_heat_gains_envelope_W,
     radiative_envelope_sky_losses_W,
     interior_weight
 end
@@ -767,6 +754,8 @@ end
         mod::Module = @__MODULE__,
     )
 
+TODO: PENDING REMOVAL! Could still be useful when documenting the new processing.
+
 Calculate the convective solar heat gains through windows on the `node` in [W].
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
@@ -805,6 +794,8 @@ end
         total_structure_area_m2::Real;
         mod::Module = @__MODULE__,
     )
+
+TODO: PENDING REMOVAL! Could still be useful when documenting the new processing.
 
 Calculate the radiative solar heat gains through windows on the `node` in [W].
 
@@ -853,6 +844,8 @@ end
         loads::LoadsData;
         mod::Module = @__MODULE__,
     )
+
+TODO: PENDING REMOVAL! Could still be useful when documenting the new processing.
 
 Calculate the total solar heat gain [W] through the opaque envelope on this node.
 
