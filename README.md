@@ -106,7 +106,7 @@ start a Julia REPL from the root folder of this module and perform the following
 1. Activate the `documentation` environment from the Julia Package manager
 ```julia
 julia> ]
-(ArBuMo) pkg> Activate documentation
+(ArBuMo) pkg> activate documentation
 (documentation) pkg> ]
 julia>
 ```
