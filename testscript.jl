@@ -1,7 +1,7 @@
 #=
     testscript.jl
 
-A makeshift script for testing the functionality of `ArchetypeBuildingModel.jl`.
+A makeshift script for testing the functionality of `ArBuMo.jl`.
 
 Contains a lot of old code snippets that might not work without changes to the
 module. Included primarily to give some idea how the module operates under the
@@ -14,7 +14,7 @@ Pkg.activate("test")
 using Revise
 using Test
 using Plots
-using ArchetypeBuildingModel
+using ArBuMo
 m = Module()
 
 # Open database

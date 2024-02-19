@@ -1,5 +1,5 @@
 using Documenter
-using ArchetypeBuildingModel
+using ArBuMo
 using JSON
 
 
@@ -72,9 +72,9 @@ end
 ## Make the documentation.
 
 makedocs(
-    sitename="ArchetypeBuildingModel",
+    sitename="ArBuMo",
     format=Documenter.HTML(),
-    modules=[ArchetypeBuildingModel],
+    modules=[ArBuMo],
     pages=[
         "index.md",
         "defining_archetype_buildings.md",

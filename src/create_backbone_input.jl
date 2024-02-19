@@ -150,12 +150,12 @@ which essentially translates the information contained in the `result` [`Archety
 into the data structure in `backbone` [`BackboneInput`](@ref),
 so that it is understood by the Backbone energy system model.
 The key steps taken by this function are summarized below:
-1. Map the ArchetypeBuildingModel `direction` objects to Backbone `io` objects.
+1. Map the ArBuMo `direction` objects to Backbone `io` objects.
 2. Create a `grid` object representing the `archetype` being processed and map the grids.
-3. Map the ArchetypeBuildingModel `building_node` objects to unique Backbone `node` objects.
+3. Map the ArBuMo `building_node` objects to unique Backbone `node` objects.
 4. Identify the necessary *system link nodes*, and add them into the set of Backbone `node` objects with the desired names.
 5. Include all building `node`s to the archetype `grid`, and connect the *system link nodes* to their desired `grid`s.
-6. Map the ArchetypeBuildingModel `building_process` objects to unique Backbone `unit` objects.
+6. Map the ArBuMo `building_process` objects to unique Backbone `unit` objects.
 7. Determine Backbone `unit` parameters based on [`AbstractProcess`](@ref) properties.
 8. Set the `directOff` efficiency representation for all `unit`s.
 9. Determine Backbone `grid__node` parameters based on [`AbstractNode`](@ref) properties.

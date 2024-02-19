@@ -32,7 +32,7 @@ as well as the lumped-capacitance thermal models.
 3. `process_archetype_buildings.json`, the [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox) tool specification for the main program above.
 4. `testscript.jl`, a testing script/tutorial for using this module.
 5. `testscript.ipynb`, a testing notebook/tutorial for using the `archetypebuildingweather` sub-module.
-6. `src/ArchetypeBuildingModel.jl`, the main Julia module file.
+6. `src/ArBuMo.jl`, the main Julia module file.
 7. `src/archetypebuildingweather/` contains the Python sub-module for automatic weather data processing.
 8. `data/` contains data related to the automatic weather data processing.
 9. `examples/` contains example definitions for `building_fabrics`, `building_systems`, and `building_weather`.
@@ -106,7 +106,7 @@ start a Julia REPL from the root folder of this module and perform the following
 1. Activate the `documentation` environment from the Julia Package manager
 ```julia
 julia> ]
-(ArchetypeBuildingModel) pkg> Activate documentation
+(ArBuMo) pkg> Activate documentation
 (documentation) pkg> ]
 julia>
 ```

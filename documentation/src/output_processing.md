@@ -26,20 +26,20 @@ including a plethora of different parameters related to archetype definitions,
 assumptions, sizing, etc.
 However, most of these parameters don't have counterparts in large-scale energy
 system models, and need to be aggregated into something meaningful.
-This is done via the [`ArchetypeBuildingModel.process_abstract_node`](@ref) function,
+This is done via the [`ArBuMo.process_abstract_node`](@ref) function,
 aggregating all the separate categories of thermal mass, heat transfer,
 as well as ambient condition and external load related parameters
 into the bare essentials required for depicting the node in large-scale
 energy system modelling frameworks, represented by an [`AbstractNode`](@ref).
 
 !!! note 
-    Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArchetypeBuildingModel.process_abstract_node`](@ref) docstring.
+    Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArBuMo.process_abstract_node`](@ref) docstring.
 
 As this abstraction reduces the amounts of different terms in the equations,
 it also happens to simplify
 [Solving the baseline heating demand and HVAC equipment consumption](@ref),
 which is why the [`AbstractNode`](@ref)s are used for the calculations in the
-[`ArchetypeBuildingModel.solve_heating_demand`](@ref) function.
+[`ArBuMo.solve_heating_demand`](@ref) function.
 
 
 ### Processing HVAC equipment into `AbstractProcess`es
@@ -48,7 +48,7 @@ Similar to [`BuildingNodeData`](@ref), [`BuildingProcessData`](@ref) has been
 designed primarily with human-readability in mind, containing multiple
 parameters related to coefficients of performance, sizing of the systems, etc.
 However, for large-scale energy system model input, these are processed to
-their bare essentials via the [`ArchetypeBuildingModel.process_abstract_system`](@ref) function
+their bare essentials via the [`ArBuMo.process_abstract_system`](@ref) function
 and stored as an [`AbstractProcess`](@ref).
 
 !!! note
@@ -57,7 +57,7 @@ and stored as an [`AbstractProcess`](@ref).
 Again, this abstraction happens to simplify
 [Solving the baseline heating demand and HVAC equipment consumption](@ref),
 thus making use of the [`AbstractProcess`](@ref) in the
-[`ArchetypeBuildingModel.solve_consumption`](@ref) function.
+[`ArBuMo.solve_consumption`](@ref) function.
 
 
 ## Backbone input data processing
@@ -75,7 +75,7 @@ defined [building\_archetype](@ref) linked to its processed
 loops over the archetypes, and adds them to the [`BackboneInput`](@ref)
 one by one.
 The actual processing is handled by the
-[`ArchetypeBuildingModel.add_archetype_to_input!`](@ref) function,
+[`ArBuMo.add_archetype_to_input!`](@ref) function,
 which performs a lot of rather complicated manipulations to adapt the archetype
 building data for [Backbone](https://cris.vtt.fi/en/publications/backbone).
 For people familar with [Backbone](https://cris.vtt.fi/en/publications/backbone)
@@ -86,7 +86,7 @@ model structure, the key points are:
 2. Each [`AbstractProcess`](@ref) in each [building\_archetype](@ref) is mapped into a unique `unit`.
 4. System link nodes defined by [building\_archetype\_\_system\_link\_node](@ref) relationships and the associated [node\_name](@ref) and [grid\_name](@ref) are created to serve as connection points to potential energy system datasets.
 
-Since [ArchetypeBuildingModel.jl](@ref) is based on
+Since [ArBuMo.jl](@ref) is based on
 [SpineInterface.jl](https://github.com/Spine-project/SpineInterface.jl),
 the produced [Backbone](https://cris.vtt.fi/en/publications/backbone) input
 is saved in its Spine Datastore format, and requires the use of
@@ -114,7 +114,7 @@ defined [building\_archetype](@ref) linked to its processed
 loops over the archetypes, and adds them to the [`SpineOptInput`](@ref)
 one by one.
 The actual processing is handled by the
-[`ArchetypeBuildingModel.add_archetype_to_input!`](@ref) function,
+[`ArBuMo.add_archetype_to_input!`](@ref) function,
 which essentially maps the [`AbstractNode`](@ref) and [`AbstractProcess`](@ref)
 parameters to their [SpineOpt](https://github.com/Spine-project/SpineOpt.jl) 
 counterparts. For people familiar with
@@ -125,7 +125,7 @@ the key points are:
 2. Each [`AbstractProcess`](@ref) in each [building\_archetype](@ref) is mapped into a unique `unit`.
 3. System link nodes defined by [building\_archetype\_\_system\_link\_node](@ref) relationships and the associated [node\_name](@ref) are created to serve as connection points to potential energy system datasets.
 
-Since both [ArchetypeBuildingModel.jl](@ref) and
+Since both [ArBuMo.jl](@ref) and
 [SpineOpt](https://github.com/Spine-project/SpineOpt.jl) are based on
 [SpineInterface.jl](https://github.com/Spine-project/SpineInterface.jl),
 the produced SpineOpt input data is immediately compatible.

@@ -7,7 +7,7 @@ This file contains data structures and constructors for the archetype buildings.
 """
     BuildingDataType
 
-Abstract type for ArchetypeBuildingModel data structures.
+Abstract type for ArBuMo data structures.
 """
 abstract type BuildingDataType end
 
@@ -624,7 +624,7 @@ AbstractNodeNetwork = Dict{Object,AbstractNode}
 Contain parameters defining a `process` in a model-agnostic manner.
 
 Essentially, a `process` is a commodity transfer/conversion from one `node` to another.
-For the purposes of the `ArchetypeBuildingModel.jl`,
+For the purposes of the `ArBuMo.jl`,
 `processes` only have two attributes of interest:
 The ratio between total input and total output,
 and the maximum flows to and from the connected `nodes`.

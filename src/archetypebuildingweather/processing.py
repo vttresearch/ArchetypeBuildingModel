@@ -222,7 +222,7 @@ def process_weather(cutout, layout):
     Processes the weather data using the given layout.
 
     The intended use for this function is to calculate the weighted average
-    weather parameters for the `ArchetypeBuildingModel`, but depending on
+    weather parameters for the `ArBuMo`, but depending on
     the used layout it can be used to do other things as well.
 
     Parameters

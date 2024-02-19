@@ -23,7 +23,7 @@ Then, now that we know the dimensions of the building envelope and the
 external loads on the building, we can proceed with
 [Calculating the properties of the lumped-capacitance thermal nodes](@ref),
 as well as with [Calculating the properties of the HVAC equipment](@ref).
-Finally, `ArchetypeBuildingModel.jl` also includes a very simple rule-based
+Finally, `ArBuMo.jl` also includes a very simple rule-based
 method for [Solving the baseline heating demand and HVAC equipment consumption](@ref).
 While the main goal of this module is to provide input data for optimization
 models like [Backbone](https://cris.vtt.fi/en/publications/backbone) or
@@ -36,7 +36,7 @@ having access to simple standalone baseline solutions is a quite helpful.
 The first step in creating an archetype building is forming the building
 envelope by calculating the dimensions of the different structures,
 and storing the results in a corresponding [`EnvelopeData`](@ref) struct.
-However, as `ArchetypeBuildingModel.jl` aims to remain useable on the building
+However, as `ArBuMo.jl` aims to remain useable on the building
 stock scale, the geometry of the archetype buildings is heavily simplified.
 The key assumptions for forming the archetype building envelope are as follows:
 
@@ -52,7 +52,7 @@ The key assumptions for forming the archetype building envelope are as follows:
     - [window\_area\_distribution\_towards\_cardinal\_directions](@ref) controls the facing of windows *(North, East, South, West, Horizontal)*.
     - [window\_area\_to\_external\_wall\_ratio\_m2\_m2](@ref) controls the share of windows relative to vertical facade area.
 
-See the [`ArchetypeBuildingModel.process_building_envelope`](@ref) docstring
+See the [`ArBuMo.process_building_envelope`](@ref) docstring
 for a detailed explanation of how the envelope shape related parameters
 affect the calculations.
 The actual equations for the surface areas and linear thermal
@@ -70,13 +70,13 @@ containing the total domestic hot water demand, internal heat gains,
 as well as solar heat gains for the building.
 
 The total building loads for the [`LoadsData`](@ref) are calculated by the
-[`ArchetypeBuildingModel.process_building_loads`](@ref) function,
+[`ArBuMo.process_building_loads`](@ref) function,
 based on the input data provided via the connected [building\_loads](@ref) object.
 The calculations for the total domestic hot water demand and internal gains
 are extremely simple, and essentially only boil down to adding together
 the prodived `base` and `gfa_scaling` input data.
-See the [`ArchetypeBuildingModel.calculate_total_dhw_demand`](@ref)
-and [`ArchetypeBuildingModel.calculate_total_internal_heat_loads`](@ref)
+See the [`ArBuMo.calculate_total_dhw_demand`](@ref)
+and [`ArBuMo.calculate_total_internal_heat_loads`](@ref)
 for the exact formulations.
 
 Calculating the total solar gains for the buildings is more complicated,
@@ -93,7 +93,7 @@ Solar gains through the windows are impacted by the window properties in
 the assumed [window\_non\_perpendicularity\_correction\_factor](@ref),
 as well as the estimated [external\_shading\_coefficient](@ref) and
 [window\_area\_distribution\_towards\_cardinal\_directions](@ref).
-See the [`ArchetypeBuildingModel.calculate_total_solar_gains`](@ref)
+See the [`ArBuMo.calculate_total_solar_gains`](@ref)
 for the exact formulation.
 
 Meanwhile, the solar gains through the building envelope are impacted by the
@@ -107,8 +107,8 @@ depending again on the surface properties of the structures,
 as well as assumed sky view factors,
 the assumed [external\_radiative\_surface\_heat\_transfer\_coefficient\_W\_m2K](@ref),
 and the assumed [average\_apparent\_sky\_temperature\_difference\_K](@ref).
-See the [`ArchetypeBuildingModel.calculate_total_envelope_solar_gains`](@ref)
-and [`ArchetypeBuildingModel.calculate_total_envelope_radiative_sky_losses`](@ref),
+See the [`ArBuMo.calculate_total_envelope_solar_gains`](@ref)
+and [`ArBuMo.calculate_total_envelope_radiative_sky_losses`](@ref),
 as well as the functions linked therein for the exact formulation.
 
 
@@ -118,15 +118,15 @@ Now that we have the processed [`EnvelopeData`](@ref) and [`LoadsData`](@ref),
 we can finally start calculating the properties of the lumped-capacitance
 thermal nodes in earnest.
 First, the [`create_building_node_network`](@ref) function is called to form
-the [`ArchetypeBuildingModel.BuildingNodeNetwork`](@ref),
+the [`ArBuMo.BuildingNodeNetwork`](@ref),
 which is essentially a dictionary containing
 the processed [`BuildingNodeData`](@ref) of all the relevant thermal nodes.
 However, it's actually the [`BuildingNodeData`](@ref) and the
-[`ArchetypeBuildingModel.process_building_node`](@ref) that are of primary
+[`ArBuMo.process_building_node`](@ref) that are of primary
 interest, as they contain and calculate the properties of the thermal nodes.
 
 Because the [`BuildingNodeData`](@ref) has quite a few fields and the
-[`ArchetypeBuildingModel.process_building_node`](@ref) has quite a few steps,
+[`ArBuMo.process_building_node`](@ref) has quite a few steps,
 we won't be going through them thoroughly here.
 Instead, we'll focus on the idea behind the thermal node processing,
 hopefully giving you an understanding as to why and how the thermal nodes
@@ -161,7 +161,7 @@ There are a few important simplifications in the above [`BuildingNodeData`](@ref
 
 For readers interested in the technical details and exact formulations,
 please refer to the documentation of the
-[`ArchetypeBuildingModel.process_building_node`](@ref) function,
+[`ArBuMo.process_building_node`](@ref) function,
 and the functions linked therein.
 See the [Processing thermal nodes into `AbstractNode`s](@ref) section for
 how the data is adapted for use with large-scale energy system models,
@@ -182,7 +182,7 @@ Overall, the process is pretty simple, roughly consisting of the following steps
 2. Calculate the potentially weather-dependent coefficient of performance.
 
 For the exact formulations, see the documentation for the
-[`ArchetypeBuildingModel.process_building_system`](@ref) function and the
+[`ArBuMo.process_building_system`](@ref) function and the
 functions linked therein.
 See the [Processing HVAC equipment into `AbstractProcess`es](@ref) section for
 how the data is adapted for use with large-scale energy system models,
@@ -192,12 +192,12 @@ which also happens to simplify
 
 ## Solving the baseline heating demand and HVAC equipment consumption
 
-While the main goal of `ArchetypeBuildingModel.jl` is the creation of the
+While the main goal of `ArBuMo.jl` is the creation of the
 lumped-capacitance thermal models depicting the aggregated flexible
 heating/cooling demand of building stocks,
 it is often useful or even necessary to have a baseline heating/cooling
 demand available for comparison.
-As such, `ArchetypeBuildingModel.jl` includes a very simple rule-based
+As such, `ArBuMo.jl` includes a very simple rule-based
 simulation of heating and cooling of the created [`ArchetypeBuilding`](@ref)s.
 
 Storing and processing the heating/cooling demand and HVAC equipment energy
@@ -205,8 +205,8 @@ consumption results are handled via the [`ArchetypeBuildingResults`](@ref)
 struct.
 The actual calculations are performed in two main steps:
 
-1. Solve initial temperatures *(unless explicitly provided)*, node temperatures, and nodal HVAC demand using the [`ArchetypeBuildingModel.solve_heating_demand`](@ref) function.
-2. Solve the HVAC equipment consumption per process based on the above nodal demands using the [`ArchetypeBuildingModel.solve_consumption`](@ref) function.
+1. Solve initial temperatures *(unless explicitly provided)*, node temperatures, and nodal HVAC demand using the [`ArBuMo.solve_heating_demand`](@ref) function.
+2. Solve the HVAC equipment consumption per process based on the above nodal demands using the [`ArBuMo.solve_consumption`](@ref) function.
 
 For readers interested in the actual implementation and technical details,
 please refer to the documentation of the above functions,

@@ -87,9 +87,9 @@ which essentially translates the information contained in the `result` [`Archety
 into the data structure in `spineopt` [`SpineOptInput`](@ref),
 so that it is understood by the SpineOpt energy system model.
 The key steps taken by this function are summarized below:
-1. Map the ArchetypeBuildingModel `building_node` objects to unique SpineOpt `node` objects.
+1. Map the ArBuMo `building_node` objects to unique SpineOpt `node` objects.
 2. Identify the necessary *system link nodes*, and add them into the set of SpineOpt `node` objects with the desired names.
-3. Map the ArchetypeBuildingModel `building_process` objects to unique SpineOpt `unit` objects.
+3. Map the ArBuMo `building_process` objects to unique SpineOpt `unit` objects.
 4. Determine SpineOpt `node` parameters based on the [`AbstractNode`](@ref) properties.
 5. Determine SpineOpt `node__node` parameters based on the [`AbstractNode`](@ref) heat transfer coefficients.
 6. Determine SpineOpt `unit__from_node` and `unit__to_node` parameters based on the [`AbstractProcess`](@ref) maximum flow parameters.
