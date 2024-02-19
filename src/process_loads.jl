@@ -10,10 +10,11 @@ and solar gains for the archetype buildings.
     process_building_loads(
         archetype::Object,
         scope::ScopeData,
-        envelope::EnvelopeData,
-        weather::WeatherData;
+        envelope::EnvelopeData;
         mod::Module = @__MODULE__,
     )
+
+TODO: REVISE DOCUMENTATION!
 
 Calculate the domestic hot water demand, internal and solar heat gains for the archetype building.
 
@@ -32,8 +33,7 @@ Essentially, performs the following steps:
 function process_building_loads(
     archetype::Object,
     scope::ScopeData,
-    envelope::EnvelopeData,
-    weather::WeatherData;
+    envelope::EnvelopeData;
     mod::Module=@__MODULE__
 )
     # Find the `building_loads` connected to the `archetype`
@@ -42,17 +42,11 @@ function process_building_loads(
     # Calculate loads
     dhw_demand = calculate_total_dhw_demand(loads, scope; mod=mod)
     internal_gains = calculate_total_internal_heat_loads(loads, scope; mod=mod)
-    solar_gains =
-        calculate_total_solar_gains(archetype, scope, envelope, weather; mod=mod)
-    envelope_solar_gains =
-        calculate_envelope_solar_gains(archetype, scope, envelope, weather; mod=mod)
     envelope_sky_losses =
         calculate_envelope_radiative_sky_losses(archetype, scope, envelope; mod=mod)
 
     return dhw_demand,
     internal_gains,
-    solar_gains,
-    envelope_solar_gains,
     envelope_sky_losses
 end
 
@@ -128,6 +122,8 @@ end
         mod::Module = @__MODULE__,
     )
 
+TODO: PENDING REMOVAL! Could still be useful for documentating the new processing.
+
 Calculate the total solar heat gains through the windows.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
@@ -183,6 +179,8 @@ end
         weather::WeatherData;
         mod::Module = @__MODULE__,
     )
+
+TODO: PENDING REMOVAL! Could still be useful for documenting the new processing, though.
 
 Calculate the solar heat gains [W] per envelope [structure\\_type](@ref).
 
@@ -254,6 +252,8 @@ end
         envelope::EnvelopeData;
         mod::Module = @__MODULE__,
     )
+
+TODO: REVISE DOCUMENTATION!
 
 Calculate the envelope radiative sky losses [W] per [structure\\_type](@ref).
 

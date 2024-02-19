@@ -305,10 +305,11 @@ end
     LoadsData(
         archetype::Object,
         scope::ScopeData,
-        envelope::EnvelopeData,
-        weather::WeatherData;
+        envelope::EnvelopeData;
         mod::Module = @__MODULE__,
     ) <: BuildingDataType
+
+TODO: REVISE DOCUMENTATION!
 
 Store the domestic hot water demand and internal/solar heat gains data.
 
@@ -322,8 +323,6 @@ by the constructor, `@__MODULE__` by default.
 This struct contains the following fields:
 - `domestic_hot_water_demand_W::SpineDataType`: Domestic hot water demand data in [W] for the building.
 - `internal_heat_gains_W::SpineDataType`: Total internal heat gains data in [W] for the building.
-- `solar_heat_gains_W::SpineDataType`: Total solar heat gain through windows data in [W] for the building.
-- `envelope_solar_gains_W::Dict{Object,SpineDataType}`: Solar heat gains through each structure type [W].
 - `envelope_radiative_sky_losses_W::Dict{Object,SpineDataType}`: Estimated radiative heat losses to the sky from the building envelope [W].
 
 The constructor calls the [`process_building_loads`](@ref) function and checks
@@ -332,15 +331,12 @@ that the results are sensible.
 struct LoadsData <: BuildingDataType
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_W::SpineDataType
-    solar_heat_gains_W::SpineDataType
-    envelope_solar_gains_W::Dict{Object,SpineDataType}
     envelope_radiative_sky_losses_W::Dict{Object,SpineDataType}
     """
         LoadsData(
             archetype::Object,
             scope::ScopeData,
-            envelope::EnvelopeData,
-            weather::WeatherData;
+            envelope::EnvelopeData;
             mod::Module = @__MODULE__,
         )
 
@@ -349,13 +345,12 @@ struct LoadsData <: BuildingDataType
     function LoadsData(
         archetype::Object,
         scope::ScopeData,
-        envelope::EnvelopeData,
-        weather::WeatherData;
+        envelope::EnvelopeData;
         mod::Module=@__MODULE__
     )
-        dhw_demand, int_gains, sol_gains, envelope_gains, sky_losses =
-            process_building_loads(archetype, scope, envelope, weather; mod=mod)
-        LoadsData(archetype, dhw_demand, int_gains, sol_gains, envelope_gains, sky_losses)
+        dhw_demand, int_gains, sky_losses =
+            process_building_loads(archetype, scope, envelope; mod=mod)
+        LoadsData(archetype, dhw_demand, int_gains, sky_losses)
     end
     function LoadsData(archetype::Object, args...)
         for (i, arg) in enumerate(args)
