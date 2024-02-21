@@ -173,7 +173,7 @@ calculate_effective_ground_temperature(
         mod::Module = @__MODULE__,
     )
 
-Try to create `building_weather` automatically using `ArchetypeBuildingWeather.py`.
+Try to create `building_weather` automatically using `ArBuWe.py`.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -203,16 +203,16 @@ function create_building_weather(
     save_layouts::Bool=true,
     mod::Module=@__MODULE__
 )
-    # Import `ArchetypeBuildingWeather.py`, doesn't work outside the function for some reason...
-    abw = pyimport("archetypebuildingweather")
-    # Fetch the information necessary for `ArchetypeBuildingWeather.py`.
+    # Import `ArBuWe.py`, doesn't work outside the function for some reason...
+    abw = pyimport("ArBuWe")
+    # Fetch the information necessary for `ArBuWe.py`.
     w_start = string(mod.weather_start(building_archetype=archetype))
     w_end = string(mod.weather_end(building_archetype=archetype))
     weights =
         Dict(string(key.name) => val for (key, val) in scopedata.location_id_gfa_weights)
     bw_name = string(scopedata.building_scope.name) * '_' * w_start * '_' * w_end
 
-    # Call `ArchetypeBuildingWeather.py` to fetch and aggregate the weather.
+    # Call `ArBuWe.py` to fetch and aggregate the weather.
     ambient_temperature, diffuse_irradiation, direct_irradiation = abw.aggregate_weather(
         scopedata.shapefile_path,
         weights,
@@ -263,7 +263,7 @@ end
         repeat::Bool = true,
     )
 
-Convert `ArchetypeBuildingWeather.py` output `pandas.Series` into a `TimeSeries`.
+Convert `ArBuWe.py` output `pandas.Series` into a `TimeSeries`.
 
 The optional keywords can be used to tweak how the `TimeSeries` is flagged.
 Default is a year-aware repeating timeseries.

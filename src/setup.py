@@ -5,7 +5,7 @@ from meta import __version__, description
 setup(
     name="ArBuWe",
     python_requires=">=3.6",
-    py_modules=["src/archetypebuildingweather", "meta"],
+    py_modules=["src/ArBuWe", "meta"],
     install_requires=[
         "geopandas",
         "atlite",

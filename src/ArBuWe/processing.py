@@ -1,4 +1,4 @@
-# archetypebuildingweather.py
+# ArBuWe.py
 
 # The main module file, contains the functions for the archetype building weather processing.
 
