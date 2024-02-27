@@ -10,5 +10,7 @@ from .processing import Shapefile
 from .processing import prepare_cutout
 from .processing import prepare_layout
 from .processing import preprocess_weather
-#from .processing import aggregate_weather
+from .processing import process_initial_heating_demand
+
+# from .processing import aggregate_weather
 from .processing import plot_layout

@@ -371,10 +371,7 @@ def plot_layout(shapefile, layout, dpi=300, title="layout"):
 #     return process_weather(cutout, layout)
 
 
-def preprocess_weather(
-    cutout,
-    external_shading_coefficient
-):
+def preprocess_weather(cutout, external_shading_coefficient):
     """
     Preprocesses weather data for heating and cooling demand calculations.
 
@@ -403,9 +400,9 @@ def preprocess_weather(
         Total effective irradiation timeseries [W/m2] for horizontal and vertical surfaces.
     """
     # Define the slope and azimuth angles for the horizontal and vertical surfaces.
-    dirs = { # Azimuths don't really matter due to slope and tracking respectively.
+    dirs = {  # Azimuths don't really matter due to slope and tracking respectively.
         "horizontal": ori.get_orientation({"slope": 0.0, "azimuth": 0.0}),
-        "vertical": ori.get_orientation({"slope": 90.0, "azimuth": 0.0})
+        "vertical": ori.get_orientation({"slope": 90.0, "azimuth": 0.0}),
     }
 
     # Get solar position and surface orientations
@@ -421,7 +418,7 @@ def preprocess_weather(
     }
 
     # Calculate total diffuse irradiation (diffuse + ground) and direct irradiation.
-    diffuse_irradiation = {
+    diffuse_irradiation_W_m2 = {
         dir: irr.TiltedIrradiation(
             cutout.data,
             solar_position,
@@ -430,7 +427,8 @@ def preprocess_weather(
             clearsky_model="simple",
             tracking="vertical",
             irradiation="diffuse",
-        ) + irr.TiltedIrradiation(
+        )
+        + irr.TiltedIrradiation(
             cutout.data,
             solar_position,
             orientation,
@@ -441,7 +439,7 @@ def preprocess_weather(
         )
         for dir, orientation in surface_orientation.items()
     }
-    direct_irradiation = {
+    direct_irradiation_W_m2 = {
         dir: irr.TiltedIrradiation(
             cutout.data,
             solar_position,
@@ -457,86 +455,56 @@ def preprocess_weather(
     # Calculate the total effective irradiations for horizontal and vertical surfaces respectively.
     # Note that the `external_shading_coefficient` only applies to direct irradiation!
     # Also note that direct irradiation is divided per `np.pi` to account for not all vertical surface area facing the right way!
-    total_effective_irradiation = {
-        dir: diff + external_shading_coefficient * direct_irradiation[dir] / np.pi
-        for dir, diff in diffuse_irradiation.items()
+    total_effective_irradiation_W_effm2 = {
+        dir: diff + external_shading_coefficient * direct_irradiation_W_m2[dir] / np.pi
+        for dir, diff in diffuse_irradiation_W_m2.items()
     }
 
     # Ambient temperatures
-    ambient_temperature = cutout.data["temperature"]
+    ambient_temperature_K = cutout.data["temperature"]
 
     # Return the weather quantities
-    return ambient_temperature, total_effective_irradiation
+    return ambient_temperature_K, total_effective_irradiation_W_effm2
 
 
-def process_demand_and_weather(
-    cutout,
-    layout,
-    external_shading_coefficient,
+def process_initial_heating_demand(
+    set_point_K,
+    ambient_temperature_K,
+    total_effective_irradiation_W_effm2,
+    internal_heat_gains_W,
+    self_discharge_coefficient_W_K,
+    total_ambient_heat_transfer_coefficient_W_K,
+    solar_heat_gain_convective_fraction,
+    window_non_perpendicularity_correction_factor,
+    total_normal_solar_energy_transmittance,
+    vertical_window_surface_area_m2,
+    horizontal_window_surface_area_m2,
 ):
     """
-    Processes the preliminary aggregated heating demand and weather.
+    Processes the preliminary aggregated heating demand.
 
-    This function calculates the aggregated raw preliminary heating
-    and cooling demands, as well as the aggregated weather.
-    The raw preliminary demand is calculated only for the
-    indoor air node based on the steady-state solution
-    of the given set-points. This allows for fast and easy
-    calculations for different set-points, as well as accounting
-    for bypass of ventilation HRUs for cooling. However,
-    the steady-state assumption means that the temperature
-    dynamics of changing between set-points are neglected entirely.
-    Regardless, the later post-processing of the demand accounting
-    for the dynamics of the structural mass nodes should
-    mitigate this "over-sensitivity" to some degree.
-
-    
+    TODO: DOCUMENTATION!
 
     Parameters
     ----------
-    cutout : `atlite` cutout containing the weather data.
-    layout : `xarray.DataArray` for the desired layout.
 
     Returns
     -------
-    heating_demand :
-        Aggregated preliminary heating demand timeseries per heating set-point [W].
-    cooling_demand :
-        Aggregated preliminary cooling demand timeseries per cooling set-point [W].
-    ambient_temperature : Aggregated ambient temperature timeseries [K].
-    effective_irradiation :
-        Aggregated total effective irradiation timeseries [W/m2] for horizontal and vertical surfaces.
+
     """
-    
-
-
-    ##
-
-
-    ## OLD CODE FROM HERE ON OUT    
-
-    # Calculate the aggregated weather using the `atlite` cutout.
-    ambient_temperature = (
-        cutout.temperature(layout=layout).squeeze().to_series() + 273.15
-    )
-    diffuse_irradiation = (
-        cutout.irradiation(
-            orientation={"slope": 0.0, "azimuth": 0.0},
-            layout=layout,
-            irradiation="diffuse",
+    initial_heating_demand = (
+        self_discharge_coefficient_W_K * set_point_K  # Self-discharge heat losses
+        + total_ambient_heat_transfer_coefficient_W_K  # Ambient heat losses: This need to account for HRU bypass for cooling!
+        * (set_point_K - ambient_temperature_K)  # Ambient heat losses.
+        - internal_heat_gains_W  # NOTE! These need to include utilisable losses from the DHW tank!
+        - solar_heat_gain_convective_fraction  # Solar gains are more complicated.
+        * window_non_perpendicularity_correction_factor
+        * total_normal_solar_energy_transmittance
+        * (
+            vertical_window_surface_area_m2
+            * total_effective_irradiation_W_effm2["vertical"]
+            + horizontal_window_surface_area_m2
+            * total_effective_irradiation_W_effm2["horizontal"]
         )
-        .squeeze()
-        .to_series()
     )
-    direct_irradiation = {
-        dir: cutout.irradiation(
-            orientation={"slope": sl, "azimuth": az},
-            layout=layout,
-            irradiation="direct",
-        )
-        .squeeze()
-        .to_series()
-        for dir, (sl, az) in dirs.items()
-    }
-
-    return ambient_temperature, diffuse_irradiation, direct_irradiation
+    return initial_heating_demand
