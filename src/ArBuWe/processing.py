@@ -536,12 +536,37 @@ def process_initial_heating_demand(
 
     Parameters
     ----------
+    set_point_K : xarray.DataArray
+        The desired set point for the heating demand calculation.
+    ambient_temperature_K : xarray.DataArray
+        Ambient air temperature in Kelvin.
+    total_effective_irradiation_W_effm2 : dict of xarray.DataArray
+        Total effective irradiation in W per effective surface area,
+        for horizontal and vertical surfaces separately.
+    internal_heat_gains_W : xarray.DataArray
+        Internal heat gains in W.
+    self_discharge_coefficient_W_K : float
+        Self-discharge coefficient in W/K.
+    total_ambient_heat_transfer_coefficient_W_K : float
+        Total heat transfer coefficient to ambient air in W/K.
+    solar_heat_gain_convective_fraction : float
+        Assumed convective fraction of the solar heat gains.
+    window_non_perpendicularity_correction_factor : float
+        Assumed window non-perpendicularity factor.
+    total_normal_solar_energy_transmittance : float
+        Assumed total normal solar energy transmittance of the windows.
+    vertical_window_surface_area_m2 : float
+        Vertical window surface area in m2.
+    horizontal_window_surface_area_m2 : float
+        Horizontal window (skylight) surface area in m2.
 
     Returns
     -------
-
+    initial_heating_demand_W : xarray.DataArray
+        The initial steady-state heating demand in W.
+        Structural mass dynamics applied in ArBuMo.jl.
     """
-    initial_heating_demand = (
+    initial_heating_demand_W = (
         self_discharge_coefficient_W_K * set_point_K  # Self-discharge heat losses
         + total_ambient_heat_transfer_coefficient_W_K  # Ambient heat losses: This need to account for HRU bypass for cooling!
         * (set_point_K - ambient_temperature_K)  # Ambient heat losses.
@@ -549,11 +574,11 @@ def process_initial_heating_demand(
         - solar_heat_gain_convective_fraction  # Solar gains are more complicated.
         * window_non_perpendicularity_correction_factor
         * total_normal_solar_energy_transmittance
-        * (
+        * (  # The effective irradiation already accounts for surface orientation.
             vertical_window_surface_area_m2
             * total_effective_irradiation_W_effm2["vertical"]
             + horizontal_window_surface_area_m2
             * total_effective_irradiation_W_effm2["horizontal"]
         )
     )
-    return initial_heating_demand
+    return initial_heating_demand_W
