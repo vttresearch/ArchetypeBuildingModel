@@ -467,6 +467,55 @@ def preprocess_weather(cutout, external_shading_coefficient):
     return ambient_temperature_K, total_effective_irradiation_W_effm2
 
 
+def expand_to_xarray(array, xarray_to_match, description, units):
+    """
+    Expands an array of values to match a given xarray.
+
+    Essentially clones the time series data in the given array
+    into an xarray with dimensions matching the given xarray.
+
+    Parameters
+    ----------
+    array : np.array
+        The data to be expanded into an xarray.
+    xarray_to_match : xarray.DataArray
+        The data to match when expanding.
+    description : string
+        A brief description of the data to be expanded.
+    units : string
+        The unit of the data values.
+
+    Returns
+    -------
+    xarray : xarray.DataArray
+        The original array extended to a matching xarray.
+    """
+    # Fetch dimensions from the xarray to match
+    lon = xarray_to_match.x
+    lat = xarray_to_match.y
+    time = xarray_to_match.time
+
+    # Check that the time dimension lengths match.
+    if len(array) != len(time):
+        raise ValueError(
+            f"""
+            The temporal lengths of `array` and `xarray_to_match` don't match!
+            Array length: {len(array)}
+            Xarray time length: {len(time)}
+            """
+        )
+
+    # Expand data to the desired size and create the xarray
+    data = np.repeat(array, len(lon) * len(lat)).reshape(xarray_to_match.shape)
+    xar = xarray.DataArray(
+        data=data,
+        dims=xarray_to_match.dims,
+        coords=xarray_to_match.coords,
+        attrs=dict(description=description, units=units),
+    )
+    return xar
+
+
 def process_initial_heating_demand(
     set_point_K,
     ambient_temperature_K,
