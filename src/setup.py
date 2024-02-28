@@ -13,6 +13,8 @@ setup(
         "numpy",
         "xarray",
         "matplotlib",
+        "scipy",
+        "pandas",
     ],
     version=__version__,
     description=description,

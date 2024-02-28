@@ -3,15 +3,18 @@
 # The main module file, contains the functions for the archetype building weather processing.
 
 from pathlib import Path
-import geopandas
-import atlite
-import atlite.pv.irradiation as irr
-import atlite.pv.orientation as ori
-import atlite.pv.solar_position as sol
-import rioxarray
+from geopandas import read_file
+from atlite import Cutout
+from atlite.pv.irradiation import TiltedIrradiation
+from atlite.pv.orientation import SurfaceOrientation, get_orientation
+from atlite.pv.solar_position import SolarPosition
+from atlite.aggregate import aggregate_matrix
+from rioxarray import open_rasterio
 import numpy as np
 import xarray
 import matplotlib.pyplot as plt
+from scipy.sparse import csr_matrix
+from pandas import RangeIndex
 
 
 class Shapefile:
@@ -35,7 +38,7 @@ class Shapefile:
 
         """
         self.name = Path(shapefile_path).stem
-        self.data = geopandas.read_file(shapefile_path).set_index("location")
+        self.data = read_file(shapefile_path).set_index("location")
         self.resolution = resolution
         self.loose_bound_offset = loose_bound_offset
         self.loose_bounds = self.calculate_loose_bounds()
@@ -110,7 +113,7 @@ def prepare_cutout(
     x1, y1, x2, y2 = shapefile.loose_bounds
 
     # Define and prepare the cutout.
-    cutout = atlite.Cutout(
+    cutout = Cutout(
         path=Path(
             "data/" + shapefile.name + "_" + weather_start + "_" + weather_end
         ).with_suffix(".nc"),
@@ -165,7 +168,7 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     # If `raster_path` is defined, load the raster data and clip it with the whole shapefile.
     if raster_path is not None:
         raster = (
-            rioxarray.open_rasterio(raster_path, masked=True)
+            open_rasterio(raster_path, masked=True)
             .rio.clip(shapefile.data.geometry, from_disk=True)
             .squeeze()
         )
@@ -401,14 +404,14 @@ def preprocess_weather(cutout, external_shading_coefficient):
     """
     # Define the slope and azimuth angles for the horizontal and vertical surfaces.
     dirs = {  # Azimuths don't really matter due to slope and tracking respectively.
-        "horizontal": ori.get_orientation({"slope": 0.0, "azimuth": 0.0}),
-        "vertical": ori.get_orientation({"slope": 90.0, "azimuth": 0.0}),
+        "horizontal": get_orientation({"slope": 0.0, "azimuth": 0.0}),
+        "vertical": get_orientation({"slope": 90.0, "azimuth": 0.0}),
     }
 
     # Get solar position and surface orientations
-    solar_position = sol.SolarPosition(cutout.data)
+    solar_position = SolarPosition(cutout.data)
     surface_orientation = {
-        dir: ori.SurfaceOrientation(
+        dir: SurfaceOrientation(
             cutout.data,
             solar_position,
             orientation,
@@ -419,7 +422,7 @@ def preprocess_weather(cutout, external_shading_coefficient):
 
     # Calculate total diffuse irradiation (diffuse + ground) and direct irradiation.
     diffuse_irradiation_W_m2 = {
-        dir: irr.TiltedIrradiation(
+        dir: TiltedIrradiation(
             cutout.data,
             solar_position,
             orientation,
@@ -428,7 +431,7 @@ def preprocess_weather(cutout, external_shading_coefficient):
             tracking="vertical",
             irradiation="diffuse",
         )
-        + irr.TiltedIrradiation(
+        + TiltedIrradiation(
             cutout.data,
             solar_position,
             orientation,
@@ -440,7 +443,7 @@ def preprocess_weather(cutout, external_shading_coefficient):
         for dir, orientation in surface_orientation.items()
     }
     direct_irradiation_W_m2 = {
-        dir: irr.TiltedIrradiation(
+        dir: TiltedIrradiation(
             cutout.data,
             solar_position,
             orientation,
@@ -532,7 +535,14 @@ def process_initial_heating_demand(
     """
     Processes the preliminary aggregated heating demand.
 
-    TODO: DOCUMENTATION!
+    Essentially, calculates the steady-state initial heating demand for
+    the interior air of a building with the given parameters.
+    Note that this demand is only part of the total demand,
+    as it only accounts for heat gains and transfers applying
+    directly to the indoor air of a building.
+
+    Cooling demand is just the negative part of the steady-state
+    heating demand.
 
     Parameters
     ----------
@@ -582,3 +592,32 @@ def process_initial_heating_demand(
         )
     )
     return initial_heating_demand_W
+
+
+def aggregate_xarray(xar, layout):
+    """
+    Aggregates xarray.DataArray data using a layout raster.
+
+    Loosely based on what PyPSA/atlite `convert_and_aggregate` does.
+    Unfortunately, that function couldn't be used as is due to the
+    way it's programmed.
+
+    Parameters
+    ----------
+
+    xar : xarray.DataArray
+        The xarray data to be aggregated.
+    layout : xarray.DataArray
+        The layout used to spatially aggregate the `xar`.
+
+    Results
+    -------
+    aggregate :
+        The final aggregated data
+    """
+    # More or less copy-paste from PyPSA/atlite, no idea how this works.
+    assert isinstance(layout, xarray.DataArray)
+    layout = layout.reindex_like(xar).stack(spatial=["y", "x"])
+    matrix = csr_matrix(layout.expand_dims("new"))
+    index = RangeIndex(matrix.shape[0])
+    return aggregate_matrix(xar, matrix=matrix, index=index)
