@@ -389,6 +389,8 @@ def preprocess_weather(cutout, external_shading_coefficient):
     Thus, the effective direct irradiation on the equidistributed
     surface is calculated as `I_dir_eff = c_shading * I_dir / Pi`.
 
+    TODO: Improve docstring, equation for the effective irradiation?
+
     Parameters
     ----------
     cutout : `atlite` cutout containing the weather data.
@@ -397,9 +399,9 @@ def preprocess_weather(cutout, external_shading_coefficient):
 
     Returns
     -------
-    ambient_temperature : `xarray.DataSet`
+    ambient_temperature_K : `xarray.DataSet`
         Ambient temperature timeseries [K].
-    effective_irradiation : `dict`
+    total_effective_irradiation_W_effm2 : `dict`
         Total effective irradiation timeseries [W/m2] for horizontal and vertical surfaces.
     """
     # Define the slope and azimuth angles for the horizontal and vertical surfaces.
@@ -463,11 +465,8 @@ def preprocess_weather(cutout, external_shading_coefficient):
         for dir, diff in diffuse_irradiation_W_m2.items()
     }
 
-    # Ambient temperatures
-    ambient_temperature_K = cutout.data["temperature"]
-
     # Return the weather quantities
-    return ambient_temperature_K, total_effective_irradiation_W_effm2
+    return cutout.data["temperature"], total_effective_irradiation_W_effm2
 
 
 def expand_to_xarray(array, xarray_to_match, description, units):
@@ -540,6 +539,8 @@ def process_initial_heating_demand(
     Note that this demand is only part of the total demand,
     as it only accounts for heat gains and transfers applying
     directly to the indoor air of a building.
+
+    TODO: Explain the equation? Reference standard method?
 
     Cooling demand is just the negative part of the steady-state
     heating demand.
@@ -621,3 +622,158 @@ def aggregate_xarray(xar, layout):
     matrix = csr_matrix(layout.expand_dims("new"))
     index = RangeIndex(matrix.shape[0])
     return aggregate_matrix(xar, matrix=matrix, index=index)
+
+
+def aggregate_demand_and_weather(
+    shapefile_path,
+    weather_start,
+    weather_end,
+    weights,
+    external_shading_coefficient,
+    heating_set_point_K,
+    cooling_set_point_K,
+    internal_heat_gains_W,
+    self_discharge_coefficient_W_K,
+    total_ambient_heat_transfer_coefficient_with_HRU_W_K,
+    total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+    solar_heat_gain_convective_fraction,
+    window_non_perpendicularity_correction_factor,
+    total_normal_solar_energy_transmittance,
+    vertical_window_surface_area_m2,
+    horizontal_window_surface_area_m2,
+    raster_path=None,
+    resampling=5,
+    filename="scope",
+    save_layouts=True,
+):
+    """
+    Calculates the aggregated initial heating/cooling demand and weather data.
+
+    TODO: DOCUMENTATION!
+
+    Parameters
+    ----------
+    shapefile : Shapefile
+        The `Shapefile` used for defining the bounds of the cutout.
+    weather_start : string
+        The start of the cutout in `yyyy-mm-dd`, month and day can be skipped.
+    weather_end: string
+        The end of the cutout in `yyyy-mm-dd`, month and day can be skipped.
+    weights : dict
+        Weights for the `location_id` fields in the shapefile.
+    external_shading_coefficient : float
+        Coefficient for direct irradiation quantities to account for shading due to environment.
+    heating_set_point_K : array
+        The desired set points for the heating demand calculation as a time series.
+    cooling_set_point_K : array
+        The desired set points for the heating demand calculation as a time series.
+    internal_heat_gains_W : array
+        Internal heat gains in W, as a time series.
+    self_discharge_coefficient_W_K : float
+        Self-discharge coefficient in W/K.
+    total_ambient_heat_transfer_coefficient_W_K : float
+        Total heat transfer coefficient to ambient air in W/K.
+    solar_heat_gain_convective_fraction : float
+        Assumed convective fraction of the solar heat gains.
+    window_non_perpendicularity_correction_factor : float
+        Assumed window non-perpendicularity factor.
+    total_normal_solar_energy_transmittance : float
+        Assumed total normal solar energy transmittance of the windows.
+    vertical_window_surface_area_m2 : float
+        Vertical window surface area in m2.
+    horizontal_window_surface_area_m2 : float
+        Horizontal window (skylight) surface area in m2.
+
+    Other parameters
+    ----------------
+    raster_path=None : Optional path to further raster data used for generating the layout.
+    resampling=5 : Setting for resampling the data, `5=average` by default.
+        See [`rasterio.enums.Resampling`](https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling)
+    filename = "scope" : str
+        Name of the image file displaying the final layout.
+    save_layouts = True : bool
+        A flag to control whether layout images are to be saved.
+
+    Returns
+    -------
+    """
+    # Form the shapefile and prepare the cutout and layout
+    shapefile = Shapefile(shapefile_path)
+    cutout = prepare_cutout(shapefile, weather_start, weather_end)
+    raster, layout = prepare_layout(shapefile, cutout, weights, raster_path, resampling)
+
+    # Save layouts if desired.
+    if save_layouts:
+        for rst, name in [(raster, "raster"), (layout, "layout")]:
+            f = plot_layout(shapefile, rst, dpi=600, title=filename + " " + name)
+            f.savefig("figs/" + filename + "_" + name + ".png", dpi=600)
+            plt.close(f)
+
+    # Preprocess the weather
+    ambient_temperature_K, total_effective_irradiation_W_effm2 = preprocess_weather(
+        cutout, external_shading_coefficient
+    )
+
+    # Expand set points and internal heat gains to xarrays
+    heating_set_point_K = expand_to_xarray(
+        heating_set_point_K, ambient_temperature_K, "Heating set point", "K"
+    )
+    cooling_set_point_K = expand_to_xarray(
+        cooling_set_point_K, ambient_temperature_K, "Heating set point", "K"
+    )
+    internal_heat_gains_W = expand_to_xarray(
+        internal_heat_gains_W, ambient_temperature_K, "Internal heat gains", "W"
+    )
+
+    # Process initial heating demand, with HRU!
+    heating_demand_W = process_initial_heating_demand(
+        heating_set_point_K,
+        ambient_temperature_K,
+        total_effective_irradiation_W_effm2,
+        internal_heat_gains_W,
+        self_discharge_coefficient_W_K,
+        total_ambient_heat_transfer_coefficient_with_HRU_W_K,
+        solar_heat_gain_convective_fraction,
+        window_non_perpendicularity_correction_factor,
+        total_normal_solar_energy_transmittance,
+        vertical_window_surface_area_m2,
+        horizontal_window_surface_area_m2,
+    )
+    # Heating demand is indicated by the positive values of the steady-state solution,
+    # cut out cooling demand as it likely has its own set point.
+    heating_demand_W = xarray.where(heating_demand_W < 0.0, 0.0, heating_demand_W)
+
+    # Process initial cooling demand, without HRU!
+    cooling_demand_W = process_initial_heating_demand(
+        cooling_set_point_K,
+        ambient_temperature_K,
+        total_effective_irradiation_W_effm2,
+        internal_heat_gains_W,
+        self_discharge_coefficient_W_K,
+        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        solar_heat_gain_convective_fraction,
+        window_non_perpendicularity_correction_factor,
+        total_normal_solar_energy_transmittance,
+        vertical_window_surface_area_m2,
+        horizontal_window_surface_area_m2,
+    )
+    # Cooling demand is indicated by the negative values of the steady-state solution,
+    # cut out heating demand as it likely has its own set point.
+    cooling_demand_W = xarray.where(cooling_demand_W > 0.0, 0.0, -cooling_demand_W)
+
+    # Aggregate and return the desired quantities.
+    heating_demand_W = aggregate_xarray(heating_demand_W, layout)
+    cooling_demand_W = aggregate_xarray(cooling_demand_W, layout)
+    ambient_temperature_K = aggregate_xarray(ambient_temperature_K, layout)
+    total_effective_irradiation_W_effm2["horizontal"] = aggregate_xarray(
+        total_effective_irradiation_W_effm2["horizontal"], layout
+    )
+    total_effective_irradiation_W_effm2["vertical"] = aggregate_xarray(
+        total_effective_irradiation_W_effm2["vertical"], layout
+    )
+    return (
+        heating_demand_W,
+        cooling_demand_W,
+        ambient_temperature_K,
+        total_effective_irradiation_W_effm2,
+    )
