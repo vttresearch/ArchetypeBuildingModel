@@ -11,7 +11,7 @@ hood.
 using Pkg
 Pkg.activate("test")
 
-using Revise
+#using Revise
 using Test
 using Plots
 using ArBuMo
@@ -94,17 +94,13 @@ end
 
 
 ## Test creating `AbstractNodeNetwork` and `AbstractNode`
-#=
+
 @info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
 @time abstract_node_network = Dict(
     archetype => create_abstract_node_network(
-        building_node_network[archetype],
-        weather_data[only(
-            building_archetype__building_weather(building_archetype = archetype),
-        )],
-    ) for archetype in building_archetype()
+        building_node_network[archetype]
+    ) for archetype in m.building_archetype()
 )
-=#
 
 
 ## Test creating `BuildingProcessData`
@@ -115,15 +111,15 @@ end
         archetype,
         process,
         scope_data_final[only(
-            building_archetype__building_scope(building_archetype = archetype),
+            building_archetype__building_scope(building_archetype=archetype),
         )],
         weather_data[only(
-            building_archetype__building_weather(building_archetype = archetype),
+            building_archetype__building_weather(building_archetype=archetype),
         )],
     ) for archetype in building_archetype() for
     process in building_systems__building_process(
-        building_systems = only(
-            building_archetype__building_systems(building_archetype = archetype),
+        building_systems=only(
+            building_archetype__building_systems(building_archetype=archetype),
         ),
     )
 )

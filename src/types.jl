@@ -557,6 +557,8 @@ end
 
 Contain parameters defining a `node` in a large-scale-energy-system-model-agnostic manner.
 
+TODO: Revise documentation, rename to FlexibilityNode?
+
 Essentially, a `node` is a point in a commodity network where commodity balance is observed.
 `nodes` can have a *state*, which represents accumulated commodities at the point.
 The state of a `node` can "bleed" either outside the model scope
@@ -570,7 +572,6 @@ This struct contains the following fields:
 - `thermal_mass_Wh_K::SpineDataType`: The effective thermal mass of this node in [Wh/K].
 - `self_discharge_coefficient_W_K::SpineDataType`: The self-discharge coefficient in [W/K] from this node.
 - `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
-- `external_load_W::SpineDataType`: Heat loads/gains on this node due to external influende, e.g. ambient conditions, inhabitants, solar irradiation, etc.
 - `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
 - `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
 
@@ -581,24 +582,21 @@ struct AbstractNode <: BuildingDataType
     thermal_mass_Wh_K::SpineDataType
     self_discharge_coefficient_W_K::SpineDataType
     heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
-    external_load_W::SpineDataType
     minimum_temperature_K::SpineDataType
     maximum_temperature_K::SpineDataType
     """
         AbstractNode(
             building_node_network::BuildingNodeNetwork,
             node::Object,
-            weather::WeatherData,
         )
 
     Create a new `AbstractNode` corresponding to `node` based on the given data structs.
     """
     function AbstractNode(
         building_node_network::BuildingNodeNetwork,
-        node::Object,
-        weather::WeatherData,
+        node::Object
     )
-        new(node, process_abstract_node(building_node_network, node, weather)...)
+        new(node, process_abstract_node(building_node_network, node)...)
     end
 end
 

@@ -9,21 +9,20 @@ large-scale energy system model input.
 """
     create_abstract_node_network(
         building_node_network::BuildingNodeNetwork,
-        weather::WeatherData
     )
 
 Process a `BuildingNodeNetwork` into an `AbstractNodeNetwork`.
 
+TODO: Revise documentation, rename AbstractNode to FlexibilityNode?
+
 The `AbstractNodeNetwork` is a useful step for creating model-agnostic input
 for multiple large-scale energy system models.
-`weather` is required to account for ambient temperatures.
 """
 function create_abstract_node_network(
     building_node_network::BuildingNodeNetwork,
-    weather::WeatherData,
 )
     Dict(
-        node => AbstractNode(building_node_network, node, weather) for
+        node => AbstractNode(building_node_network, node) for
         node in keys(building_node_network)
     )::AbstractNodeNetwork
 end
@@ -32,11 +31,12 @@ end
 """
     process_abstract_node(
         building_node_network::BuildingNodeNetwork,
-        node::Object,
-        weather::WeatherData
+        node::Object
     )
 
 Calculate the properties of an [`AbstractNode`](@ref) corresponding to the `node` in the `building_node_network`.
+
+TODO: Revise documentation, rename AbstractNode to FlexibilityNode?
 
 Combines all the individual parameters in [`BuildingNodeData`](@ref)s in [`BuildingNodeNetwork`](@ref)
 into the bare minimum parameters required for modelling lumped-capacitance thermal nodes
@@ -85,7 +85,6 @@ singularities when solving the temperature dynamics and heat demand later on.
 function process_abstract_node(
     building_node_network::BuildingNodeNetwork,
     node::Object,
-    weather::WeatherData,
 )
     # Convenience access to the `BuildingNodeData`.
     node_data = building_node_network[node]
@@ -97,7 +96,7 @@ function process_abstract_node(
             node_data.thermal_mass_gfa_scaled_J_K +
             node_data.thermal_mass_interior_air_and_furniture_J_K +
             node_data.thermal_mass_structures_J_K
-        ) / 3600 + 1e-9 # Token thermal mass always required to avoid singularities in the dynamics matrix
+        ) / 3600 # TODO: is this necessary? + 1e-9 # Token thermal mass always required to avoid singularities in the dynamics matrix
 
     # Total self-discharge coefficient from the node, accounting for ambient heat transfer.
     self_discharge_coefficient_W_K =
@@ -154,6 +153,7 @@ function process_abstract_node(
     filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
 
     # External load accounting for heat transfer with ambient conditions.
+    #= TODO: Temove as obsolete?
     external_load_W =
         (
             node_data.heat_transfer_coefficient_structures_exterior_W_K +
@@ -169,12 +169,12 @@ function process_abstract_node(
         node_data.solar_heat_gains_structures_W +
         node_data.solar_heat_gains_envelope_W - node_data.radiative_envelope_sky_losses_W -
         node_data.domestic_hot_water_demand_W
+    =#
 
     # Return the properties of interest in the correct order for `AbstractNode`.
     return thermal_mass_Wh_K,
     self_discharge_coefficient_W_K,
     heat_transfer_coefficients_W_K,
-    external_load_W,
     node_data.minimum_temperature_K,
     node_data.maximum_temperature_K
 end
