@@ -52,8 +52,8 @@ end
 @time envelope_data = Dict(
     archetype => EnvelopeData(
         archetype,
-        scope_data_final[first(
-            m.building_archetype__building_scope(building_archetype = archetype),
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
         )];
         mod=m,
     ) for archetype in m.building_archetype()
@@ -66,8 +66,8 @@ end
 @time loads_data = Dict(
     archetype => LoadsData(
         archetype,
-        scope_data_final[first(
-            m.building_archetype__building_scope(building_archetype = archetype),
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
         )],
         envelope_data[archetype];
         mod=m,
@@ -81,10 +81,10 @@ end
 @time building_node_network = Dict(
     archetype => create_building_node_network(
         archetype,
-        first(m.building_archetype__building_fabrics(building_archetype = archetype)),
-        first(m.building_archetype__building_systems(building_archetype = archetype)),
-        scope_data_final[first(
-            m.building_archetype__building_scope(building_archetype = archetype),
+        only(m.building_archetype__building_fabrics(building_archetype=archetype)),
+        only(m.building_archetype__building_systems(building_archetype=archetype)),
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
         )],
         envelope_data[archetype],
         loads_data[archetype];
@@ -99,7 +99,7 @@ end
 @time abstract_node_network = Dict(
     archetype => create_abstract_node_network(
         building_node_network[archetype],
-        weather_data[first(
+        weather_data[only(
             building_archetype__building_weather(building_archetype = archetype),
         )],
     ) for archetype in building_archetype()
@@ -114,15 +114,15 @@ end
     (archetype, process) => BuildingProcessData(
         archetype,
         process,
-        scope_data_final[first(
+        scope_data_final[only(
             building_archetype__building_scope(building_archetype = archetype),
         )],
-        weather_data[first(
+        weather_data[only(
             building_archetype__building_weather(building_archetype = archetype),
         )],
     ) for archetype in building_archetype() for
     process in building_systems__building_process(
-        building_systems = first(
+        building_systems = only(
             building_archetype__building_systems(building_archetype = archetype),
         ),
     )
@@ -164,7 +164,7 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
 @time auto_weather = Dict(
     archetype => create_building_weather(
         archetype,
-        scope_data_final[first(
+        scope_data_final[only(
             building_archetype__building_scope(building_archetype = archetype),
         )],
     ) for archetype in building_archetype()

@@ -117,13 +117,13 @@ struct ScopeData <: BuildingDataType
         structure_data = process_structure_scope(aggregated_gfa_weights; mod=mod)
         shape_path = string(
             mod.shapefile_path(
-                building_stock=first(
+                building_stock=only(
                     mod.building_scope__building_stock(building_scope=scope),
                 ),
             ),
         )
         raster_path = mod.raster_weight_path(
-            building_stock=first(
+            building_stock=only(
                 mod.building_scope__building_stock(building_scope=scope),
             ),
         )
@@ -734,7 +734,7 @@ struct ArchetypeBuilding
             @error "`$(archetype)` should have exactly one `building_weather` defined!"
         end
         weather_data = WeatherData(
-            first(mod.building_archetype__building_weather(building_archetype=archetype));
+            only(mod.building_archetype__building_weather(building_archetype=archetype));
             mod=mod,
             realization=realization
         )
@@ -743,7 +743,7 @@ struct ArchetypeBuilding
             @error "`$(archetype)` should have exactly one `building_scope` defined!"
         end
         scope_data = ScopeData(
-            first(mod.building_archetype__building_scope(building_archetype=archetype));
+            only(mod.building_archetype__building_scope(building_archetype=archetype));
             mod=mod
         )
 
@@ -759,11 +759,11 @@ struct ArchetypeBuilding
         # Fetch the definitions related to the archetype.
         scope = scope_data.building_scope
         fabrics =
-            first(mod.building_archetype__building_fabrics(building_archetype=archetype))
+            only(mod.building_archetype__building_fabrics(building_archetype=archetype))
         systems =
-            first(mod.building_archetype__building_systems(building_archetype=archetype))
+            only(mod.building_archetype__building_systems(building_archetype=archetype))
         loads =
-            first(mod.building_archetype__building_loads(building_archetype=archetype))
+            only(mod.building_archetype__building_loads(building_archetype=archetype))
         weather = weather_data.building_weather
 
         # Process the data related to the archetype.

@@ -37,7 +37,7 @@ function process_building_loads(
     mod::Module=@__MODULE__
 )
     # Find the `building_loads` connected to the `archetype`
-    loads = first(mod.building_archetype__building_loads(building_archetype=archetype))
+    loads = only(mod.building_archetype__building_loads(building_archetype=archetype))
 
     # Calculate loads
     dhw_demand = calculate_total_dhw_demand(loads, scope; mod=mod)
