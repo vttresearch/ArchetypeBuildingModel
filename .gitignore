@@ -3,7 +3,7 @@ Manifest.toml
 data/
 src/archetypebuildingweather/__pycache__/
 __pycache__/
-ArchetypeBuildingWeather.egg-info/
+ArBuWe.egg-info/
 figs/
 docs/src/archetype_definitions.md
 src/build/
