@@ -31,9 +31,9 @@ as well as the lumped-capacitance thermal models.
 2. `process_archetype_buildings.jl`, the main program file for archetype building processing using Spine Toolbox.
 3. `process_archetype_buildings.json`, the [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox) tool specification for the main program above.
 4. `testscript.jl`, a testing script/tutorial for using this module.
-5. `testscript.ipynb`, a testing notebook/tutorial for using the `archetypebuildingweather` sub-module.
+5. `testscript.ipynb`, a testing notebook/tutorial for using the `ArBuWe` sub-module.
 6. `src/ArBuMo.jl`, the main Julia module file.
-7. `src/archetypebuildingweather/` contains the Python sub-module for automatic weather data processing.
+7. `src/ArBuWe/` contains the Python sub-module for automatic weather data processing.
 8. `data/` contains data related to the automatic weather data processing.
 9. `examples/` contains example definitions for `building_fabrics`, `building_systems`, and `building_weather`.
 10. `figs/` contains automatically output diagnostic figures about the automatic weather data aggregation. 
@@ -73,7 +73,7 @@ Here's a rough sketch of how I got it working:
 1. Create a conda environment with python 3.8, e.g. `conda create -n toolboxatlite python=3.8` and activate it.
 2. Install [Spine Toolbox](https://github.com/Spine-project/Spine-Toolbox) from a local source via `pip install -r requirements.txt` in the Toolbox root folder.
 3. Install `PYPSA/atlite` via `conda install -c conda-forge atlite`
-4. Install the `ArchetypeBuildingWeather.py` sub-module via `pip install -e .` in the `src/` folder.
+4. Install the `ArBuWe.py` sub-module via `pip install -e .` in the `src/` folder.
 5. Install JupyterLab via `conda install -c conda-forge jupyterlab`.
 
 

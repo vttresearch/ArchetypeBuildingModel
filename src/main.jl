@@ -44,7 +44,7 @@ stochastic input.
 
 This function performs the following steps:
 1. Construct the [`ScopeData`](@ref) for each defined [building\\_archetype\\_\\_building_scope](@ref), and store in the `scope_data_dictionary`.
-2. Try to construct the [`WeatherData`](@ref) for each defined [building\\_archetype\\_\\_building_weather](@ref), and attempt automatic weather processing using [ArchetypeBuildingWeather.py](@ref) if no definition found. Results stored in `weather_data_dictionary`.
+2. Try to construct the [`WeatherData`](@ref) for each defined [building\\_archetype\\_\\_building_weather](@ref), and attempt automatic weather processing using [ArBuWe.py](@ref) if no definition found. Results stored in `weather_data_dictionary`.
 3. Use the `scope_data_dictionary` and `weather_data_dictionary` to construct the [`ArchetypeBuilding`](@ref) for all defined archetypes, and store them in `archetype_dictionary`.
 4. Return `scope_data_dictionary`, `weather_data_dictionary`, and `archetype_dictionary`.
 """
