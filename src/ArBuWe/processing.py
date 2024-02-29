@@ -223,63 +223,6 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     return raster, layout
 
 
-##TODO: REMOVE OLD CODE!
-# def process_weather(cutout, layout):
-#     """
-#     Processes the weather data using the given layout.
-
-#     The intended use for this function is to calculate the weighted average
-#     weather parameters for the `ArBuMo`, but depending on
-#     the used layout it can be used to do other things as well.
-
-#     Parameters
-#     ----------
-#     cutout : `atlite` cutout containing the weather data.
-#     layout : `xarray.DataArray` for the desired layout.
-
-#     Returns
-#     -------
-#     ambient_temperature : Ambient temperature timeseries [K].
-#     diffuse_irradiation : Diffuse irradiation timeseries [W/m2].
-#     direct_irradiation :
-#         Direct irradiation on walls facing the cardinal directions [W/m2].
-#     """
-#     # Define the slope and azimuth angles for the horizontal and cardinal directions.
-#     dirs = {
-#         "horizontal": (0.0, 0.0),
-#         "north": (90.0, 0.0),
-#         "east": (90.0, 90.0),
-#         "south": (90.0, 180.0),
-#         "west": (90.0, 270.0),
-#     }
-
-#     # Calculate the aggregated weather using the `atlite` cutout.
-#     ambient_temperature = (
-#         cutout.temperature(layout=layout).squeeze().to_series() + 273.15
-#     )
-#     diffuse_irradiation = (
-#         cutout.irradiation(
-#             orientation={"slope": 0.0, "azimuth": 0.0},
-#             layout=layout,
-#             irradiation="diffuse",
-#         )
-#         .squeeze()
-#         .to_series()
-#     )
-#     direct_irradiation = {
-#         dir: cutout.irradiation(
-#             orientation={"slope": sl, "azimuth": az},
-#             layout=layout,
-#             irradiation="direct",
-#         )
-#         .squeeze()
-#         .to_series()
-#         for dir, (sl, az) in dirs.items()
-#     }
-
-#     return ambient_temperature, diffuse_irradiation, direct_irradiation
-
-
 def plot_layout(shapefile, layout, dpi=300, title="layout"):
     """
     Plot layout to see if it makes sense.
@@ -314,66 +257,6 @@ def plot_layout(shapefile, layout, dpi=300, title="layout"):
     return f
 
 
-## TODO: REMOVE OLD CODE!
-# def aggregate_weather(
-#     shapefile_path,
-#     weights,
-#     weather_start,
-#     weather_end,
-#     raster_path=None,
-#     filename="scope",
-#     save_layouts=True,
-#     resampling=5,
-# ):
-#     """
-#     Aggregate weather data for the given input arguments.
-
-#     The shapefile is used to define the geographical area under investigation,
-#     as well as to assign the `weights` to its different areas.
-#     If the `raster_path` is included, its data will be included when generating
-#     the layout for weighting the weather data.
-#     Otherwise, an uniform base distribution is assumed for the different
-#     areas in the shapefile.
-
-#     Parameters
-#     ----------
-#     shapefile_path : str | path-like
-#         Path to the shapefile defiining the area under investigation.
-#     weights : dict
-#         Weights for the different polygons in the shapefile.
-#     weather_start : str | datetime-like
-#         Time when weather data period starts in `yyyy-mm-dd`, month and day can be omitted.
-#     weather_end : str | datetime-like
-#         Time when weather data period ends in `yyyy-mm-dd`, month and day can be omitted.
-
-#     Optional parameters
-#     -------------------
-#     raster_path = None : str | path-like
-#         Path to an optional raster file to include in the weighting.
-#     filename = "scope" : str
-#         Name of the image file displaying the final layout.
-#     save_layouts = True : bool
-#         A flag to control whether layout images are to be saved.
-#     resampling=5 : Setting for resampling the data for `prepare_layout()`, `5=average` by default.
-
-#     Returns
-#     -------
-#     ambient_temperature : Ambient temperature timeseries [K].
-#     diffuse_irradiation : Diffuse irradiation timeseries [W/m2].
-#     direct_irradiation :
-#         Direct irradiation on walls facing the cardinal directions [W/m2].
-#     """
-#     shapefile = Shapefile(shapefile_path)
-#     cutout = prepare_cutout(shapefile, weather_start, weather_end)
-#     raster, layout = prepare_layout(shapefile, cutout, weights, raster_path, resampling)
-#     if save_layouts:
-#         for rst, name in [(raster, "raster"), (layout, "layout")]:
-#             f = plot_layout(shapefile, rst, dpi=600, title=filename + " " + name)
-#             f.savefig("figs/" + filename + "_" + name + ".png", dpi=600)
-#             plt.close(f)
-#     return process_weather(cutout, layout)
-
-
 def preprocess_weather(cutout, external_shading_coefficient):
     """
     Preprocesses weather data for heating and cooling demand calculations.
@@ -386,10 +269,21 @@ def preprocess_weather(cutout, external_shading_coefficient):
     with the full horizontal/vertical envelope surface areas respectively.
     For the vertical surfaces, we're assuming that
     they are distributed equally to all directions *(like a circle)*.
-    Thus, the effective direct irradiation on the equidistributed
-    surface is calculated as `I_dir_eff = c_shading * I_dir / Pi`.
 
-    TODO: Improve docstring, equation for the effective irradiation?
+    The ambient temperatures are obtained directly from the atlite cutout,
+    but the total effective irradiation `I_eff` is calculated as:
+
+    .. math::
+        I_{eff, horizontal} = I_{diff, horizontal} + c_{shading} I_{dir, horizontal} \\
+        I_{eff, vertical} = I_{diff, vertical} + I_{ground, vertical} + \frac{c_{shading}}{\pi} I_{dir, vertical}
+
+    where `I_diff` is the diffuse irradiation on the surface,
+    `I_ground` is the ground reflected irradiation on the surface,
+    `c_shading` is the external shading coefficient,
+    and `I_dir` is the direct irradiation on the surface.
+    The `I_dir,vertical` is calculated from atlite with vertical axis tracking,
+    so it always matches the azimuth of the sun. Hence the division with
+    pi to account for not all vertical surface area facing directly at the sun.
 
     Parameters
     ----------
@@ -459,10 +353,12 @@ def preprocess_weather(cutout, external_shading_coefficient):
 
     # Calculate the total effective irradiations for horizontal and vertical surfaces respectively.
     # Note that the `external_shading_coefficient` only applies to direct irradiation!
-    # Also note that direct irradiation is divided per `np.pi` to account for not all vertical surface area facing the right way!
+    # Also note that the vertical direct irradiation is divided per `np.pi` to account for not all vertical surface area facing the right way!
     total_effective_irradiation_W_effm2 = {
-        dir: diff + external_shading_coefficient * direct_irradiation_W_m2[dir] / np.pi
-        for dir, diff in diffuse_irradiation_W_m2.items()
+        "horizontal": diffuse_irradiation_W_m2["horizontal"]
+        + external_shading_coefficient * direct_irradiation_W_m2["horizontal"],
+        "vertical": diffuse_irradiation_W_m2["vertical"]
+        + external_shading_coefficient / np.pi * direct_irradiation_W_m2["vertical"],
     }
 
     # Return the weather quantities
@@ -540,10 +436,29 @@ def process_initial_heating_demand(
     as it only accounts for heat gains and transfers applying
     directly to the indoor air of a building.
 
-    TODO: Explain the equation? Reference standard method?
+    The steady-state initial heating demand `\Phi_heating`
+    for a given set-point on each time step is calculated as:
 
+    .. math::
+        \Phi_{heating} = \rho T' + \sigma (T' - T_a) - \phi_{int} - f_{conv} * f_{np} * g_{gl} * (A_{w,hor} * I_{eff,hor} + A_{w,ver} * I{eff,ver})
+
+    where `\rho` is the self-discharge coefficient *(usually none)*,
+    `\sigma` is the total heat transfer coefficient to the ambient air,
+    `\phi_int` are the internal heat gains,
+    `f_{conv}` is the assumed convective fraction of solar heat gains,
+    `f_{np}` is the assumed non-perpendicularity correction factor for windows,
+    `g_{gl}` is the assumed total normal solar energy transmittance of the glazing,
+    `A_{w,hor}` is the horizontal window *(e.g. skylight)* surface area,
+    `I_{eff,hor}` is the total effective solar irradiation on a horizontal surface,
+    `A_{w,ver}` is the vertical window surface area,
+    and `I_{eff,ver}` is the total effective solar irradiation on a vertical surface.
     Cooling demand is just the negative part of the steady-state
     heating demand.
+
+    The above heating demand is only preliminary,
+    as it only accounts for gains and losses of the indoor air node.
+    Gains and losses through the envelope, as well as structural
+    thermal mass dynamics are accounted for later in ArBuMo.jl.
 
     Parameters
     ----------
@@ -649,7 +564,10 @@ def aggregate_demand_and_weather(
     """
     Calculates the aggregated initial heating/cooling demand and weather data.
 
-    TODO: DOCUMENTATION!
+    The master function of this module, handling the entire processing
+    workflow from fetching ERA5 weather data to processing and aggregating
+    the preliminary heating/cooling demands along with the weather for
+    ArBuMo.jl.
 
     Parameters
     ----------
