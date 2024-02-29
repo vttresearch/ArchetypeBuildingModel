@@ -661,20 +661,48 @@ def aggregate_demand_and_weather(
     # cut out cooling demand as it likely has its own set point.
     heating_demand_W = xarray.where(heating_demand_W < 0.0, 0.0, heating_demand_W)
 
-    # Process initial cooling demand, without HRU!
-    cooling_demand_W = process_initial_heating_demand(
+    # Process initial cooling demand, which can get a bit complicated with HRU bypass.
+    # First, with HRU.
+    cooling_demand_W_HRU = process_initial_heating_demand(
         cooling_set_point_K,
         ambient_temperature_K,
         total_effective_irradiation_W_effm2,
         internal_heat_gains_W,
         self_discharge_coefficient_W_K,
-        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        total_ambient_heat_transfer_coefficient_with_HRU_W_K,
         solar_heat_gain_convective_fraction,
         window_non_perpendicularity_correction_factor,
         total_normal_solar_energy_transmittance,
         vertical_window_surface_area_m2,
         horizontal_window_surface_area_m2,
     )
+    # If there's a difference between the heat transfer coefficients
+    # we also need to check the case without HRU if it avoids cooling.
+    if (
+        total_ambient_heat_transfer_coefficient_with_HRU_W_K
+        != total_ambient_heat_transfer_coefficient_without_HRU_W_K
+    ):
+        cooling_demand_W_raw = process_initial_heating_demand(
+            cooling_set_point_K,
+            ambient_temperature_K,
+            total_effective_irradiation_W_effm2,
+            internal_heat_gains_W,
+            self_discharge_coefficient_W_K,
+            total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+            solar_heat_gain_convective_fraction,
+            window_non_perpendicularity_correction_factor,
+            total_normal_solar_energy_transmittance,
+            vertical_window_surface_area_m2,
+            horizontal_window_surface_area_m2,
+        )
+        # Out of these, we'll assume the HRU does it's best to avoid cooling demand.
+        cooling_demand_W = xarray.where(
+            cooling_demand_W_HRU > cooling_demand_W_raw,
+            cooling_demand_W_HRU,
+            cooling_demand_W_raw,
+        )
+    else:
+        cooling_demand_W = cooling_demand_W_HRU
     # Cooling demand is indicated by the negative values of the steady-state solution,
     # cut out heating demand as it likely has its own set point.
     cooling_demand_W = xarray.where(cooling_demand_W > 0.0, 0.0, -cooling_demand_W)
