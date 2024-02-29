@@ -403,6 +403,7 @@ This struct contains the following fields:
 - `heat_transfer_coefficient_structures_ground_W_K::Float64`: The contribution of included structures on the heat transfer coefficient between this node and the effective ground temperature.
 - `heat_transfer_coefficient_windows_W_K::Float64`: Contribution of windows to the heat transfer coefficient from this node to the ambient air.
 - `heat_transfer_coefficient_ventilation_and_infiltration_W_K::Float64`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air.
+- `heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::Float64`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air when HRU is bypassed.
 - `heat_transfer_coefficient_thermal_bridges_W_K::Float64`: Contribution of linear thermal bridges on the heat transfer coefficient between this node and the ambient air.
 - `domestic_hot_water_demand_W::SpineDataType`: Domestic hot water demand in [W] on this node.
 - `internal_heat_gains_air_W::SpineDataType`: Convective part of internal heat gains on this node in [W].
@@ -430,6 +431,7 @@ struct BuildingNodeData <: BuildingDataType
     heat_transfer_coefficient_structures_ground_W_K::Float64
     heat_transfer_coefficient_windows_W_K::Float64
     heat_transfer_coefficient_ventilation_and_infiltration_W_K::Float64
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::Float64
     heat_transfer_coefficient_thermal_bridges_W_K::Float64
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_air_W::SpineDataType

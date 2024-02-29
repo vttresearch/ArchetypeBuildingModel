@@ -83,7 +83,7 @@ Essentially, this function performs the following steps:
 4. Calculate the total heat transfer coefficient between the structures on this `node` and the ambient air using [`calculate_structural_exterior_heat_transfer_coefficient`](@ref).
 5. Calculate the total heat transfer coefficient between the structures on this `node` and the ground using [`calculate_structural_ground_heat_transfer_coefficient`](@ref).
 6. Calculate the total heat transfer coefficient through windows for this `node` using [`calculate_window_heat_transfer_coefficient`](@ref).
-7. Calculate the total heat transfer coefficient of ventilation and infiltration on this `node` using [`calculate_ventilation_and_infiltration_heat_transfer_coefficient`](@ref).
+7. Calculate the total heat transfer coefficient of ventilation and infiltration on this `node` using [`calculate_ventilation_and_infiltration_heat_transfer_coefficients`](@ref).
 8. Calculate the total heat transfer coefficient of thermal bridges for this `node` using [`calculate_total_thermal_bridge_heat_transfer_coefficient`](@ref).
 9. Fetch domestic hot water demand from `loads` for this `node`.
 10. Calculate the convective internal heat gains on this `node` using [`calculate_convective_internal_heat_gains`](@ref).
@@ -217,9 +217,10 @@ function process_building_node(
     heat_transfer_coefficient_windows_W_K =
         mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
         calculate_window_heat_transfer_coefficient(scope, envelope, interior_weight)
-    heat_transfer_coefficient_ventilation_and_infiltration_W_K =
-        mod.energy_efficiency_override_multiplier(building_archetype=archetype) *
-        calculate_ventilation_and_infiltration_heat_transfer_coefficient(
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K,
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass =
+        mod.energy_efficiency_override_multiplier(building_archetype=archetype) .*
+        calculate_ventilation_and_infiltration_heat_transfer_coefficients(
             archetype,
             scope,
             interior_weight;
@@ -284,6 +285,7 @@ function process_building_node(
     heat_transfer_coefficient_structures_ground_W_K,
     heat_transfer_coefficient_windows_W_K,
     heat_transfer_coefficient_ventilation_and_infiltration_W_K,
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass,
     heat_transfer_coefficient_thermal_bridges_W_K,
     domestic_hot_water_demand_W,
     internal_heat_gains_air_W,
@@ -567,14 +569,14 @@ end
 
 
 """
-    calculate_ventilation_and_infiltration_heat_transfer_coefficient(
+    calculate_ventilation_and_infiltration_heat_transfer_coefficients(
         archetype::Object,
         scope::ScopeData,
         interior_weight::Real;
         mod::Module = @__MODULE__,
     )
     
-Calculate ventilation and infiltration heat transfer coefficient.
+Calculate ventilation and infiltration heat transfer coefficients with and without HRU.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -594,21 +596,24 @@ where `w_int,n` is the [interior\\_air\\_and\\_furniture\\_weight](@ref) of this
 and `r_inf` is the [infiltration\\_rate\\_1\\_h](@ref).
 The division by 3600 accounts for the unit conversion from J to Wh.
 """
-function calculate_ventilation_and_infiltration_heat_transfer_coefficient(
+function calculate_ventilation_and_infiltration_heat_transfer_coefficients(
     archetype::Object,
     scope::ScopeData,
     interior_weight::Real;
     mod::Module=@__MODULE__
 )
-    mod.room_height_m(building_archetype=archetype) *
-    scope.average_gross_floor_area_m2_per_building *
-    mod.volumetric_heat_capacity_of_interior_air_J_m3K(building_archetype=archetype) /
-    3600 *
-    (
-        scope.ventilation_rate_1_h * (1 - scope.HRU_efficiency) +
-        scope.infiltration_rate_1_h
-    ) *
-    interior_weight
+    Tuple(
+        mod.room_height_m(building_archetype=archetype) *
+        scope.average_gross_floor_area_m2_per_building *
+        mod.volumetric_heat_capacity_of_interior_air_J_m3K(building_archetype=archetype) /
+        3600 *
+        (
+            scope.ventilation_rate_1_h * (1 - hru) +
+            scope.infiltration_rate_1_h
+        ) *
+        interior_weight
+        for hru in (scope.HRU_efficiency, 0)
+    )
 end
 
 
