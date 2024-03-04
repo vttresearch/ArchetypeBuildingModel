@@ -140,6 +140,15 @@ end
 )
 
 
+## Test creating `AbstractProcess`es.
+
+@info "Processing `AbstractProcess`..."
+@time abstract_process_data = Dict(
+    (archetype, process) => AbstractProcess(process_data; mod=m)
+    for ((archetype, process), process_data) in building_process_data
+)
+
+
 ## Test creating `ArchetypeBuilding`s
 
 @info "Processing `ArchetypeBuilding` objects..."
