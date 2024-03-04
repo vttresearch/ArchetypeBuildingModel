@@ -547,7 +547,8 @@ def aggregate_demand_and_weather(
     external_shading_coefficient,
     heating_set_point_K,
     cooling_set_point_K,
-    internal_heat_gains_W,
+    internal_heat_gains_heating_W,
+    internal_heat_gains_cooling_W,
     self_discharge_coefficient_W_K,
     total_ambient_heat_transfer_coefficient_with_HRU_W_K,
     total_ambient_heat_transfer_coefficient_without_HRU_W_K,
@@ -585,8 +586,10 @@ def aggregate_demand_and_weather(
         The desired set points for the heating demand calculation as a time series.
     cooling_set_point_K : array
         The desired set points for the heating demand calculation as a time series.
-    internal_heat_gains_W : array
-        Internal heat gains in W, as a time series.
+    internal_heat_gains_heating_W : array
+        Internal heat gains in W for the heating demand calculations, as a time series.
+    internal_heat_gains_cooling_W : array
+        Internal heat gains in W for the cooling demand calculations, as a time series.
     self_discharge_coefficient_W_K : float
         Self-discharge coefficient in W/K.
     total_ambient_heat_transfer_coefficient_W_K : float
@@ -639,8 +642,11 @@ def aggregate_demand_and_weather(
     cooling_set_point_K = expand_to_xarray(
         cooling_set_point_K, ambient_temperature_K, "Heating set point", "K"
     )
-    internal_heat_gains_W = expand_to_xarray(
-        internal_heat_gains_W, ambient_temperature_K, "Internal heat gains", "W"
+    internal_heat_gains_heating_W = expand_to_xarray(
+        internal_heat_gains_heating_W, ambient_temperature_K, "Internal heat gains", "W"
+    )
+    internal_heat_gains_cooling_W = expand_to_xarray(
+        internal_heat_gains_cooling_W, ambient_temperature_K, "Internal heat gains", "W"
     )
 
     # Process initial heating demand, with HRU!
@@ -648,7 +654,7 @@ def aggregate_demand_and_weather(
         heating_set_point_K,
         ambient_temperature_K,
         total_effective_irradiation_W_effm2,
-        internal_heat_gains_W,
+        internal_heat_gains_heating_W,
         self_discharge_coefficient_W_K,
         total_ambient_heat_transfer_coefficient_with_HRU_W_K,
         solar_heat_gain_convective_fraction,
@@ -667,7 +673,7 @@ def aggregate_demand_and_weather(
         cooling_set_point_K,
         ambient_temperature_K,
         total_effective_irradiation_W_effm2,
-        internal_heat_gains_W,
+        internal_heat_gains_cooling_W,
         self_discharge_coefficient_W_K,
         total_ambient_heat_transfer_coefficient_with_HRU_W_K,
         solar_heat_gain_convective_fraction,
@@ -686,7 +692,7 @@ def aggregate_demand_and_weather(
             cooling_set_point_K,
             ambient_temperature_K,
             total_effective_irradiation_W_effm2,
-            internal_heat_gains_W,
+            internal_heat_gains_cooling_W,
             self_discharge_coefficient_W_K,
             total_ambient_heat_transfer_coefficient_without_HRU_W_K,
             solar_heat_gain_convective_fraction,
