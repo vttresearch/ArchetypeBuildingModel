@@ -681,6 +681,8 @@ end
 
 Contains data representing a single archetype building.
 
+TODO: Revise documentation!
+
 The `ArchetypeBuilding` struct stores the information about the objects
 used in its construction, the aggregated statistical and structural properties,
 as well as the [`BuildingNodeData`](@ref) and [`BuildingProcessData`](@ref).
@@ -726,7 +728,6 @@ struct ArchetypeBuilding
     fabrics::Object
     systems::Object
     loads::Object
-    weather::Object
     scope_data::ScopeData
     envelope_data::EnvelopeData
     building_nodes::BuildingNodeNetwork
@@ -749,17 +750,6 @@ struct ArchetypeBuilding
         mod::Module=@__MODULE__,
         realization::Symbol=:realization
     )
-        # Fetch and process the scope and weather data related to the archetype.
-        if length(
-            mod.building_archetype__building_weather(building_archetype=archetype),
-        ) != 1
-            @error "`$(archetype)` should have exactly one `building_weather` defined!"
-        end
-        weather_data = WeatherData(
-            only(mod.building_archetype__building_weather(building_archetype=archetype));
-            mod=mod,
-            realization=realization
-        )
         if length(mod.building_archetype__building_scope(building_archetype=archetype)) !=
            1
             @error "`$(archetype)` should have exactly one `building_scope` defined!"
@@ -768,14 +758,12 @@ struct ArchetypeBuilding
             only(mod.building_archetype__building_scope(building_archetype=archetype));
             mod=mod
         )
-
         # Create the ArchetypeBuilding using the latter constructor
-        ArchetypeBuilding(archetype, scope_data, weather_data; mod=mod)
+        ArchetypeBuilding(archetype, scope_data; mod=mod)
     end
     function ArchetypeBuilding(
         archetype::Object,
-        scope_data::ScopeData,
-        weather_data::WeatherData;
+        scope_data::ScopeData;
         mod::Module=@__MODULE__
     )
         # Fetch the definitions related to the archetype.
@@ -786,18 +774,25 @@ struct ArchetypeBuilding
             only(mod.building_archetype__building_systems(building_archetype=archetype))
         loads =
             only(mod.building_archetype__building_loads(building_archetype=archetype))
-        weather = weather_data.building_weather
 
         # Process the data related to the archetype.
         envelope_data = EnvelopeData(archetype, scope_data; mod=mod)
         loads_data =
-            LoadsData(archetype, scope_data, envelope_data, weather_data; mod=mod)
+            LoadsData(archetype, scope_data, envelope_data; mod=mod)
         building_node_network = create_building_node_network(
             archetype,
             fabrics,
             systems,
             scope_data,
             envelope_data,
+            loads_data;
+            mod=mod
+        )
+        weather_data = WeatherData(
+            archetype,
+            scope_data,
+            envelope_data,
+            building_node_network,
             loads_data;
             mod=mod
         )
@@ -813,7 +808,7 @@ struct ArchetypeBuilding
         )
 
         # Process the abstract nodes and processes.
-        abstract_nodes = create_abstract_node_network(building_node_network, weather_data)
+        abstract_nodes = create_abstract_node_network(building_node_network)
         abstract_processes = Dict{Object,AbstractProcess}(
             process => AbstractProcess(process_data; mod=mod) for
             (process, process_data) in building_processes
@@ -826,7 +821,6 @@ struct ArchetypeBuilding
             fabrics,
             systems,
             loads,
-            weather,
             scope_data,
             envelope_data,
             building_node_network,

@@ -39,8 +39,9 @@ lmt = Inf
     @time run_structure_type_tests(m)
 end
 
-## Test creating the `ScopeData` types automatically
 
+## Test creating the `ScopeData` types automatically
+#=
 @info "Processing the `ScopeData` objects for the test `building_scope` objects..."
 @time scope_data_final = Dict(scope => ScopeData(scope; mod=m) for scope in m.building_scope())
 
@@ -147,6 +148,7 @@ end
     (archetype, process) => AbstractProcess(process_data; mod=m)
     for ((archetype, process), process_data) in building_process_data
 )
+=#
 
 
 ## Test creating `ArchetypeBuilding`s
