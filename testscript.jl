@@ -109,27 +109,6 @@ end
 )
 
 
-## OBSOLETE! Test creating `WeatherData`
-#=
-@info "Processing `WeatherData` objects..."
-@time weather_data = Dict(weather => WeatherData(weather) for weather in building_weather())
-
-temperature_plot = plot(first(weather_data)[2].ambient_temperature_K.values)
-temperature_plot = plot!(first(weather_data)[2].ground_temperature_K.values)
-display(temperature_plot)
-=#
-
-
-## Test creating `AbstractNodeNetwork` and `AbstractNode`
-
-@info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
-@time abstract_node_network = Dict(
-    archetype => create_abstract_node_network(
-        building_node_network[archetype]
-    ) for archetype in m.building_archetype()
-)
-
-
 ## Test creating `BuildingProcessData`
 
 @info "Processing the `BuildingProcessData` objects for the test `building_archetype` objects..."
@@ -140,9 +119,8 @@ display(temperature_plot)
         scope_data_final[only(
             m.building_archetype__building_scope(building_archetype=archetype),
         )],
-        weather_data[only(
-            m.building_archetype__building_weather(building_archetype=archetype),
-        )],
+        weather_data[archetype];
+        mod=m,
     ) for archetype in m.building_archetype() for
     process in m.building_systems__building_process(
         building_systems=only(
@@ -152,23 +130,14 @@ display(temperature_plot)
 )
 
 
-## Test time-dependent COPs, ONLY WORKS FOR VERY SPECIFIC INPUT DATA!
-#=
-archetype = first(building_archetype())
-scopedata = first(scope_data_final)[2]
-weatherdata = first(weather_data)[2]
+## Test creating `AbstractNodeNetwork` and `AbstractNode`
 
-# Test different heat pumps.
-a2ahp = BuildingProcessData(archetype, building_process(:A2AHP), scopedata, weatherdata)
-g2whp = BuildingProcessData(archetype, building_process(:G2WHP), scopedata, weatherdata)
-
-plot(
-    weatherdata.ambient_temperature_K.indexes,
-    weatherdata.ambient_temperature_K.values .- 273.15,
+@info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
+@time abstract_node_network = Dict(
+    archetype => create_abstract_node_network(
+        building_node_network[archetype]
+    ) for archetype in m.building_archetype()
 )
-plot!(a2ahp.coefficient_of_performance.indexes, a2ahp.coefficient_of_performance.values)
-plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance.values)
-=#
 
 
 ## Test creating `ArchetypeBuilding`s
