@@ -11,7 +11,6 @@ hood.
 using Pkg
 Pkg.activate("test")
 
-#using Revise
 using Test
 using Plots
 using ArBuMo
@@ -93,6 +92,44 @@ end
 )
 
 
+## Test autocreation of `WeatherData` 
+
+@info "Testing automatic creation of `building_weather`..."
+@time auto_weather = Dict(
+    archetype => create_building_weather(
+        archetype,
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
+        )],
+        envelope_data[archetype],
+        building_node_network[archetype],
+        loads_data[archetype];
+        mod=m,
+    ) for archetype in m.building_archetype()
+)
+# Add the created `building_weather` objects into the in-memory DB.
+#=
+for (archetype, (bw, bw_params)) in auto_weather
+    add_object_parameter_values!(building_weather, bw_params)
+    add_relationships!(
+        building_archetype__building_weather,
+        [(building_archetype=archetype, building_weather=bw)],
+    )
+end
+=#
+
+
+## OBSOLETE! Test creating `WeatherData`
+#=
+@info "Processing `WeatherData` objects..."
+@time weather_data = Dict(weather => WeatherData(weather) for weather in building_weather())
+
+temperature_plot = plot(first(weather_data)[2].ambient_temperature_K.values)
+temperature_plot = plot!(first(weather_data)[2].ground_temperature_K.values)
+display(temperature_plot)
+=#
+
+
 ## Test creating `AbstractNodeNetwork` and `AbstractNode`
 
 @info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
@@ -104,26 +141,25 @@ end
 
 
 ## Test creating `BuildingProcessData`
-#=
+
 @info "Processing the `BuildingProcessData` objects for the test `building_archetype` objects..."
 @time building_process_data = Dict(
     (archetype, process) => BuildingProcessData(
         archetype,
         process,
         scope_data_final[only(
-            building_archetype__building_scope(building_archetype=archetype),
+            m.building_archetype__building_scope(building_archetype=archetype),
         )],
         weather_data[only(
-            building_archetype__building_weather(building_archetype=archetype),
+            m.building_archetype__building_weather(building_archetype=archetype),
         )],
-    ) for archetype in building_archetype() for
-    process in building_systems__building_process(
+    ) for archetype in m.building_archetype() for
+    process in m.building_systems__building_process(
         building_systems=only(
-            building_archetype__building_systems(building_archetype=archetype),
+            m.building_archetype__building_systems(building_archetype=archetype),
         ),
     )
 )
-=#
 
 
 ## Test time-dependent COPs, ONLY WORKS FOR VERY SPECIFIC INPUT DATA!
@@ -152,39 +188,6 @@ plot!(g2whp.coefficient_of_performance.indexes, g2whp.coefficient_of_performance
     archetype => ArchetypeBuilding(archetype; mod=m, realization=realization) for
     archetype in m.building_archetype()
 )
-
-
-## OBSOLETE! Test autocreation of `WeatherData` 
-#=
-@info "Testing automatic creation of `building_weather`..."
-@time auto_weather = Dict(
-    archetype => create_building_weather(
-        archetype,
-        scope_data_final[only(
-            building_archetype__building_scope(building_archetype = archetype),
-        )],
-    ) for archetype in building_archetype()
-)
-# Add the created `building_weather` objects into the in-memory DB.
-for (archetype, (bw, bw_params)) in auto_weather
-    add_object_parameter_values!(building_weather, bw_params)
-    add_relationships!(
-        building_archetype__building_weather,
-        [(building_archetype = archetype, building_weather = bw)],
-    )
-end
-=#
-
-
-## OBSOLETE! Test creating `WeatherData`
-#=
-@info "Processing `WeatherData` objects..."
-@time weather_data = Dict(weather => WeatherData(weather) for weather in building_weather())
-
-temperature_plot = plot(first(weather_data)[2].ambient_temperature_K.values)
-temperature_plot = plot!(first(weather_data)[2].ground_temperature_K.values)
-display(temperature_plot)
-=#
 
 
 ## Test heating/cooling demand calculations.

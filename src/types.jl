@@ -181,6 +181,8 @@ SpineDataType = Union{Real,TimeSeries,TimePattern,Map}
 
 Process and store the weather data for further calculations.
 
+TODO: Revise documentation!
+
 NOTE! The `mod` keyword changes from which Module data is accessed from
 by the constructor, `@__MODULE__` by default. The `realization` scenario is
 required for effective ground temperature calculations.
@@ -199,8 +201,9 @@ struct WeatherData <: BuildingDataType
     building_weather::Object
     ambient_temperature_K::SpineDataType
     ground_temperature_K::SpineDataType
-    diffuse_solar_irradiation_W_m2::SpineDataType
-    direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
+    total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
+    preliminary_heating_demand_W::SpineDataType
+    preliminary_cooling_demand_W::SpineDataType
     """
         WeatherData(weather::Object; mod::Module = @__MODULE__)
 

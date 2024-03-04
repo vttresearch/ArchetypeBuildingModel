@@ -14,6 +14,8 @@ Contains functions for processing weather data.
 
 Process `weather` data for the [`WeatherData`](@ref) constructor.
 
+TODO: Revise documentation!
+
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default. The `realization` scenario is required for processing
 of effective ground temperature.
@@ -166,14 +168,17 @@ calculate_effective_ground_temperature(
 """
     create_building_weather(
         archetype::Object,
-        scopedata::ScopeData;
+        scope_data::ScopeData;
         ignore_year::Bool = false,
         repeat::Bool = true,
         save_layouts::Bool = true,
+        resampling::Int=5,
         mod::Module = @__MODULE__,
     )
 
 Try to create `building_weather` automatically using `ArBuWe.py`.
+
+TODO: Revise documentation!
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -197,10 +202,14 @@ its parameter values.
 """
 function create_building_weather(
     archetype::Object,
-    scopedata::ScopeData;
+    scope_data::ScopeData,
+    envelope_data::EnvelopeData,
+    building_nodes::BuildingNodeNetwork,
+    loads_data::LoadsData;
     ignore_year::Bool=false,
     repeat::Bool=true,
     save_layouts::Bool=true,
+    resampling::Int=5,
     mod::Module=@__MODULE__
 )
     # Import `ArBuWe.py`, doesn't work outside the function for some reason...
@@ -209,35 +218,107 @@ function create_building_weather(
     w_start = string(mod.weather_start(building_archetype=archetype))
     w_end = string(mod.weather_end(building_archetype=archetype))
     weights =
-        Dict(string(key.name) => val for (key, val) in scopedata.location_id_gfa_weights)
-    bw_name = string(scopedata.building_scope.name) * '_' * w_start * '_' * w_end
+        Dict(string(key.name) => val for (key, val) in scope_data.location_id_gfa_weights)
+    bw_name = string(scope_data.building_scope.name) * '_' * w_start * '_' * w_end
+
+    # Identify the indoor air and dhw nodes.
+    # TODO: Remove the weights, replace with booleans?
+    air_node = only(filter(n -> n.interior_air_and_furniture_weight > 0, collect(values(building_nodes))))
+    dhw_node = only(filter(n -> n.domestic_hot_water_demand_W != 0, collect(values(building_nodes))))
+
+    # Convert heating and cooling set points to TimeSeries value arrays for python xarray processing.
+    hourly_inds = collect(DateTime(w_start):Hour(1):DateTime(w_end)+Day(31)) # Need to play it safe because of atlite time stamps.
+    heating_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
+    cooling_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
+
+    # Calculate total internal heat gains including utilisable DHW losses.
+    # DHW tank heat losses are slightly different for heating and cooling set points...
+    internal_heat_gains_heating_W = (
+        loads_data.internal_heat_gains_W +
+        (dhw_node.minimum_temperature_K - heating_set_point_K) * (
+            dhw_node.heat_transfer_coefficients_base_W_K[air_node.building_node] +
+            dhw_node.heat_transfer_coefficients_gfa_scaled_W_K[air_node.building_node]
+        )
+    )
+    internal_heat_gains_cooling_W = (
+        loads_data.internal_heat_gains_W +
+        (dhw_node.minimum_temperature_K - cooling_set_point_K) * (
+            dhw_node.heat_transfer_coefficients_base_W_K[air_node.building_node] +
+            dhw_node.heat_transfer_coefficients_gfa_scaled_W_K[air_node.building_node]
+        )
+    )
+
+    # Calculate required node properties.
+    self_discharge_coefficient_W_K =
+        air_node.self_discharge_base_W_K + air_node.self_discharge_gfa_scaled_W_K
+    total_ambient_heat_transfer_coefficient_with_HRU_W_K =
+        air_node.heat_transfer_coefficient_windows_W_K +
+        air_node.heat_transfer_coefficient_ventilation_and_infiltration_W_K +
+        air_node.heat_transfer_coefficient_thermal_bridges_W_K
+    total_ambient_heat_transfer_coefficient_without_HRU_W_K =
+        air_node.heat_transfer_coefficient_windows_W_K +
+        air_node.heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass +
+        air_node.heat_transfer_coefficient_thermal_bridges_W_K
+
+    # Calculate horizontal vs vertical window area.
+    horizontal_window_surface_area_m2 =
+        envelope_data.window.surface_area_m2 *
+        mod.window_area_distribution_towards_cardinal_directions(
+            building_archetype=archetype,
+            cardinal_direction=:horizontal
+        )
+    vertical_window_surface_area_m2 =
+        envelope_data.window.surface_area_m2 -
+        horizontal_window_surface_area_m2
 
     # Call `ArBuWe.py` to fetch and aggregate the weather.
-    ambient_temperature, diffuse_irradiation, direct_irradiation = abw.aggregate_weather(
-        scopedata.shapefile_path,
-        weights,
+    heating_demand_W,
+    cooling_demand_W,
+    ambient_temperature_K,
+    total_effective_irradiation_W_effm2 = abw.aggregate_demand_and_weather(
+        scope_data.shapefile_path,
         w_start,
         w_end,
-        scopedata.raster_weight_path,
+        weights,
+        mod.external_shading_coefficient(building_archetype=archetype),
+        values(heating_set_point_K),
+        values(cooling_set_point_K),
+        values(internal_heat_gains_heating_W),
+        values(internal_heat_gains_cooling_W),
+        self_discharge_coefficient_W_K,
+        total_ambient_heat_transfer_coefficient_with_HRU_W_K,
+        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        mod.solar_heat_gain_convective_fraction(building_archetype=archetype),
+        mod.window_non_perpendicularity_correction_factor(building_archetype=archetype),
+        scope_data.total_normal_solar_energy_transmittance,
+        vertical_window_surface_area_m2,
+        horizontal_window_surface_area_m2,
+        scope_data.raster_weight_path,
+        resampling,
         bw_name,
         save_layouts,
     )
 
     # Convert the `PyObjects` to Spine data structures.
-    ambient_temperature = _pyseries_to_timeseries(
-        ambient_temperature;
+    heating_demand_W = _pyseries_to_timeseries(
+        heating_demand_W;
         ignore_year=ignore_year,
         repeat=repeat
     )
-    diffuse_irradiation = _pyseries_to_timeseries(
-        diffuse_irradiation;
+    cooling_demand_W = _pyseries_to_timeseries(
+        cooling_demand_W;
         ignore_year=ignore_year,
         repeat=repeat
     )
-    direct_irradiation = Map(
-        Symbol.(keys(direct_irradiation)),
+    ambient_temperature_K = _pyseries_to_timeseries(
+        ambient_temperature_K;
+        ignore_year=ignore_year,
+        repeat=repeat
+    )
+    total_effective_irradiation_W_effm2 = Map(
+        Symbol.(keys(total_effective_irradiation_W_effm2)),
         _pyseries_to_timeseries.(
-            values(direct_irradiation);
+            values(total_effective_irradiation_W_effm2);
             ignore_year=ignore_year,
             repeat=repeat
         ),
@@ -247,9 +328,10 @@ function create_building_weather(
     bw = Object(Symbol(bw_name), :building_weather)
     bw_param_dict = Dict(
         bw => Dict(
-            :ambient_temperature_K => parameter_value(ambient_temperature),
-            :diffuse_solar_irradiation_W_m2 => parameter_value(diffuse_irradiation),
-            :direct_solar_irradiation_W_m2 => parameter_value(direct_irradiation),
+            :heating_demand_W => parameter_value(heating_demand_W),
+            :cooling_demand_W => parameter_value(cooling_demand_W),
+            :ambient_temperature_K => parameter_value(ambient_temperature_K),
+            :total_effective_irradiation_W_effm2 => parameter_value(total_effective_irradiation_W_effm2)
         ),
     )
     return bw, bw_param_dict
