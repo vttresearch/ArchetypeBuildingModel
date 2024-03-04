@@ -173,63 +173,6 @@ SpineDataType = Union{Real,TimeSeries,TimePattern,Map}
 
 
 """
-    WeatherData(
-        weather::Object;
-        mod::Module = @__MODULE__,
-        realization::Symbol = :realization,
-    ) <: BuildingDataType
-
-Process and store the weather data for further calculations.
-
-TODO: Revise documentation!
-
-NOTE! The `mod` keyword changes from which Module data is accessed from
-by the constructor, `@__MODULE__` by default. The `realization` scenario is
-required for effective ground temperature calculations.
-
-This struct contains the following fields:
-- `building_weather::Object`: The `building_weather` object used to construct this `WeatherData`.
-- `ambient_temperature_K::SpineDataType`: Ambient temperature data in [K].
-- `ground_temperature_K::SpineDataType`: Effective ground temperature data in [K].
-- `diffuse_solar_irradiation_W_m2::SpineDataType`: Diffuse solar irradiation data in [W/m2].
-- `direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}`: Direct solar irradiation data dictionary, containing irradiation for walls facing in different cardinal directions in [W/m2].
-
-Essentially, the constructor calls the [`process_weather`](@ref) function,
-and checks that the resulting values are sensible.
-"""
-struct WeatherData <: BuildingDataType
-    building_weather::Object
-    ambient_temperature_K::SpineDataType
-    ground_temperature_K::SpineDataType
-    total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
-    preliminary_heating_demand_W::SpineDataType
-    preliminary_cooling_demand_W::SpineDataType
-    """
-        WeatherData(weather::Object; mod::Module = @__MODULE__)
-
-    Construct a new `WeatherData` based on the given `weather` object.
-    """
-    function WeatherData(
-        weather::Object;
-        mod::Module=@__MODULE__,
-        realization::Symbol=:realization
-    )
-        WeatherData(
-            weather,
-            process_weather(weather; mod=mod, realization=realization)...,
-        )
-    end
-    function WeatherData(weather::Object, args...)
-        for (i, arg) in enumerate(args) # Direct solar irradiation data cannot be verified similar to others.
-            all(collect_leaf_values(arg) .>= 0) ||
-                @warn "`$(fieldnames(WeatherData)[i])` for `$(weather)` shouldn't have negative values!"
-        end
-        new(weather, args...)
-    end
-end
-
-
-"""
     EnvelopeData(archetype::Object, data::ScopeData; mod::Module = @__MODULE__) <: BuildingDataType
 
 Store the calculated dimensions of the different parts of the building envelope.
@@ -484,6 +427,82 @@ end
 `Dict` mapping [`BuildingNodeData`](@ref) to their corresponding `building_node` `Object`s.
 """
 BuildingNodeNetwork = Dict{Object,BuildingNodeData}
+
+
+"""
+    WeatherData(
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
+    ) <: BuildingDataType
+
+Process and store the weather data for further calculations.
+
+TODO: Revise documentation!
+
+NOTE! The `mod` keyword changes from which Module data is accessed from
+by the constructor, `@__MODULE__` by default. The `realization` scenario is
+required for effective ground temperature calculations.
+
+This struct contains the following fields:
+- `building_weather::Object`: The `building_weather` object used to construct this `WeatherData`.
+- `ambient_temperature_K::SpineDataType`: Ambient temperature data in [K].
+- `ground_temperature_K::SpineDataType`: Effective ground temperature data in [K].
+- `diffuse_solar_irradiation_W_m2::SpineDataType`: Diffuse solar irradiation data in [W/m2].
+- `direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}`: Direct solar irradiation data dictionary, containing irradiation for walls facing in different cardinal directions in [W/m2].
+
+Essentially, the constructor calls the [`process_weather`](@ref) function,
+and checks that the resulting values are sensible.
+"""
+struct WeatherData <: BuildingDataType
+    preliminary_heating_demand_W::SpineDataType
+    preliminary_cooling_demand_W::SpineDataType
+    ambient_temperature_K::SpineDataType
+    ground_temperature_K::SpineDataType
+    total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
+    """
+        WeatherData(weather::Object; mod::Module = @__MODULE__)
+
+    Construct a new `WeatherData` based on the given `weather` object.
+    """
+    function WeatherData(
+        archetype::Object,
+        scope_data::ScopeData,
+        envelope_data::EnvelopeData,
+        building_nodes::BuildingNodeNetwork,
+        loads_data::LoadsData;
+        ignore_year::Bool=false,
+        repeat::Bool=true,
+        save_layouts::Bool=true,
+        resampling::Int=5,
+        mod::Module=@__MODULE__,
+        realization::Symbol=:realization
+    )
+        WeatherData(
+            archetype,
+            process_weather(
+                archetype,
+                scope_data,
+                envelope_data,
+                building_nodes,
+                loads_data;
+                ignore_year=ignore_year,
+                repeat=repeat,
+                save_layouts=save_layouts,
+                resampling=resampling,
+                mod=mod,
+                realization=realization
+            )...,
+        )
+    end
+    function WeatherData(archetype::Object, args...)
+        for (i, arg) in enumerate(args)
+            all(collect_leaf_values(arg) .>= 0) ||
+                @warn "`$(fieldnames(WeatherData)[i])` for `$(archetype)` shouldn't have negative values!"
+        end
+        new(args...)
+    end
+end
 
 
 """

@@ -9,7 +9,7 @@ using Interpolations
 using JSON
 
 # Define the set of possible solar directions, currently hard-coded.
-const solar_directions = [:horizontal, :north, :east, :south, :west]
+const solar_directions = [:horizontal, :vertical]
 
 include("types.jl")
 include("base.jl")

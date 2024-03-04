@@ -27,55 +27,44 @@ Essentially, performs the following steps:
 4. Return the components for the [`WeatherData`](@ref) constructor.
 """
 function process_weather(
-    weather::Object;
+    archetype::Object,
+    scope_data::ScopeData,
+    envelope_data::EnvelopeData,
+    building_nodes::BuildingNodeNetwork,
+    loads_data::LoadsData;
+    ignore_year::Bool=false,
+    repeat::Bool=true,
+    save_layouts::Bool=true,
+    resampling::Int=5,
     mod::Module=@__MODULE__,
-    realization::Symbol=realization
+    realization::Symbol=:realization
 )
-    # Fetch ambient temperature data and check that it's ok.
-    ambient_temp_K = mod.ambient_temperature_K(building_weather=weather)
-    all(collect_leaf_values(ambient_temp_K) .>= 0) || @warn """
-    `ambient_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(collect_leaf_values(ambient_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(collect_leaf_values(ambient_temp_K))).
-    """
+    # Process the weather and preliminary demand data
+    heating_demand_W,
+    cooling_demand_W,
+    ambient_temperature_K,
+    total_effective_irradiation_W_effm2 = create_building_weather(
+        archetype,
+        scope_data,
+        envelope_data,
+        building_nodes,
+        loads_data;
+        ignore_year=ignore_year,
+        repeat=repeat,
+        save_layouts=save_layouts,
+        resampling=resampling,
+        mod=mod
+    )
 
     # Calculate the effective ground temperature and check it's ok.
-    ground_temp_K = calculate_effective_ground_temperature(ambient_temp_K)
-    all(collect_leaf_values(ground_temp_K) .>= 0) || @warn """
-    `ground_temperature_K` for `$(weather)` shouldn't have negative values!
-    $(count(collect_leaf_values(ground_temp_K) .< 0)) violations found,
-    with a minimum of $(minimum(collect_leaf_values(ground_temp_K))).
-    """
-
-    # Fetch diffuse solar irradiation data and check it's ok.
-    diff_solar_irradiation_W_m2 =
-        mod.diffuse_solar_irradiation_W_m2(building_weather=weather)
-    all(collect_leaf_values(diff_solar_irradiation_W_m2) .>= 0) || @warn """
-    `diffuse_solar_irradiation_W_m2` for `$(weather)` shouldn't have negative values!
-    $(count(collect_leaf_values(diff_solar_irradiation_W_m2) .< 0)) violations found,
-    with a minimum of $(minimum(collect_leaf_values(diff_solar_irradiation_W_m2))).
-    """
-
-    # Fetch direct solar irradiation data and check it's ok.
-    dir_solar_irradiation_W_m2 = Dict(
-        dir => mod.direct_solar_irradiation_W_m2(
-            building_weather=weather;
-            cardinal_direction=dir
-        ) for dir in solar_directions
-    )
-    for dir in solar_directions
-        all(collect_leaf_values(dir_solar_irradiation_W_m2[dir]) .>= 0) || @warn """
-        `direct_solar_irradiation_W_m2[$(dir)]` for `$(weather)` shouldn't have negative values!
-        $(count(values(dir_solar_irradiation_W_m2[dir]) .< 0)) violations found,
-        with a minimum of $(minimum(values(dir_solar_irradiation_W_m2[dir]))).
-        """
-    end
+    ground_temperature_K = calculate_effective_ground_temperature(ambient_temperature_K)
 
     # Return the components for WeatherData
-    return ambient_temp_K,
-    ground_temp_K,
-    diff_solar_irradiation_W_m2,
-    dir_solar_irradiation_W_m2
+    return heating_demand_W,
+    cooling_demand_W,
+    ambient_temperature_K,
+    ground_temperature_K,
+    total_effective_irradiation_W_effm2
 end
 
 
@@ -315,26 +304,18 @@ function create_building_weather(
         ignore_year=ignore_year,
         repeat=repeat
     )
-    total_effective_irradiation_W_effm2 = Map(
-        Symbol.(keys(total_effective_irradiation_W_effm2)),
-        _pyseries_to_timeseries.(
-            values(total_effective_irradiation_W_effm2);
+    total_effective_irradiation_W_effm2 = Dict(
+        Symbol(key) => _pyseries_to_timeseries(
+            val;
             ignore_year=ignore_year,
             repeat=repeat
-        ),
+        ) for (key, val) in total_effective_irradiation_W_effm2
     )
 
-    # Create a new `building_weather` object and its parameter value dictionary
-    bw = Object(Symbol(bw_name), :building_weather)
-    bw_param_dict = Dict(
-        bw => Dict(
-            :heating_demand_W => parameter_value(heating_demand_W),
-            :cooling_demand_W => parameter_value(cooling_demand_W),
-            :ambient_temperature_K => parameter_value(ambient_temperature_K),
-            :total_effective_irradiation_W_effm2 => parameter_value(total_effective_irradiation_W_effm2)
-        ),
-    )
-    return bw, bw_param_dict
+    return heating_demand_W,
+    cooling_demand_W,
+    ambient_temperature_K,
+    total_effective_irradiation_W_effm2
 end
 
 

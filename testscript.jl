@@ -95,8 +95,8 @@ end
 ## Test autocreation of `WeatherData` 
 
 @info "Testing automatic creation of `building_weather`..."
-@time auto_weather = Dict(
-    archetype => create_building_weather(
+@time weather_data = Dict(
+    archetype => WeatherData(
         archetype,
         scope_data_final[only(
             m.building_archetype__building_scope(building_archetype=archetype),
@@ -107,16 +107,6 @@ end
         mod=m,
     ) for archetype in m.building_archetype()
 )
-# Add the created `building_weather` objects into the in-memory DB.
-#=
-for (archetype, (bw, bw_params)) in auto_weather
-    add_object_parameter_values!(building_weather, bw_params)
-    add_relationships!(
-        building_archetype__building_weather,
-        [(building_archetype=archetype, building_weather=bw)],
-    )
-end
-=#
 
 
 ## OBSOLETE! Test creating `WeatherData`
