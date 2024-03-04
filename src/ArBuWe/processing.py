@@ -394,17 +394,19 @@ def expand_to_xarray(array, xarray_to_match, description, units):
     time = xarray_to_match.time
 
     # Check that the time dimension lengths match.
-    if len(array) != len(time):
+    if len(array) < len(time):
         raise ValueError(
             f"""
-            The temporal lengths of `array` and `xarray_to_match` don't match!
+            The temporal length of `array` is insufficient for `xarray_to_match`!
             Array length: {len(array)}
             Xarray time length: {len(time)}
             """
         )
 
     # Expand data to the desired size and create the xarray
-    data = np.repeat(array, len(lon) * len(lat)).reshape(xarray_to_match.shape)
+    data = np.repeat(array[0 : len(time)], len(lon) * len(lat)).reshape(
+        xarray_to_match.shape
+    )
     xar = xarray.DataArray(
         data=data,
         dims=xarray_to_match.dims,
@@ -714,14 +716,20 @@ def aggregate_demand_and_weather(
     cooling_demand_W = xarray.where(cooling_demand_W > 0.0, 0.0, -cooling_demand_W)
 
     # Aggregate and return the desired quantities.
-    heating_demand_W = aggregate_xarray(heating_demand_W, layout)
-    cooling_demand_W = aggregate_xarray(cooling_demand_W, layout)
-    ambient_temperature_K = aggregate_xarray(ambient_temperature_K, layout)
-    total_effective_irradiation_W_effm2["horizontal"] = aggregate_xarray(
-        total_effective_irradiation_W_effm2["horizontal"], layout
+    heating_demand_W = aggregate_xarray(heating_demand_W, layout).squeeze().to_series()
+    cooling_demand_W = aggregate_xarray(cooling_demand_W, layout).squeeze().to_series()
+    ambient_temperature_K = (
+        aggregate_xarray(ambient_temperature_K, layout).squeeze().to_series()
     )
-    total_effective_irradiation_W_effm2["vertical"] = aggregate_xarray(
-        total_effective_irradiation_W_effm2["vertical"], layout
+    total_effective_irradiation_W_effm2["horizontal"] = (
+        aggregate_xarray(total_effective_irradiation_W_effm2["horizontal"], layout)
+        .squeeze()
+        .to_series()
+    )
+    total_effective_irradiation_W_effm2["vertical"] = (
+        aggregate_xarray(total_effective_irradiation_W_effm2["vertical"], layout)
+        .squeeze()
+        .to_series()
     )
     return (
         heating_demand_W,
