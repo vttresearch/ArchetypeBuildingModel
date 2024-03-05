@@ -229,6 +229,7 @@ struct EnvelopeData <: BuildingDataType
         (:linear_thermal_bridge_length_m, :surface_area_m2),
         Tuple{Float64,Float64},
     }
+    total_structure_area_m2::Float64
     """
         EnvelopeData(archetype::Object, data::ScopeData; mod::Module = @__MODULE__)
 
@@ -382,7 +383,6 @@ struct BuildingNodeData <: BuildingDataType
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_air_W::SpineDataType
     internal_heat_gains_structures_W::SpineDataType
-    radiative_envelope_sky_losses_W::SpineDataType
     interior_air_and_furniture_weight::Float64
     """
         BuildingNodeData(
@@ -606,6 +606,7 @@ struct AbstractNode <: BuildingDataType
     heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
     minimum_temperature_K::SpineDataType
     maximum_temperature_K::SpineDataType
+    external_load_W::SpineDataType
     """
         AbstractNode(
             building_node_network::BuildingNodeNetwork,
@@ -615,10 +616,26 @@ struct AbstractNode <: BuildingDataType
     Create a new `AbstractNode` corresponding to `node` based on the given data structs.
     """
     function AbstractNode(
+        archetype::Object,
+        scope::ScopeData,
+        envelope::EnvelopeData,
         building_node_network::BuildingNodeNetwork,
-        node::Object
+        weather::WeatherData,
+        node::Object;
+        mod::Module=@__MODULE__
     )
-        new(node, process_abstract_node(building_node_network, node)...)
+        new(
+            node,
+            process_abstract_node(
+                archetype,
+                scope,
+                envelope,
+                building_node_network,
+                weather,
+                node;
+                mod=mod
+            )...
+        )
     end
 end
 
@@ -808,7 +825,14 @@ struct ArchetypeBuilding
         )
 
         # Process the abstract nodes and processes.
-        abstract_nodes = create_abstract_node_network(building_node_network)
+        abstract_nodes = create_abstract_node_network(
+            archetype,
+            scope_data,
+            envelope_data,
+            building_node_network,
+            weather_data;
+            mod=mod
+        )
         abstract_processes = Dict{Object,AbstractProcess}(
             process => AbstractProcess(process_data; mod=mod) for
             (process, process_data) in building_processes
@@ -847,6 +871,8 @@ abstract type ModelInput end
     ) <: BuildingDataType
 
 Store the temperature and HVAC demand results for the `archetype` building.
+
+TODO: Revise documentation!
 
 The `free_dynamics` keyword can be used to force the calculations to ignore
 heating/cooling set points, while the `initial_temperatures` keyword

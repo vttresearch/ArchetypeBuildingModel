@@ -136,7 +136,14 @@ end
 @info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
 @time abstract_node_network = Dict(
     archetype => create_abstract_node_network(
-        building_node_network[archetype]
+        archetype,
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
+        )],
+        envelope_data[archetype],
+        building_node_network[archetype],
+        weather_data[archetype],
+        mod=m
     ) for archetype in m.building_archetype()
 )
 

@@ -82,6 +82,14 @@ function process_building_envelope(
         ),
         mod.partition_wall_load_bearing_fraction(building_archetype=archetype),
     )
+    total_structure_area_m2 = base_floor.surface_area_m2 +
+                              roof.surface_area_m2 +
+                              separating_floor.surface_area_m2 +
+                              window.surface_area_m2 +
+                              exterior_wall.surface_area_m2 +
+                              light_exterior_wall.surface_area_m2 +
+                              partition_wall.surface_area_m2 +
+                              light_partition_wall.surface_area_m2
 
     # Return the envelope dimensions
     return base_floor,
@@ -91,7 +99,8 @@ function process_building_envelope(
     partition_wall,
     roof,
     separating_floor,
-    window
+    window,
+    total_structure_area_m2
 end
 
 
