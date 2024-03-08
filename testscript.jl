@@ -179,7 +179,7 @@ end
 
 
 ## Test creating the results database structures.
-
+#=
 @info "Initializing result classes..."
 @time results__building_archetype__building_node,
 results__building_archetype__building_process,
@@ -213,7 +213,7 @@ results__system_link_node = initialize_result_classes!(m)
 @info "Creating `GenericInput`..."
 @time generic = GenericInput(archetype_results; mod=m)
 #@time write_to_url(output_url, generic)
-
+=#
 
 ## Plot diagnostics.
 
@@ -234,15 +234,37 @@ plot!(
 )
 display(weather_plt)
 
+irradiation_plot = plot(; title="Effective irradiation in [W/m2]")
+for dir in ArBuMo.solar_directions
+    plot!(
+        irradiation_plot,
+        keys(results.archetype.weather_data.total_effective_solar_irradiation_W_m2[dir]),
+        values(results.archetype.weather_data.total_effective_solar_irradiation_W_m2[dir]),
+        label=string(dir)
+    )
+end
+display(irradiation_plot)
+
 temp_plt = plot(; title="Node temperatures in [C]")
-for (n, ts) in results.temperatures
-    plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=string(n))
+for (name, temps) in [
+    "heating" => results.heating_temperatures_K,
+    "cooling" => results.cooling_temperatures_K,
+    "estimated" => results.estimated_temperatures_K
+]
+    for (n, ts) in temps
+        plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=name * ": " * string(n))
+    end
 end
 display(temp_plt)
 
 hvac_plt = plot(; title="Heating/cooling demand in [W]")
-for (n, ts) in results.hvac_demand
-    plot!(hvac_plt, keys(ts), values(ts), label=string(n))
+for (name, demand) in [
+    "heating" => results.heating_demand_kW,
+    "cooling" => results.cooling_demand_kW
+]
+    for (n, ts) in demand
+        plot!(hvac_plt, keys(ts), values(ts), label=name * ": " * string(n))
+    end
 end
 display(hvac_plt)
 
