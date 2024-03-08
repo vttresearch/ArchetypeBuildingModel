@@ -315,6 +315,20 @@ function create_building_weather(
         ) for (key, val) in total_effective_irradiation_W_effm2
     )
 
+    # Match set point time series lengths with weather.
+    heating_set_point_K = TimeSeries(
+        ambient_temperature_K.indexes,
+        heating_set_point_K.values[1:length(ambient_temperature_K.indexes)],
+        heating_set_point_K.ignore_year,
+        heating_set_point_K.repeat
+    )
+    cooling_set_point_K = TimeSeries(
+        ambient_temperature_K.indexes,
+        cooling_set_point_K.values[1:length(ambient_temperature_K.indexes)],
+        cooling_set_point_K.ignore_year,
+        cooling_set_point_K.repeat
+    )
+
     return heating_demand_W,
     cooling_demand_W,
     ambient_temperature_K,
