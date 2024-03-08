@@ -283,8 +283,8 @@ function calculate_window_solar_gains(
         mod.window_area_distribution_towards_cardinal_directions(
             building_archetype=archetype;
             cardinal_direction=dir
-        ) * weather.total_effective_solar_irradiation_W_m2[dir]
-        for dir in solar_directions
+        ) * weather.total_effective_solar_irradiation_W_m2[sol_dir_map[dir]]
+        for dir in old_solar_directions
     )
 end
 

@@ -15,6 +15,8 @@ not just the HVAC demand handled in `solve_demand.jl`.
 Solve the consumption of `abstract_process` included in the `archetype`,
 based on the `hvac_demand`.
 
+TODO: Revise documentation!
+
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
@@ -28,12 +30,19 @@ Heating and cooling are handled separately, though.
 """
 function solve_consumption(
     archetype::ArchetypeBuilding,
-    hvac_demand::Dict{Object,T} where {T<:SpineDataType};
+    heating_demand_kW::Dict{Object,T} where {T<:SpineDataType},
+    cooling_demand_kW::Dict{Object,T} where {T<:SpineDataType};
     mod::Module=@__MODULE__
 )
+    # Map COP modes to their respective demands.
+    demand_map_kW = Dict(
+        :heating => heating_demand_kW,
+        :cooling => cooling_demand_kW
+    )
+
     # Initialize a Dict for storing the results, and convert `hvac_demand`
     # into a parameter value for easier access.
-    hvac_consumption = Dict()
+    hvac_consumption_kW = Dict()
     for (process, abstract_process) in archetype.abstract_processes
         # Figure out which node the process handles using `maximum_flows`
         output_nodes =
@@ -46,16 +55,13 @@ function solve_consumption(
             )
 
         # Calculate the consumption of the process.
-        cons = reduce(
-            +,
-            hvac_demand[node] / abstract_process.coefficient_of_performance for
-            node in output_nodes;
+        cons_kW = sum(
+            demand_map_kW[abstract_process.coefficient_of_performance_mode][node] /
+            abstract_process.coefficient_of_performance
+            for node in output_nodes;
             init=0.0
         )
-
-        # Remove negative consumption, as that indicates heating/cooling equipment
-        # being used for cooling/heating inappropriately.
-        hvac_consumption[process] = timedata_operation(v -> max(v, 0.0), cons)
+        hvac_consumption_kW[process] = cons_kW
     end
-    return hvac_consumption
+    return hvac_consumption_kW
 end

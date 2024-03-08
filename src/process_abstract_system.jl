@@ -10,6 +10,8 @@ in preparation of conversion to large-scale energy system model input.
 
 Process a [`BuildingProcessData`](@ref) into an [`AbstractProcess`](@ref).
 
+TODO: Revise documentation!
+
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
@@ -23,61 +25,19 @@ Performs the following steps:
 4. Return the components for [`AbstractProcess`](@ref).
 """
 function process_abstract_system(process::BuildingProcessData; mod::Module=@__MODULE__)
-    # COP sign used to indicate heating (positive) or cooling (negative).
-    if process.coefficient_of_performance_mode == :heating
-        coefficient_of_performance = process.coefficient_of_performance
-    elseif process.coefficient_of_performance_mode == :cooling
-        coefficient_of_performance = -process.coefficient_of_performance
-    else
-        @error """
-        Unrecognized `coefficient_of_performance_mode` for `building_process` `$(process)`!
-        Only `heating` and `cooling` supported!
-        """
-    end
-
-    # Check if sys_link_node is in input/output nodes for the process and scale COP accordingly.
-    if any( # Takes input from the system link node.
-        in.(
-            mod.building_process__direction__building_node(
-                building_process=process.building_process,
-                direction=mod.direction(:from_node),
-            ),
-            Ref(process.system_link_nodes),
-        ),
-    )
-        coefficient_of_performance *= 1e6 / process.number_of_processes
-    elseif any( # Produces output to the system link node.
-        in.(
-            mod.building_process__direction__building_node(
-                building_process=process.building_process,
-                direction=mod.direction(:to_node),
-            ),
-            Ref(process.system_link_nodes),
-        ),
-    )
-        coefficient_of_performance *= process.number_of_processes / 1e6
-    end
-
     # Maximum flows scaled using number of processes, sign used to indicate heating (positive) or cooling (negative).
     maximum_flows = Dict(
-        (dir, node) =>
-            ( # Cooling processes indicated using negative flows.
-                dir == mod.direction(:to_node) &&
-                process.coefficient_of_performance_mode == :cooling ? -1 : 1
-            ) *
-            ( # Scaling W -> MW
-                !in(node, process.system_link_nodes) ? 1.0 :
-                process.number_of_processes / 1e6
-            ) *
-            (
-                process.maximum_power_base_W[(dir, node)] +
-                process.maximum_power_gfa_scaled_W[(dir, node)]
-            ) for (dir, node) in mod.building_process__direction__building_node(
+        (dir, node) => (
+            process.maximum_power_base_W[(dir, node)] +
+            process.maximum_power_gfa_scaled_W[(dir, node)]
+        ) for (dir, node) in mod.building_process__direction__building_node(
             building_process=process.building_process,
         )
     )
     filter!(pair -> pair[2] != 0, maximum_flows)
 
     # Return the components for `AbstractProcess`.
-    return process.number_of_processes, coefficient_of_performance, maximum_flows
+    return process.coefficient_of_performance_mode,
+    process.coefficient_of_performance,
+    maximum_flows
 end

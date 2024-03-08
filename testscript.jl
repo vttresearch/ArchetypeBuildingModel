@@ -157,13 +157,12 @@ end
 )
 =#
 
-
 ## Test creating `ArchetypeBuilding`s
 
 @info "Processing `ArchetypeBuilding` objects..."
 @time archetype_dictionary = Dict(
     archetype => ArchetypeBuilding(archetype; mod=m, realization=realization) for
-    archetype in m.building_archetype()
+    archetype in m.building_archetype(:DH1_LBM)
 )
 
 
@@ -173,7 +172,6 @@ end
 @time archetype_results = Dict(
     archetype => ArchetypeBuildingResults(
         val;
-        free_dynamics=false,
         mod=m,
         realization=realization
     ) for (archetype, val) in archetype_dictionary

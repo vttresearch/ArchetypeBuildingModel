@@ -177,6 +177,8 @@ SpineDataType = Union{Real,TimeSeries,TimePattern,Map}
 
 Store the calculated dimensions of the different parts of the building envelope.
 
+TODO: Revise documentation!
+
 `EnvelopeData` is generated based on the `building_archetype` parameters
 and the aggregated [`ScopeData`](@ref).
 
@@ -197,6 +199,9 @@ The constructor calls the [`process_building_envelope`](@ref) function
 and checks that the results are sensible.
 """
 struct EnvelopeData <: BuildingDataType
+    archetype::Object
+    air_node::Object
+    dhw_node::Object
     base_floor::NamedTuple{
         (:linear_thermal_bridge_length_m, :surface_area_m2),
         Tuple{Float64,Float64},
@@ -238,12 +243,12 @@ struct EnvelopeData <: BuildingDataType
     function EnvelopeData(archetype::Object, data::ScopeData; mod::Module=@__MODULE__)
         EnvelopeData(archetype, process_building_envelope(archetype, data; mod=mod)...)
     end
-    function EnvelopeData(archetype::Object, args...)
+    function EnvelopeData(archetype::Object, air_node::Object, dhw_node::Object, args...)
         for (i, arg) in enumerate(args)
             all(values(arg) .>= 0) ||
                 @warn "`$(fieldnames(EnvelopeData)[i])` for `$(archetype)` shouldn't be negative!"
         end
-        new(args...)
+        new(archetype, air_node, dhw_node, args...)
     end
 end
 
@@ -276,6 +281,7 @@ The constructor calls the [`process_building_loads`](@ref) function and checks
 that the results are sensible.
 """
 struct LoadsData <: BuildingDataType
+    archetype::Object
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_W::SpineDataType
     envelope_radiative_sky_losses_W::Dict{Object,SpineDataType}
@@ -306,7 +312,7 @@ struct LoadsData <: BuildingDataType
             $(count(values(arg) .< 0)) violations found, with a minimum value of $(minimum(values(arg))).
             """
         end
-        new(args...)
+        new(archetype, args...)
     end
 end
 
@@ -362,6 +368,7 @@ The constructor calls the [`process_building_node`](@ref) function,
 and checks the values are sensible.
 """
 struct BuildingNodeData <: BuildingDataType
+    archetype::Object
     building_node::Object
     thermal_mass_base_J_K::SpineDataType
     thermal_mass_gfa_scaled_J_K::SpineDataType
@@ -405,18 +412,19 @@ struct BuildingNodeData <: BuildingDataType
         mod::Module=@__MODULE__
     )
         BuildingNodeData(
+            archetype,
             node,
             process_building_node(archetype, node, scope, envelope, loads; mod=mod)...,
         )
     end
-    function BuildingNodeData(building_node::Object, args...)
+    function BuildingNodeData(archetype::Object, building_node::Object, args...)
         for (i, arg) in enumerate(args)
             all(collect_leaf_values(arg) .>= 0) || @warn """
             `$(fieldnames(BuildingNodeData)[i+1])` for `$(building_node)` shouldn't have negative values!
             $(count(values(arg) .< 0)) violations found, with a minimum value of $(minimum(values(arg))).
             """
         end
-        new(building_node, args...)
+        new(archetype, building_node, args...)
     end
 end
 
@@ -455,11 +463,14 @@ Essentially, the constructor calls the [`process_weather`](@ref) function,
 and checks that the resulting values are sensible.
 """
 struct WeatherData <: BuildingDataType
+    archetype::Object
     preliminary_heating_demand_W::SpineDataType
     preliminary_cooling_demand_W::SpineDataType
     ambient_temperature_K::SpineDataType
     ground_temperature_K::SpineDataType
     total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
+    heating_set_point_K::SpineDataType
+    cooling_set_point_K::SpineDataType
     """
         WeatherData(weather::Object; mod::Module = @__MODULE__)
 
@@ -500,7 +511,7 @@ struct WeatherData <: BuildingDataType
             all(collect_leaf_values(arg) .>= 0) ||
                 @warn "`$(fieldnames(WeatherData)[i])` for `$(archetype)` shouldn't have negative values!"
         end
-        new(args...)
+        new(archetype, args...)
     end
 end
 
@@ -537,6 +548,7 @@ This struct contains the following fields:
 The constructor calls the [`process_building_system`](@ref) function.
 """
 struct BuildingProcessData <: BuildingDataType
+    archetype::Object
     building_process::Object
     system_link_nodes::Vector{Object}
     coefficient_of_performance::SpineDataType
@@ -563,6 +575,7 @@ struct BuildingProcessData <: BuildingDataType
         mod::Module=@__MODULE__
     )
         new(
+            archetype,
             process,
             process_building_system(archetype, process, scope, weather; mod=mod)...,
         )
@@ -600,6 +613,7 @@ This struct contains the following fields:
 The constructor calls the [`process_abstract_node`](@ref) function.
 """
 struct AbstractNode <: BuildingDataType
+    archetype::Object
     building_node::Object
     thermal_mass_Wh_K::SpineDataType
     self_discharge_coefficient_W_K::SpineDataType
@@ -625,6 +639,7 @@ struct AbstractNode <: BuildingDataType
         mod::Module=@__MODULE__
     )
         new(
+            archetype,
             node,
             process_abstract_node(
                 archetype,
@@ -653,6 +668,8 @@ AbstractNodeNetwork = Dict{Object,AbstractNode}
 
 Contain parameters defining a `process` in a model-agnostic manner.
 
+TODO: Revise documentation.
+
 Essentially, a `process` is a commodity transfer/conversion from one `node` to another.
 For the purposes of the `ArBuMo.jl`,
 `processes` only have two attributes of interest:
@@ -671,8 +688,9 @@ This struct contains the following fields:
 The constructor calls the [`process_abstract_system`](@ref) function.
 """
 struct AbstractProcess <: BuildingDataType
+    archetype::Object
     building_process::Object
-    number_of_processes::Float64
+    coefficient_of_performance_mode::Symbol
     coefficient_of_performance::SpineDataType
     maximum_flows::Dict{Tuple{Object,Object},SpineDataType}
     """
@@ -682,6 +700,7 @@ struct AbstractProcess <: BuildingDataType
     """
     function AbstractProcess(process_data::BuildingProcessData; mod::Module=@__MODULE__)
         new(
+            process_data.archetype,
             process_data.building_process,
             process_abstract_system(process_data; mod=mod)...,
         )
@@ -898,16 +917,15 @@ The constructor performs the following steps:
 """
 struct ArchetypeBuildingResults <: BuildingDataType
     archetype::ArchetypeBuilding
-    free_dynamics::Bool
-    initial_temperatures::Dict{Object,Float64}
-    temperatures::Dict{Object,SpineDataType}
-    hvac_demand::Dict{Object,SpineDataType}
-    hvac_consumption::Dict{Object,SpineDataType}
+    heating_temperatures_K::Dict{Object,SpineDataType}
+    cooling_temperatures_K::Dict{Object,SpineDataType}
+    estimated_temperatures_K::Dict{Object,SpineDataType}
+    heating_demand_kW::Dict{Object,SpineDataType}
+    cooling_demand_kW::Dict{Object,SpineDataType}
+    hvac_consumption_kW::Dict{Object,SpineDataType}
     """
         ArchetypeBuildingResults(
             archetype::ArchetypeBuilding;
-            free_dynamics::Bool = false,
-            initial_temperatures::Union{Nothing,Dict{Object,Float64}} = nothing,
             mod::Module = @__MODULE__,
             realization::Symbol = :realization,
         )
@@ -916,25 +934,31 @@ struct ArchetypeBuildingResults <: BuildingDataType
     """
     function ArchetypeBuildingResults(
         archetype::ArchetypeBuilding;
-        free_dynamics::Bool=false,
-        initial_temperatures::Union{Nothing,Dict{Object,Float64}}=nothing,
         mod::Module=@__MODULE__,
         realization::Symbol=:realization
     )
-        initial_temperatures, temperatures, hvac_demand = solve_heating_demand(
-            archetype,
-            free_dynamics,
-            initial_temperatures;
+        heating_temperatures_K,
+        cooling_temperatures_K,
+        estimated_temperatures_K,
+        heating_demand_kW,
+        cooling_demand_kW = solve_heating_demand(
+            archetype;
             realization=realization
         )
-        hvac_consumption = solve_consumption(archetype, hvac_demand; mod=mod)
+        hvac_consumption_kW = solve_consumption(
+            archetype,
+            heating_demand_kW,
+            cooling_demand_kW;
+            mod=mod
+        )
         new(
             archetype,
-            free_dynamics,
-            initial_temperatures,
-            temperatures,
-            hvac_demand,
-            hvac_consumption,
+            heating_temperatures_K,
+            cooling_temperatures_K,
+            estimated_temperatures_K,
+            heating_demand_kW,
+            cooling_demand_kW,
+            hvac_consumption_kW,
         )
     end
 end

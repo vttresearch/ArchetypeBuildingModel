@@ -43,7 +43,9 @@ function process_weather(
     heating_demand_W,
     cooling_demand_W,
     ambient_temperature_K,
-    total_effective_irradiation_W_effm2 = create_building_weather(
+    total_effective_irradiation_W_effm2,
+    heating_set_point_K,
+    cooling_set_point_K = create_building_weather(
         archetype,
         scope_data,
         envelope_data,
@@ -64,7 +66,9 @@ function process_weather(
     cooling_demand_W,
     ambient_temperature_K,
     ground_temperature_K,
-    total_effective_irradiation_W_effm2
+    total_effective_irradiation_W_effm2,
+    heating_set_point_K,
+    cooling_set_point_K
 end
 
 
@@ -201,6 +205,10 @@ function create_building_weather(
     resampling::Int=5,
     mod::Module=@__MODULE__
 )
+    # Fetch air and dhw node data.
+    air_node = building_nodes[envelope_data.air_node]
+    dhw_node = building_nodes[envelope_data.dhw_node]
+
     # Import `ArBuWe.py`, doesn't work outside the function for some reason...
     abw = pyimport("ArBuWe")
     # Fetch the information necessary for `ArBuWe.py`.
@@ -209,11 +217,6 @@ function create_building_weather(
     weights =
         Dict(string(key.name) => val for (key, val) in scope_data.location_id_gfa_weights)
     bw_name = string(scope_data.building_scope.name) * '_' * w_start * '_' * w_end
-
-    # Identify the indoor air and dhw nodes.
-    # TODO: Remove the weights, replace with booleans?
-    air_node = only(filter(n -> n.interior_air_and_furniture_weight > 0, collect(values(building_nodes))))
-    dhw_node = only(filter(n -> n.domestic_hot_water_demand_W != 0, collect(values(building_nodes))))
 
     # Convert heating and cooling set points to TimeSeries value arrays for python xarray processing.
     hourly_inds = collect(DateTime(w_start):Hour(1):DateTime(w_end)+Day(31)) # Need to play it safe because of atlite time stamps.
@@ -315,7 +318,9 @@ function create_building_weather(
     return heating_demand_W,
     cooling_demand_W,
     ambient_temperature_K,
-    total_effective_irradiation_W_effm2
+    total_effective_irradiation_W_effm2,
+    heating_set_point_K,
+    cooling_set_point_K
 end
 
 

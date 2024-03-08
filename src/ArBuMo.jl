@@ -10,6 +10,14 @@ using JSON
 
 # Define the set of possible solar directions, currently hard-coded.
 const solar_directions = [:horizontal, :vertical]
+const old_solar_directions = [:horizontal, :north, :east, :west, :south]
+const sol_dir_map = Dict(
+    :horizontal => :horizontal,
+    :north => :vertical,
+    :east => :vertical,
+    :south => :vertical,
+    :west => :vertical
+)
 
 include("types.jl")
 include("base.jl")

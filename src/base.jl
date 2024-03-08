@@ -16,7 +16,6 @@ function Base.show(io::IO, archetype::ArchetypeBuilding)
             fabrics:    $(archetype.fabrics)
             systems:    $(archetype.systems)
             loads:      $(archetype.loads)
-            weather:    $(archetype.weather)
         """,
     )
 end

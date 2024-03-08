@@ -269,8 +269,9 @@ function aggregate_gfa_weights(gross_floor_area_weights::Dict{NTuple{5,Object},F
         )
     end
 
-    # Return the weights
-    return aggregated_gfa_weights, location_id_gfa_weights
+    # Filter and return the weights
+    return filter!(pair -> pair[2] != 0, aggregated_gfa_weights),
+    filter!(pair -> pair[2] != 0, location_id_gfa_weights)
 end
 
 
