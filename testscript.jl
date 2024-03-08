@@ -257,7 +257,7 @@ for (name, temps) in [
 end
 display(temp_plt)
 
-hvac_plt = plot(; title="Heating/cooling demand in [W]")
+hvac_plt = plot(; title="Heating/cooling demand in [kW]")
 for (name, demand) in [
     "heating" => results.heating_demand_kW,
     "cooling" => results.cooling_demand_kW
@@ -268,8 +268,8 @@ for (name, demand) in [
 end
 display(hvac_plt)
 
-process_plt = plot(; title="HVAC consumption in [MW]")
-for (p, ts) in results.hvac_consumption
+process_plt = plot(; title="HVAC consumption in [kW]")
+for (p, ts) in results.hvac_consumption_kW
     plot!(process_plt, keys(ts), values(ts), label=string(p))
 end
 display(process_plt)

@@ -483,7 +483,7 @@ struct WeatherData <: BuildingDataType
         building_nodes::BuildingNodeNetwork,
         loads_data::LoadsData;
         ignore_year::Bool=false,
-        repeat::Bool=true,
+        repeat::Bool=false,
         save_layouts::Bool=true,
         resampling::Int=5,
         mod::Module=@__MODULE__,

@@ -137,7 +137,7 @@ function solve_heating_demand(
     replace!(x -> isnan(x) ? 0.5 : x, hc_ratio.values)
     estimated_temperatures_K = Dict(
         node => (
-            hc_ratio * heating_temp -
+            hc_ratio * heating_temp +
             (1 - hc_ratio) * cooling_temperatures_K[node]
         )
         for (node, heating_temp) in heating_temperatures_K
@@ -251,22 +251,24 @@ function solve_structural_node_temperature_dynamics(
     indices::Vector{DateTime},
     delta_t::Number;
     ignore_year::Bool=false,
-    repeat::Bool=true
+    repeat::Bool=false
 )
     # Account for interior air node heat transfer.
     effective_self_discharge_W_K = (
         abstract_node.self_discharge_coefficient_W_K +
         abstract_node.heat_transfer_coefficients_W_K[air_node]
     )
-    effective_external_load_W = parameter_value(
-        abstract_node.external_load_W +
-        abstract_node.heat_transfer_coefficients_W_K[air_node] *
-        set_point_K
-    )(t=first(indices))
+    effective_external_load_W = collect(
+        values(
+            abstract_node.external_load_W +
+            abstract_node.heat_transfer_coefficients_W_K[air_node] *
+            set_point_K
+        )
+    )
 
     # Initialize the temperature from the steady-state.
     temperatures_K = zeros(1 + length(indices))
-    temperatures_K[1] = effective_external_load_W / effective_self_discharge_W_K
+    temperatures_K[1] = effective_external_load_W[1] / effective_self_discharge_W_K
 
     # Solve the rest of the temperatures.
     expcoeff = exp( # This is constant, saving us time.
@@ -277,7 +279,7 @@ function solve_structural_node_temperature_dynamics(
     for i in 2:length(temperatures_K)
         temperatures_K[i] = (
             expcoeff * temperatures_K[i-1] +
-            effective_external_load_W /
+            effective_external_load_W[i-1] /
             effective_self_discharge_W_K * (1 - expcoeff)
         )
     end
@@ -360,14 +362,14 @@ function solve_dhw_demand(
 )
     # Calculate the DHW demand for heating and cooling seasons separately.
     dhw_demand_heating_kW = (
-        archetype.abstract_nodes[dhw_node].external_load_W +
+        -archetype.abstract_nodes[dhw_node].external_load_W +
         archetype.abstract_nodes[dhw_node].heat_transfer_coefficients_W_K[air_node] * (
             archetype.abstract_nodes[dhw_node].minimum_temperature_K -
             archetype.weather_data.heating_set_point_K
         )
     ) / 1e3
     dhw_demand_cooling_kW = (
-        archetype.abstract_nodes[dhw_node].external_load_W +
+        -archetype.abstract_nodes[dhw_node].external_load_W +
         archetype.abstract_nodes[dhw_node].heat_transfer_coefficients_W_K[air_node] * (
             archetype.abstract_nodes[dhw_node].minimum_temperature_K -
             archetype.weather_data.cooling_set_point_K

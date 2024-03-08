@@ -33,7 +33,7 @@ function process_weather(
     building_nodes::BuildingNodeNetwork,
     loads_data::LoadsData;
     ignore_year::Bool=false,
-    repeat::Bool=true,
+    repeat::Bool=false,
     save_layouts::Bool=true,
     resampling::Int=5,
     mod::Module=@__MODULE__,
@@ -200,7 +200,7 @@ function create_building_weather(
     building_nodes::BuildingNodeNetwork,
     loads_data::LoadsData;
     ignore_year::Bool=false,
-    repeat::Bool=true,
+    repeat::Bool=false,
     save_layouts::Bool=true,
     resampling::Int=5,
     mod::Module=@__MODULE__
@@ -342,7 +342,7 @@ end
     _pyseries_to_timeseries(
         pyseries::PyCall.PyObject;
         ignore_year::Bool = false,
-        repeat::Bool = true,
+        repeat::Bool = false,
     )
 
 Convert `ArBuWe.py` output `pandas.Series` into a `TimeSeries`.
@@ -353,7 +353,7 @@ Default is a year-aware repeating timeseries.
 function _pyseries_to_timeseries(
     pyseries::PyCall.PyObject;
     ignore_year::Bool=false,
-    repeat::Bool=true
+    repeat::Bool=false
 )
     TimeSeries(collect(pyseries.index), pyseries.values, ignore_year, repeat)
 end
