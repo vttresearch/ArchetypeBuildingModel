@@ -363,6 +363,8 @@ function solve_dhw_demand(
     # Calculate the DHW demand for heating and cooling seasons separately.
     dhw_demand_heating_kW = (
         -archetype.abstract_nodes[dhw_node].external_load_W +
+        archetype.abstract_nodes[dhw_node].self_discharge_coefficient_W_K *
+        archetype.abstract_nodes[dhw_node].minimum_temperature_K +
         archetype.abstract_nodes[dhw_node].heat_transfer_coefficients_W_K[air_node] * (
             archetype.abstract_nodes[dhw_node].minimum_temperature_K -
             archetype.weather_data.heating_set_point_K
@@ -370,6 +372,8 @@ function solve_dhw_demand(
     ) / 1e3
     dhw_demand_cooling_kW = (
         -archetype.abstract_nodes[dhw_node].external_load_W +
+        archetype.abstract_nodes[dhw_node].self_discharge_coefficient_W_K *
+        archetype.abstract_nodes[dhw_node].minimum_temperature_K +
         archetype.abstract_nodes[dhw_node].heat_transfer_coefficients_W_K[air_node] * (
             archetype.abstract_nodes[dhw_node].minimum_temperature_K -
             archetype.weather_data.cooling_set_point_K
