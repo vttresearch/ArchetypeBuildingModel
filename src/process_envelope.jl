@@ -42,17 +42,6 @@ function process_building_envelope(
     data::ScopeData;
     mod::Module=@__MODULE__
 )
-    # Identify the indoor air and dhw nodes.
-    fabrics = only(mod.building_archetype__building_fabrics(building_archetype=archetype))
-    fabric_nodes = mod.building_fabrics__building_node(building_fabrics=fabrics)
-    # TODO: Remove the weights, replace with booleans?
-    air_node = only(
-        filter(
-            n -> mod.interior_air_and_furniture_weight(building_node=n) > 0,
-            fabric_nodes
-        )
-    )
-
     # Calculate envelope dimensions
     base_floor = calculate_base_floor_dimensions(
         data,
@@ -103,8 +92,7 @@ function process_building_envelope(
                               light_partition_wall.surface_area_m2
 
     # Return the envelope dimensions
-    return air_node,
-    base_floor,
+    return base_floor,
     exterior_wall,
     light_exterior_wall,
     light_partition_wall,

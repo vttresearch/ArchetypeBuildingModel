@@ -185,7 +185,6 @@ by the constructor, `@__MODULE__` by default.
 
 This struct contains the following fields:
 - `archetype::Object`: The [`building_archetype`](@ref) this envelope belongs to.
-- `air_node::Object`: The [`building_node`](@ref) representing the indoor air temperature.
 - `base_floor::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the base floor.
 - `exterior_wall::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the load-bearing exterior walls.
 - `light_exterior_wall::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the light exterior walls.
@@ -201,7 +200,6 @@ and checks that the results are sensible.
 """
 struct EnvelopeData <: BuildingDataType
     archetype::Object
-    air_node::Object
     base_floor::NamedTuple{
         (:linear_thermal_bridge_length_m, :surface_area_m2),
         Tuple{Float64,Float64},
@@ -243,7 +241,7 @@ struct EnvelopeData <: BuildingDataType
     function EnvelopeData(archetype::Object, data::ScopeData; mod::Module=@__MODULE__)
         EnvelopeData(archetype, process_building_envelope(archetype, data; mod=mod)...)
     end
-    function EnvelopeData(archetype::Object, air_node::Object, args...)
+    function EnvelopeData(archetype::Object, args...)
         for (i, arg) in enumerate(args)
             all(values(arg) .>= 0) ||
                 @warn "`$(fieldnames(EnvelopeData)[i])` for `$(archetype)` shouldn't be negative!"
@@ -419,6 +417,14 @@ struct BuildingNodeData <: BuildingDataType
         cooling_set_point_K::Union{Nothing,SpineDataType},
         args...
     )
+        # Check heating and cooling set point types.
+        if !isa(heating_set_point_K, typeof(cooling_set_point_K))
+            @error """
+            Heating and cooling set points both need to be given if either is!
+            Check data for `$(archetype).$(building_node)`.
+            """
+        end
+        # Check parameter values.
         for (i, arg) in enumerate(args)
             all(collect_leaf_values(arg) .>= 0) || @warn """
             `$(fieldnames(BuildingNodeData)[i+1])` for `$(building_node)` shouldn't have negative values!

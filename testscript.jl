@@ -93,7 +93,7 @@ end
 
 
 ## Test autocreation of `WeatherData` 
-#=
+
 @info "Testing automatic creation of `building_weather`..."
 @time weather_data = Dict(
     archetype => WeatherData(
@@ -110,7 +110,7 @@ end
 
 
 ## Test creating `BuildingProcessData`
-
+#=
 @info "Processing the `BuildingProcessData` objects for the test `building_archetype` objects..."
 @time building_process_data = Dict(
     (archetype, process) => BuildingProcessData(
