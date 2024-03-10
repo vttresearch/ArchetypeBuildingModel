@@ -7,28 +7,24 @@ Contains functions for processing weather data.
 
 """
     process_weather(
-        archetype::Object,
-        scope_data::ScopeData,
-        envelope_data::EnvelopeData,
-        building_nodes::BuildingNodeNetwork,
-        loads_data::LoadsData;
-        ignore_year::Bool=false,
-        repeat::Bool=false,
-        save_layouts::Bool=true,
-        resampling::Int=5,
-        mod::Module=@__MODULE__
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = realization,
     )
 
 Process `weather` data for the [`WeatherData`](@ref) constructor.
+
+TODO: Revise documentation!
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default. The `realization` scenario is required for processing
 of effective ground temperature.
 
 Essentially, performs the following steps:
-1. Call the [`create_building_weather`](@ref) to download and process the weather-dependent data.
+1. Fetch the ambient temperature data for `weather`.
 2. Calculate the effective ground temperature using [`calculate_effective_ground_temperature`](@ref).
-3. Return the components for the [`WeatherData`](@ref) constructor.
+3. Fetch diffuse and direct solar irradiation data.
+4. Return the components for the [`WeatherData`](@ref) constructor.
 """
 function process_weather(
     archetype::Object,
@@ -40,7 +36,8 @@ function process_weather(
     repeat::Bool=false,
     save_layouts::Bool=true,
     resampling::Int=5,
-    mod::Module=@__MODULE__
+    mod::Module=@__MODULE__,
+    realization::Symbol=:realization
 )
     # Process the weather and preliminary demand data
     heating_demand_W,
@@ -164,23 +161,23 @@ calculate_effective_ground_temperature(
 """
     create_building_weather(
         archetype::Object,
-        scope_data::ScopeData,
-        envelope_data::EnvelopeData,
-        building_nodes::BuildingNodeNetwork;
-        ignore_year::Bool=false,
-        repeat::Bool=false,
-        save_layouts::Bool=true,
+        scope_data::ScopeData;
+        ignore_year::Bool = false,
+        repeat::Bool = true,
+        save_layouts::Bool = true,
         resampling::Int=5,
-        mod::Module=@__MODULE__
+        mod::Module = @__MODULE__,
     )
 
-Create and process weather-dependent data automatically using `ArBuWe.py`.
+Try to create `building_weather` automatically using `ArBuWe.py`.
+
+TODO: Revise documentation!
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
-Essentially automatically fetches weather data from ERA5 using the
-`PYPSA/atlite` python library and aggregates it according to the GIS data
+Essentially tries to automatically fetch weather data from ERA5 using the
+`PYPSA/atlite` python library, and aggregate it according to the GIS data
 indicated via the `shapefile_path` and `raster_weight_path` parameters for
 the `building_stock` objects. The desired weather period needs to be indicated
 using the `building_archetype` `weather_start` and `weather_end` parameters,
@@ -189,32 +186,28 @@ and the optional raster data at `raster_weight_path`.
 
 The optional `ignore_year` and `repeat` keywords are used to control the
 corresponding flags of the created `SpineInterface.TimeSeries`.
-By default, the created `TimeSeries` are year-aware and non-repeating.
+By default, the created `TimeSeries` are year-aware and repeating.
 The `save_layouts` keyword is used to control whether the layouts used for
-weighting the weather data are saved for diagnostics,
-and `resampling` sets rasterio resampling.
+weighting the weather data are saved for diagnostics.
+
+Returns a new `building_weather` object, as well as a dictionary containing
+its parameter values.
 """
 function create_building_weather(
     archetype::Object,
     scope_data::ScopeData,
     envelope_data::EnvelopeData,
-    building_nodes::BuildingNodeNetwork;
+    building_nodes::BuildingNodeNetwork,
+    loads_data::LoadsData;
     ignore_year::Bool=false,
     repeat::Bool=false,
     save_layouts::Bool=true,
     resampling::Int=5,
     mod::Module=@__MODULE__
 )
-    # Fetch air node data, as well as other nodes with set points.
-    air_nodes = filter(
-        pair -> pair[2].interior_air_and_furniture_weight > 0,
-        building_nodes
-    )
-    set_nodes = filter(
-        pair -> !isnothing(pair[2].heating_set_point_K),
-        building_nodes
-    )
-    pop!(set_nodes, air_node[1])
+    # Fetch air and dhw node data.
+    air_node = building_nodes[envelope_data.air_node]
+    dhw_node = building_nodes[envelope_data.dhw_node]
 
     # Import `ArBuWe.py`, doesn't work outside the function for some reason...
     abw = pyimport("ArBuWe")
@@ -226,16 +219,12 @@ function create_building_weather(
     bw_name = string(scope_data.building_scope.name) * '_' * w_start * '_' * w_end
 
     # Convert heating and cooling set points to TimeSeries value arrays for python xarray processing.
-    # Need to play it safe because of atlite time stamps.
-    hourly_inds = collect(DateTime(w_start):Hour(1):DateTime(w_end)+Day(31))
+    hourly_inds = collect(DateTime(w_start):Hour(1):DateTime(w_end)+Day(31)) # Need to play it safe because of atlite time stamps.
+    heating_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
+    cooling_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
 
-    # Loop over the air nodes
-    for (air_node, air_node_data) in air_nodes
-        # Process heating and cooling set points into hourly timeseries for atlite
-        heating_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + air_node_data.heating_set_point_K
-        cooling_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + air_node_data.cooling_set_point_K
-    end
-
+    # Calculate total internal heat gains including utilisable DHW losses.
+    # DHW tank heat losses are slightly different for heating and cooling set points...
     internal_heat_gains_heating_W = (
         loads_data.internal_heat_gains_W +
         (dhw_node.minimum_temperature_K - heating_set_point_K) * (

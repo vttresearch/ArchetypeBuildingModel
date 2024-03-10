@@ -26,14 +26,14 @@ including a plethora of different parameters related to archetype definitions,
 assumptions, sizing, etc.
 However, most of these parameters don't have counterparts in large-scale energy
 system models, and need to be aggregated into something meaningful.
-This is done via the [`ArBuMo.initialize_abstract_node`](@ref) function,
+This is done via the [`ArBuMo.process_abstract_node`](@ref) function,
 aggregating all the separate categories of thermal mass, heat transfer,
 as well as ambient condition and external load related parameters
 into the bare essentials required for depicting the node in large-scale
 energy system modelling frameworks, represented by an [`AbstractNode`](@ref).
 
 !!! note 
-    Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArBuMo.initialize_abstract_node`](@ref) docstring.
+    Since ambient-temperature-related interactions are rarely directly supported by large-scale energy system modelling frameworks, they are re-cast into *self-discharge* and *external load* components as explained in the [`ArBuMo.process_abstract_node`](@ref) docstring.
 
 As this abstraction reduces the amounts of different terms in the equations,
 it also happens to simplify

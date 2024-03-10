@@ -246,7 +246,7 @@ struct EnvelopeData <: BuildingDataType
             all(values(arg) .>= 0) ||
                 @warn "`$(fieldnames(EnvelopeData)[i])` for `$(archetype)` shouldn't be negative!"
         end
-        new(archetype, args...)
+        new(archetype, air_node, args...)
     end
 end
 
@@ -445,99 +445,26 @@ BuildingNodeNetwork = Dict{Object,BuildingNodeData}
 
 
 """
-    AbstractNode(
-        archetype::Object,
-        building_node::Object,
-        scope::ScopeData,
-        envelope::EnvelopeData,
-        building_node_network::BuildingNodeNetwork;
-        mod::Module=@__MODULE__
-    ) <: BuildingDataType
-
-Essentially a [`BuildingNodeData`](@ref) in a computationally more convenient format.
-
-This struct contains the following fields:
-- `archetype::Object`: The `building_arcgetype` this `AbstractNode` depicts.
-- `building_node::Object`: The `building_node` definition this `AbstractNode` depicts.
-- `thermal_mass_Wh_K::SpineDataType`: The effective thermal mass of this node in [Wh/K].
-- `self_discharge_coefficient_W_K::SpineDataType`: The effective self-discharge coefficient in [W/K] from this node.
-- `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
-- `maximum_temperature_deviation_K::SpineDataType`: The maximum permitted temperature deviation above the set point [K].
-- `minimum_temperature_deviation_K::SpineDataType`: The minimum permitted temperature deviation below the set point [K].
-- `external_load_W::Vector{SpineDataType}`: The effective external load on this node [W] (`Vector` for mutability).
-
-The constructor calls the [`initialize_abstract_node`](@ref) function.
-"""
-struct AbstractNode <: BuildingDataType
-    archetype::Object
-    building_node::Object
-    thermal_mass_Wh_K::SpineDataType
-    self_discharge_coefficient_W_K::SpineDataType
-    heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
-    maximum_temperature_deviation_K::SpineDataType
-    minimum_temperature_deviation_K::SpineDataType
-    external_load_W::Vector{SpineDataType}
-    """
-        AbstractNode(
-            building_node_network::BuildingNodeNetwork,
-            node::Object,
-        )
-
-    Create a new `AbstractNode` corresponding to `node` based on the given data structs.
-    """
-    function AbstractNode(
-        archetype::Object,
-        node::Object,
-        building_node_network::BuildingNodeNetwork;
-    )
-        new(
-            archetype,
-            node,
-            initialize_abstract_node(
-                building_node_network,
-                node
-            )...
-        )
-    end
-end
-
-
-"""
-    AbstractNodeNetwork::Dict{Object,AbstractNode}
-
-`Dict` mapping [`AbstractNode`](@ref)s to their corresponding `building_node`s. 
-"""
-AbstractNodeNetwork = Dict{Object,AbstractNode}
-
-
-"""
     WeatherData(
-        archetype::Object,
-        scope_data::ScopeData,
-        envelope_data::EnvelopeData,
-        building_nodes::BuildingNodeNetwork,
-        loads_data::LoadsData;
-        ignore_year::Bool=false,
-        repeat::Bool=false,
-        save_layouts::Bool=true,
-        resampling::Int=5,
-        mod::Module=@__MODULE__,
-        realization::Symbol=:realization
+        weather::Object;
+        mod::Module = @__MODULE__,
+        realization::Symbol = :realization,
     ) <: BuildingDataType
 
-Process and store all weather-dependent data for further calculations.
+Process and store the weather data for further calculations.
+
+TODO: Revise documentation!
 
 NOTE! The `mod` keyword changes from which Module data is accessed from
 by the constructor, `@__MODULE__` by default. The `realization` scenario is
 required for effective ground temperature calculations.
 
 This struct contains the following fields:
-- `archetype::Object`: The [`building_archetype`](@ref) object used to construct this `WeatherData`.
-- `preliminary_heating_demand_W::SpineDataType`: The preliminary heating demand of the indoor air node [W].
-- `preliminary_cooling_demand_W::SpineDataType`: The preliminary heating demand of the indoor air node [W].
+- `building_weather::Object`: The `building_weather` object used to construct this `WeatherData`.
 - `ambient_temperature_K::SpineDataType`: Ambient temperature data in [K].
 - `ground_temperature_K::SpineDataType`: Effective ground temperature data in [K].
-- `total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}`: Total effective solar irradiation on vertical and horizontal surfaces respectively [W/m2].
+- `diffuse_solar_irradiation_W_m2::SpineDataType`: Diffuse solar irradiation data in [W/m2].
+- `direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}`: Direct solar irradiation data dictionary, containing irradiation for walls facing in different cardinal directions in [W/m2].
 
 Essentially, the constructor calls the [`process_weather`](@ref) function,
 and checks that the resulting values are sensible.
@@ -549,6 +476,8 @@ struct WeatherData <: BuildingDataType
     ambient_temperature_K::SpineDataType
     ground_temperature_K::SpineDataType
     total_effective_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}
+    heating_set_point_K::SpineDataType
+    cooling_set_point_K::SpineDataType
     """
         WeatherData(weather::Object; mod::Module = @__MODULE__)
 
@@ -662,6 +591,86 @@ end
 
 
 """
+    AbstractNode(
+        building_node_network::BuildingNodeNetwork,
+        node::Object,
+        weather::WeatherData,
+    ) <: BuildingDataType
+
+Contain parameters defining a `node` in a large-scale-energy-system-model-agnostic manner.
+
+TODO: Revise documentation, rename to FlexibilityNode?
+
+Essentially, a `node` is a point in a commodity network where commodity balance is observed.
+`nodes` can have a *state*, which represents accumulated commodities at the point.
+The state of a `node` can "bleed" either outside the model scope
+via the `self_discharge_coefficient_W_K`, or into another `nodes`
+via the `heat_transfer_coefficients_W_K`. The `external_load_W` represents
+uncontrollable external influence affecting the `node`,
+e.g. commodity demand or gains.
+
+This struct contains the following fields:
+- `building_node::Object`: The `building_node` definition this `AbstractNode` depicts.
+- `thermal_mass_Wh_K::SpineDataType`: The effective thermal mass of this node in [Wh/K].
+- `self_discharge_coefficient_W_K::SpineDataType`: The self-discharge coefficient in [W/K] from this node.
+- `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
+- `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
+- `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
+
+The constructor calls the [`process_abstract_node`](@ref) function.
+"""
+struct AbstractNode <: BuildingDataType
+    archetype::Object
+    building_node::Object
+    thermal_mass_Wh_K::SpineDataType
+    self_discharge_coefficient_W_K::SpineDataType
+    heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
+    minimum_temperature_K::SpineDataType
+    maximum_temperature_K::SpineDataType
+    external_load_W::SpineDataType
+    """
+        AbstractNode(
+            building_node_network::BuildingNodeNetwork,
+            node::Object,
+        )
+
+    Create a new `AbstractNode` corresponding to `node` based on the given data structs.
+    """
+    function AbstractNode(
+        archetype::Object,
+        scope::ScopeData,
+        envelope::EnvelopeData,
+        building_node_network::BuildingNodeNetwork,
+        weather::WeatherData,
+        node::Object;
+        mod::Module=@__MODULE__
+    )
+        new(
+            archetype,
+            node,
+            process_abstract_node(
+                archetype,
+                scope,
+                envelope,
+                building_node_network,
+                weather,
+                node;
+                mod=mod
+            )...
+        )
+    end
+end
+
+
+"""
+    AbstractNodeNetwork::Dict{Object,AbstractNode}
+
+`Dict` mapping [`AbstractNode`](@ref)s to their corresponding `building_node`s. 
+"""
+AbstractNodeNetwork = Dict{Object,AbstractNode}
+
+
+"""
     AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__) <: BuildingDataType
 
 Contain parameters defining a `process` in a model-agnostic manner.
@@ -752,7 +761,7 @@ The constructor performs the following steps:
 4. Process the [`LoadsData`](@ref).
 5. Process the temperature nodes using the [`create_building_node_network`](@ref) function.
 6. Create the [`BuildingProcessData`](@ref) for the HVAC system components.
-7. Process the abstract temperature nodes using the [`initialize_abstract_node_network`](@ref) function based on the [`BuildingNodeNetwork`](@ref).
+7. Process the abstract temperature nodes using the [`create_abstract_node_network`](@ref) function based on the [`BuildingNodeNetwork`](@ref).
 8. Create the [`AbstractProcess`](@ref)es corresponding to the [`BuildingProcessData`](@ref)s.
 9. Construct the final `ArchetypeBuilding`.
 """
@@ -842,7 +851,7 @@ struct ArchetypeBuilding
         )
 
         # Process the abstract nodes and processes.
-        abstract_nodes = initialize_abstract_node_network(
+        abstract_nodes = create_abstract_node_network(
             archetype,
             scope_data,
             envelope_data,
