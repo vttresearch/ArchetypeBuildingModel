@@ -75,7 +75,7 @@ end
 
 
 ## Test creating `BuildingNodeNetwork` and `BuildingNodeData`
-#=
+
 @info "Processing `BuildingNodeNetwork` and `BuildingNodeData` for the test `building_archetype` objects..."
 @time building_node_network = Dict(
     archetype => create_building_node_network(
@@ -93,7 +93,7 @@ end
 
 
 ## Test autocreation of `WeatherData` 
-
+#=
 @info "Testing automatic creation of `building_weather`..."
 @time weather_data = Dict(
     archetype => WeatherData(

@@ -319,26 +319,27 @@ end
         mod::Module = @__MODULE__,
     ) <: BuildingDataType
 
-TODO: REVISE DOCUMENTATION!
-
 Contains data about how the structures and systems are aggregated into nodes for the lumped-capacitance thermal model.
 
 The `BuildingNodeData` struct aims to remain as human-readable as possible,
 making it a high-level description for what the lumped-capacitance node contains.
-Ultimately, `BuildingNodeData`s are converted into [`AbstractNode`](@ref)s
-for exporting into energy-system-model-specific input data formats.
+Ultimately, `BuildingNodeData`s are further processed into [`AbstractNode`](@ref)s
+for more convenient demand calculations as well as exporting into
+energy-system-model-specific input data formats.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 This struct contains the following fields:
 - `building_node::Object`: The `building_node` definition used for this `BuildingNodeData`.
+- `heating_set_point_K`: The heating set point for this node [K].
+- `cooling_set_point_K`: 
 - `thermal_mass_base_J_K::SpineDataType`: Optional user-defined base effective thermal mass in [J/K] of the temperature node.
 - `thermal_mass_gfa_scaled_J_K::SpineDataType`: Optional user-defined gross-floor-area-scaling effective thermal mass in [J/m2K] of the temperature node.
 - `thermal_mass_interior_air_and_furniture_J_K::Float64`: The effective thermal mass contribution of the interior air and furniture on this temperature node.
 - `thermal_mass_structures_J_K::Float64`: The effective thermal mass contribution of included structures on this temperature node.
-- `maximum_temperature_K::SpineDataType`: The maximum permitted temperature of the node.
-- `minimum_temperature_K::SpineDataType`: The minimum permitted temperature of the node.
+- `maximum_temperature_deviation_K::SpineDataType`: The maximum permitted temperature deviation above the set point [K].
+- `minimum_temperature_deviation_K::SpineDataType`: The minimum permitted temperature deviation below the set point [K].
 - `self_discharge_base_W_K::SpineDataType`: Optional user-defined base self-discharge rate in [W/K] of the temperature node.
 - `self_discharge_gfa_scaled_W_K::SpineDataType`: Optional user-defined gross-floor-area-scaling self-discharge rate in [W/m2K] of the temperature node.
 - `heat_transfer_coefficients_base_W_K::Dict{Object,SpineDataType}`: Optional user-defined base heat transfer coefficients between this node and other temperature nodes.
@@ -347,8 +348,8 @@ This struct contains the following fields:
 - `heat_transfer_coefficient_structures_exterior_W_K::Float64`: The contribution of included structures on the heat transfer coefficients between this node and the ambient temperature.
 - `heat_transfer_coefficient_structures_ground_W_K::Float64`: The contribution of included structures on the heat transfer coefficient between this node and the effective ground temperature.
 - `heat_transfer_coefficient_windows_W_K::Float64`: Contribution of windows to the heat transfer coefficient from this node to the ambient air.
-- `heat_transfer_coefficient_ventilation_and_infiltration_W_K::Float64`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air.
-- `heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::Float64`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air when HRU is bypassed.
+- `heat_transfer_coefficient_ventilation_and_infiltration_W_K::SpineDataType`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air.
+- `heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::SpineDataType`: Contribution of infiltration and ventilation on the heat transfer coefficient between this node and the ambient air when HRU is bypassed.
 - `heat_transfer_coefficient_thermal_bridges_W_K::Float64`: Contribution of linear thermal bridges on the heat transfer coefficient between this node and the ambient air.
 - `domestic_hot_water_demand_W::SpineDataType`: Domestic hot water demand in [W] on this node.
 - `internal_heat_gains_air_W::SpineDataType`: Convective part of internal heat gains on this node in [W].
@@ -362,12 +363,14 @@ and checks the values are sensible.
 struct BuildingNodeData <: BuildingDataType
     archetype::Object
     building_node::Object
+    heating_set_point_K::Union{Nothing,SpineDataType}
+    cooling_set_point_K::Union{Nothing,SpineDataType}
     thermal_mass_base_J_K::SpineDataType
     thermal_mass_gfa_scaled_J_K::SpineDataType
     thermal_mass_interior_air_and_furniture_J_K::Float64
     thermal_mass_structures_J_K::Float64
-    maximum_temperature_K::SpineDataType
-    minimum_temperature_K::SpineDataType
+    maximum_temperature_deviation_K::SpineDataType
+    minimum_temperature_deviation_K::SpineDataType
     self_discharge_base_W_K::SpineDataType
     self_discharge_gfa_scaled_W_K::SpineDataType
     heat_transfer_coefficients_base_W_K::Dict{Object,SpineDataType}
@@ -376,8 +379,8 @@ struct BuildingNodeData <: BuildingDataType
     heat_transfer_coefficient_structures_exterior_W_K::Float64
     heat_transfer_coefficient_structures_ground_W_K::Float64
     heat_transfer_coefficient_windows_W_K::Float64
-    heat_transfer_coefficient_ventilation_and_infiltration_W_K::Float64
-    heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::Float64
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K::SpineDataType
+    heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass::SpineDataType
     heat_transfer_coefficient_thermal_bridges_W_K::Float64
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_air_W::SpineDataType
@@ -409,14 +412,20 @@ struct BuildingNodeData <: BuildingDataType
             process_building_node(archetype, node, scope, envelope, loads; mod=mod)...,
         )
     end
-    function BuildingNodeData(archetype::Object, building_node::Object, args...)
+    function BuildingNodeData(
+        archetype::Object,
+        building_node::Object,
+        heating_set_point_K::Union{Nothing,SpineDataType},
+        cooling_set_point_K::Union{Nothing,SpineDataType},
+        args...
+    )
         for (i, arg) in enumerate(args)
             all(collect_leaf_values(arg) .>= 0) || @warn """
             `$(fieldnames(BuildingNodeData)[i+1])` for `$(building_node)` shouldn't have negative values!
             $(count(values(arg) .< 0)) violations found, with a minimum value of $(minimum(values(arg))).
             """
         end
-        new(archetype, building_node, args...)
+        new(archetype, building_node, heating_set_point_K, cooling_set_point_K, args...)
     end
 end
 

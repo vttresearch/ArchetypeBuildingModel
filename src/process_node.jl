@@ -12,10 +12,8 @@ Contains functions for processing the properties of lumped-capacitance thermal n
         scope::ScopeData,
         envelope::EnvelopeData,
         loads::LoadsData;
-        mod::Module = @__MODULE__,
+        mod::Module=@__MODULE__
     )
-
-TODO: REVISE DOCUMENTATION!
 
 Map all `archetype` `building_nodes` to their [`BuildingNodeData`](@ref)s.
 
@@ -51,6 +49,7 @@ end
 
 """
     process_building_node(
+        archetype::Object,
         node::Object,
         scope::ScopeData,
         envelope::EnvelopeData,
@@ -58,9 +57,7 @@ end
         mod::Module = @__MODULE__,
     )
 
-TODO: REVISE DOCUMENTATION!
-
-Calculates the properties of a `node` using the provided `scope`, `envelope`, and `loads` data.
+Calculates the properties of a `node` using the provided `archetype`, `scope`, `envelope`, and `loads` data.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -83,20 +80,16 @@ Essentially, this function performs the following steps:
 4. Calculate the total heat transfer coefficient between the structures on this `node` and the ambient air using [`calculate_structural_exterior_heat_transfer_coefficient`](@ref).
 5. Calculate the total heat transfer coefficient between the structures on this `node` and the ground using [`calculate_structural_ground_heat_transfer_coefficient`](@ref).
 6. Calculate the total heat transfer coefficient through windows for this `node` using [`calculate_window_heat_transfer_coefficient`](@ref).
-7. Calculate the total heat transfer coefficient of ventilation and infiltration on this `node` using [`calculate_ventilation_and_infiltration_heat_transfer_coefficients`](@ref).
+7. Calculate the total heat transfer coefficient of ventilation and infiltration on this `node` with and without ventilation heat recovery using [`calculate_ventilation_and_infiltration_heat_transfer_coefficients`](@ref).
 8. Calculate the total heat transfer coefficient of thermal bridges for this `node` using [`calculate_total_thermal_bridge_heat_transfer_coefficient`](@ref).
 9. Fetch domestic hot water demand from `loads` for this `node`.
 10. Calculate the convective internal heat gains on this `node` using [`calculate_convective_internal_heat_gains`](@ref).
 11. Calculate the radiative internal heat gains on this `node` using [`calculate_radiative_internal_heat_gains`](@ref).
-12. Calculate the convective solar heat gains through windows on this `node` using [`calculate_convective_solar_gains`](@ref).
-13. Calculate the radiative solar heat gains through windows on this `node` using [`calculate_radiative_solar_gains`](@ref).
-14. Calculate the total solar heat gains through the opaque building envelope on this `node` using [`calculate_total_envelope_solar_gains`](@ref).
-15. Calculate the total radiative envelope sky heat losses on this `node` using [`calculate_total_envelope_radiative_sky_losses`](@ref).
-16. Return all the pieces necessary for constructing the [`BuildingNodeData`](@ref) for this `node`.
+12. Return all the pieces necessary for constructing the [`BuildingNodeData`](@ref) for this `node`.
 
 **NOTE! Linear thermal bridges are assumed to bypass any potential structural lumped-capacitance nodes,
 and apply directly to the heat transfer coefficient between the interior air and the ambient air!**
-**NOTE! Currently, radiative internal and solar gains are lost through the windows
+**NOTE! Currently, radiative internal gains are lost through the windows
 in the building envelope.**
 """
 function process_building_node(
@@ -132,10 +125,10 @@ function process_building_node(
             mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype),
         )
     )
-        maximum_temperature_K =
+        cooling_set_point_K =
             mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
     else
-        maximum_temperature_K = mod.maximum_permitted_temperature_K(building_node=node)
+        cooling_set_point_K = mod.cooling_set_point_K(building_node=node)
     end
     if (
         interior_weight > 0 &&
@@ -143,10 +136,10 @@ function process_building_node(
             mod.indoor_air_heating_set_point_override_K(building_archetype=archetype),
         )
     )
-        minimum_temperature_K =
+        heating_set_point_K =
             mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
     else
-        minimum_temperature_K = mod.minimum_permitted_temperature_K(building_node=node)
+        heating_set_point_K = mod.heating_set_point_K(building_node=node)
     end
 
     # Determine the valid nodes for heat transfer coefficients
@@ -236,7 +229,7 @@ function process_building_node(
             mod=mod
         )
 
-    # Fetch the DHW demand, as well as internal and solar heat gains for the node.
+    # Fetch the DHW demand for the node.
     if mod.domestic_hot_water_demand_weight(building_node=node) > 0
         domestic_hot_water_demand_W =
             loads.domestic_hot_water_demand_W *
@@ -261,12 +254,14 @@ function process_building_node(
     )
 
     # Return all the stuff in the correct order.
-    return thermal_mass_base_J_K,
+    return heating_set_point_K,
+    cooling_set_point_K,
+    thermal_mass_base_J_K,
     thermal_mass_gfa_scaled_J_K,
     thermal_mass_interior_air_and_furniture_J_K,
     thermal_mass_structures_J_K,
-    maximum_temperature_K,
-    minimum_temperature_K,
+    mod.permitted_temperature_deviation_positive_K(building_node=node),
+    mod.permitted_temperature_deviation_negative_K(building_node=node),
     self_discharge_base_W_K,
     self_discharge_gfa_scaled_W_K,
     heat_transfer_coefficients_base_W_K,

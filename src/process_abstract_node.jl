@@ -96,6 +96,8 @@ interactions in complicated energy system modelling frameworks.
 **NOTE!** All heat transfer coefficients are assumed to be symmetrical!
 **NOTE!** All [`AbstractNode`](@ref)s are given `1e-9 Wh/K` thermal mass to avoid
 singularities when solving the temperature dynamics and heat demand later on.
+**NOTE! Currently, radiative internal and solar gains are lost through the windows
+in the building envelope.**
 """
 function process_abstract_node(
     archetype::Object,

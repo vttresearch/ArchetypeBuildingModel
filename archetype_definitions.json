@@ -484,6 +484,13 @@
         ],
         [
             "building_node",
+            "cooling_set_point_K",
+            null,
+            null,
+            "Cooling set point for the node [K]."
+        ],
+        [
+            "building_node",
             "domestic_hot_water_demand_weight",
             0.0,
             null,
@@ -505,6 +512,13 @@
         ],
         [
             "building_node",
+            "heating_set_point_K",
+            null,
+            null,
+            "Heating set point for the node [K]."
+        ],
+        [
+            "building_node",
             "interior_air_and_furniture_weight",
             0.0,
             null,
@@ -512,17 +526,17 @@
         ],
         [
             "building_node",
-            "maximum_permitted_temperature_K",
-            400.0,
+            "permitted_temperature_deviation_negative_K",
+            10.0,
             null,
-            "Maximum allowed temperature for the node [K]."
+            "Maximum allowed temperature deviation under the set point for the node [K]."
         ],
         [
             "building_node",
-            "minimum_permitted_temperature_K",
-            200.0,
+            "permitted_temperature_deviation_positive_K",
+            10.0,
             null,
-            "Minimum allowed temperature for the node [K]."
+            "Maximum allowed temperature deviation above the set point for the node [K]."
         ],
         [
             "building_node",
