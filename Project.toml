@@ -1,7 +1,7 @@
 name = "ArBuMo"
 uuid = "83d8b715-256d-42a8-83e0-f336dff6771c"
 authors = ["Topi Rasku <topi.rasku@vtt.fi>"]
-version = "2.6.6"
+version = "2.7.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
