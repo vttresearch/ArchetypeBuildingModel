@@ -177,8 +177,6 @@ SpineDataType = Union{Real,TimeSeries,TimePattern,Map}
 
 Store the calculated dimensions of the different parts of the building envelope.
 
-TODO: Revise documentation!
-
 `EnvelopeData` is generated based on the `building_archetype` parameters
 and the aggregated [`ScopeData`](@ref).
 
@@ -186,6 +184,8 @@ NOTE! The `mod` keyword changes from which Module data is accessed from
 by the constructor, `@__MODULE__` by default.
 
 This struct contains the following fields:
+- `archetype::Object`: The [`building_archetype`](@ref) this envelope belongs to.
+- `air_node::Object`: The [`building_node`](@ref) representing the indoor air temperature.
 - `base_floor::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the base floor.
 - `exterior_wall::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the load-bearing exterior walls.
 - `light_exterior_wall::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the light exterior walls.
@@ -194,6 +194,7 @@ This struct contains the following fields:
 - `roof::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the roof.
 - `separating_floor::NamedTuple`: Linear thermal bridge length [m] and one-sided surface area [m2] of the partition floors.
 - `window::NamedTuple`: Linear thermal bridge length [m] and surface area [m2] of the windows.
+- `total_structure_area_m2`: Total surface area of all the structures [m2].
 
 The constructor calls the [`process_building_envelope`](@ref) function
 and checks that the results are sensible.
@@ -201,7 +202,6 @@ and checks that the results are sensible.
 struct EnvelopeData <: BuildingDataType
     archetype::Object
     air_node::Object
-    dhw_node::Object
     base_floor::NamedTuple{
         (:linear_thermal_bridge_length_m, :surface_area_m2),
         Tuple{Float64,Float64},
@@ -243,12 +243,12 @@ struct EnvelopeData <: BuildingDataType
     function EnvelopeData(archetype::Object, data::ScopeData; mod::Module=@__MODULE__)
         EnvelopeData(archetype, process_building_envelope(archetype, data; mod=mod)...)
     end
-    function EnvelopeData(archetype::Object, air_node::Object, dhw_node::Object, args...)
+    function EnvelopeData(archetype::Object, air_node::Object, args...)
         for (i, arg) in enumerate(args)
             all(values(arg) .>= 0) ||
                 @warn "`$(fieldnames(EnvelopeData)[i])` for `$(archetype)` shouldn't be negative!"
         end
-        new(archetype, air_node, dhw_node, args...)
+        new(archetype, air_node, args...)
     end
 end
 
@@ -260,8 +260,6 @@ end
         envelope::EnvelopeData;
         mod::Module = @__MODULE__,
     ) <: BuildingDataType
-
-TODO: REVISE DOCUMENTATION!
 
 Store the domestic hot water demand and internal/solar heat gains data.
 

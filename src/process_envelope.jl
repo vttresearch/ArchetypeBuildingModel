@@ -11,8 +11,6 @@ This file contains the functions for processing the building envelope.
 Calculate the dimensions of the `archetype` building envelope based on the assumptions and
 aggregated building stock data.
 
-TODO: Revise documentation.
-
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
@@ -46,20 +44,12 @@ function process_building_envelope(
 )
     # Identify the indoor air and dhw nodes.
     fabrics = only(mod.building_archetype__building_fabrics(building_archetype=archetype))
-    systems = only(mod.building_archetype__building_systems(building_archetype=archetype))
     fabric_nodes = mod.building_fabrics__building_node(building_fabrics=fabrics)
-    system_nodes = mod.building_systems__building_node(building_systems=systems)
     # TODO: Remove the weights, replace with booleans?
     air_node = only(
         filter(
             n -> mod.interior_air_and_furniture_weight(building_node=n) > 0,
             fabric_nodes
-        )
-    )
-    dhw_node = only(
-        filter(
-            n -> mod.domestic_hot_water_demand_weight(building_node=n) > 0,
-            system_nodes
         )
     )
 
@@ -114,7 +104,6 @@ function process_building_envelope(
 
     # Return the envelope dimensions
     return air_node,
-    dhw_node,
     base_floor,
     exterior_wall,
     light_exterior_wall,

@@ -41,7 +41,7 @@ end
 
 
 ## Test creating the `ScopeData` types automatically
-#=
+
 @info "Processing the `ScopeData` objects for the test `building_scope` objects..."
 @time scope_data_final = Dict(scope => ScopeData(scope; mod=m) for scope in m.building_scope())
 
@@ -61,7 +61,7 @@ end
 
 
 ## Test creating `LoadsData`
-
+#=
 @info "Processing the `LoadsData` objects for the test `building_archetype` objects..."
 @time loads_data = Dict(
     archetype => LoadsData(
@@ -155,7 +155,7 @@ end
     (archetype, process) => AbstractProcess(process_data; mod=m)
     for ((archetype, process), process_data) in building_process_data
 )
-=#
+
 
 ## Test creating `ArchetypeBuilding`s
 
@@ -273,3 +273,4 @@ for (p, ts) in results.hvac_consumption_kW
     plot!(process_plt, keys(ts), values(ts), label=string(p))
 end
 display(process_plt)
+=#

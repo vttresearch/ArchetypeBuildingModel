@@ -9,14 +9,11 @@ and solar gains for the archetype buildings.
 """
     process_building_loads(
         archetype::Object,
-        scope::ScopeData,
-        envelope::EnvelopeData;
+        scope::ScopeData;
         mod::Module = @__MODULE__,
     )
 
-TODO: REVISE DOCUMENTATION!
-
-Calculate the domestic hot water demand, internal and solar heat gains for the archetype building.
+Calculate the domestic hot water demand and internal heat gains for the archetype building.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -25,15 +22,11 @@ Essentially, performs the following steps:
 1. Finds the `building_loads` object corresponding to the `building_archetype`.
 2. Calculates total domestic hot water (DHW) demand using [`calculate_total_dhw_demand`](@ref).
 3. Calculates total internal heat loads using [`calculate_total_internal_heat_loads`](@ref).
-4. Calculates total solar gains through windows using [`calculate_total_solar_gains`](@ref).
-5. Calculates solar gains through envelope structures using [`calculate_envelope_solar_gains`](@ref).
-6. Calculates envelope radiative sky losses using [`calculate_envelope_radiative_sky_losses`](@ref).
-7. Returns the calculated DHW demand, internal gains, solar gains for windows and the envelope, and envelope radiative sky losses.
+4. Returns the calculated DHW demand and internal heat gains.
 """
 function process_building_loads(
     archetype::Object,
-    scope::ScopeData,
-    envelope::EnvelopeData;
+    scope::ScopeData;
     mod::Module=@__MODULE__
 )
     # Find the `building_loads` connected to the `archetype`
@@ -42,12 +35,8 @@ function process_building_loads(
     # Calculate loads
     dhw_demand = calculate_total_dhw_demand(loads, scope; mod=mod)
     internal_gains = calculate_total_internal_heat_loads(loads, scope; mod=mod)
-    envelope_sky_losses =
-        calculate_envelope_radiative_sky_losses(archetype, scope, envelope; mod=mod)
-
     return dhw_demand,
-    internal_gains,
-    envelope_sky_losses
+    internal_gains
 end
 
 
