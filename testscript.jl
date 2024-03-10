@@ -61,22 +61,21 @@ end
 
 
 ## Test creating `LoadsData`
-#=
+
 @info "Processing the `LoadsData` objects for the test `building_archetype` objects..."
 @time loads_data = Dict(
     archetype => LoadsData(
         archetype,
         scope_data_final[only(
             m.building_archetype__building_scope(building_archetype=archetype),
-        )],
-        envelope_data[archetype];
+        )];
         mod=m,
     ) for archetype in m.building_archetype()
 )
 
 
 ## Test creating `BuildingNodeNetwork` and `BuildingNodeData`
-
+#=
 @info "Processing `BuildingNodeNetwork` and `BuildingNodeData` for the test `building_archetype` objects..."
 @time building_node_network = Dict(
     archetype => create_building_node_network(
