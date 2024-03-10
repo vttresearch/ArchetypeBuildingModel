@@ -7,35 +7,27 @@ large-scale energy system model input.
 =#
 
 """
-    create_abstract_node_network(
-        building_node_network::BuildingNodeNetwork,
-        weather::WeatherData,
+    initialize_abstract_node_network(
+        archetype::Object,
+        building_node_network::BuildingNodeNetwork
     )
 
-Process a `BuildingNodeNetwork` into an `AbstractNodeNetwork`.
+Initialize an `AbstractNodeNetwork` based on a `BuildingNodeNetwork`.
 
 TODO: Revise documentation, rename AbstractNode to FlexibilityNode?
 
 The `AbstractNodeNetwork` is a useful step for creating model-agnostic input
 for multiple large-scale energy system models.
 """
-function create_abstract_node_network(
+function initialize_abstract_node_network(
     archetype::Object,
-    scope::ScopeData,
-    envelope::EnvelopeData,
-    building_node_network::BuildingNodeNetwork,
-    weather::WeatherData;
-    mod::Module=@__MODULE__
+    building_node_network::BuildingNodeNetwork
 )
     Dict(
         node => AbstractNode(
             archetype,
-            scope,
-            envelope,
-            building_node_network,
-            weather,
-            node;
-            mod=mod
+            node,
+            building_node_network
         ) for
         node in keys(building_node_network)
     )::AbstractNodeNetwork
@@ -43,9 +35,8 @@ end
 
 
 """
-    process_abstract_node(
+    initialize_abstract_node(
         building_node_network::BuildingNodeNetwork,
-        weather::WeatherData,
         node::Object
     )
 
@@ -99,14 +90,9 @@ singularities when solving the temperature dynamics and heat demand later on.
 **NOTE! Currently, radiative internal and solar gains are lost through the windows
 in the building envelope.**
 """
-function process_abstract_node(
-    archetype::Object,
-    scope::ScopeData,
-    envelope::EnvelopeData,
+function initialize_abstract_node(
     building_node_network::BuildingNodeNetwork,
-    weather::WeatherData,
-    node::Object;
-    mod::Module=@__MODULE__
+    node::Object
 )
     # Convenience access to the `BuildingNodeData`.
     node_data = building_node_network[node]
@@ -174,6 +160,29 @@ function process_abstract_node(
     # And filter out zero heat transfer coefficients.
     filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
 
+    # Preliminary external load, only contains internal heat gains and DHW demand for now.
+    external_load_W = [
+        node_data.internal_heat_gains_air_W +
+        node_data.internal_heat_gains_structures_W +
+        node_data.domestic_hot_water_demand_W
+    ] # Vector for mutability.
+
+    # Return the properties of interest in the correct order for `AbstractNode`.
+    return thermal_mass_Wh_K,
+    self_discharge_coefficient_W_K,
+    heat_transfer_coefficients_W_K,
+    node_data.maximum_temperature_deviation_K,
+    node_data.minimum_temperature_deviation_K,
+    external_load_W
+end
+
+
+"""
+    update_abstract_node!()
+
+TODO
+"""
+function update_abstract_node!()
     # Calculate the necessary solar heat gains
     solar_heat_gains_air_W = calculate_convective_solar_gains(
         archetype,
@@ -206,8 +215,6 @@ function process_abstract_node(
         envelope;
         mod=mod
     )
-
-    # External load accounting for heat transfer with ambient conditions.
     external_load_W =
         (
             node_data.heat_transfer_coefficient_structures_exterior_W_K +
@@ -224,14 +231,6 @@ function process_abstract_node(
         solar_heat_gains_envelope_W -
         radiative_envelope_sky_losses_W -
         node_data.domestic_hot_water_demand_W
-
-    # Return the properties of interest in the correct order for `AbstractNode`.
-    return thermal_mass_Wh_K,
-    self_discharge_coefficient_W_K,
-    heat_transfer_coefficients_W_K,
-    node_data.minimum_temperature_K,
-    node_data.maximum_temperature_K,
-    external_load_W
 end
 
 

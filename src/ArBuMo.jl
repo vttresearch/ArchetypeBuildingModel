@@ -65,7 +65,7 @@ export run_parameter_tests,
     EnvelopeData,
     LoadsData,
     create_building_node_network,
-    create_abstract_node_network,
+    initialize_abstract_node_network,
     BuildingProcessData,
     ArchetypeBuilding,
     ArchetypeBuildingResults

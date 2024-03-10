@@ -35,7 +35,7 @@ WeatherData
 ```@docs
 add_results!
 archetype_building_processing
-create_abstract_node_network
+initialize_abstract_node_network
 create_building_node_network
 create_building_weather
 initialize_result_classes!
@@ -110,7 +110,7 @@ ArBuMo.form_and_invert_hvac_matrix
 ArBuMo.initialize_temperatures
 ArBuMo.initialize_rhs
 ArBuMo.load_definitions_template
-ArBuMo.process_abstract_node
+ArBuMo.initialize_abstract_node
 ArBuMo.process_abstract_system
 ArBuMo.process_building_envelope
 ArBuMo.process_building_loads
