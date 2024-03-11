@@ -7,31 +7,34 @@ Contains functions for processing weather data.
 
 """
     process_weather(
-        weather::Object;
-        mod::Module = @__MODULE__,
-        realization::Symbol = realization,
+        archetype::Object,
+        scope_data::ScopeData,
+        envelope_data::EnvelopeData,
+        building_nodes::BuildingNodeNetwork;
+        ignore_year::Bool=false,
+        repeat::Bool=false,
+        save_layouts::Bool=true,
+        resampling::Int=5,
+        mod::Module=@__MODULE__,
+        realization::Symbol=:realization
     )
 
-Process `weather` data for the [`WeatherData`](@ref) constructor.
-
-TODO: Revise documentation!
+Process weather data for the [`WeatherData`](@ref) constructor.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default. The `realization` scenario is required for processing
 of effective ground temperature.
 
 Essentially, performs the following steps:
-1. Fetch the ambient temperature data for `weather`.
+1. Call [`create_building_weather`](@ref) to handle weather and demand processing using `ArBuWe.py`.
 2. Calculate the effective ground temperature using [`calculate_effective_ground_temperature`](@ref).
-3. Fetch diffuse and direct solar irradiation data.
-4. Return the components for the [`WeatherData`](@ref) constructor.
+3. Return the components for the [`WeatherData`](@ref) constructor.
 """
 function process_weather(
     archetype::Object,
     scope_data::ScopeData,
     envelope_data::EnvelopeData,
-    building_nodes::BuildingNodeNetwork,
-    loads_data::LoadsData;
+    building_nodes::BuildingNodeNetwork;
     ignore_year::Bool=false,
     repeat::Bool=false,
     save_layouts::Bool=true,
@@ -49,8 +52,7 @@ function process_weather(
         archetype,
         scope_data,
         envelope_data,
-        building_nodes,
-        loads_data;
+        building_nodes;
         ignore_year=ignore_year,
         repeat=repeat,
         save_layouts=save_layouts,
@@ -161,23 +163,23 @@ calculate_effective_ground_temperature(
 """
     create_building_weather(
         archetype::Object,
-        scope_data::ScopeData;
-        ignore_year::Bool = false,
-        repeat::Bool = true,
-        save_layouts::Bool = true,
+        scope_data::ScopeData,
+        envelope_data::EnvelopeData,
+        building_nodes::BuildingNodeNetwork;
+        ignore_year::Bool=false,
+        repeat::Bool=false,
+        save_layouts::Bool=true,
         resampling::Int=5,
-        mod::Module = @__MODULE__,
+        mod::Module=@__MODULE__
     )
 
 Try to create `building_weather` automatically using `ArBuWe.py`.
 
-TODO: Revise documentation!
-
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
-Essentially tries to automatically fetch weather data from ERA5 using the
-`PYPSA/atlite` python library, and aggregate it according to the GIS data
+Essentially, automatically fetches weather data from ERA5 using the
+`PYPSA/atlite` python library, and aggregates it according to the GIS data
 indicated via the `shapefile_path` and `raster_weight_path` parameters for
 the `building_stock` objects. The desired weather period needs to be indicated
 using the `building_archetype` `weather_start` and `weather_end` parameters,
@@ -186,19 +188,18 @@ and the optional raster data at `raster_weight_path`.
 
 The optional `ignore_year` and `repeat` keywords are used to control the
 corresponding flags of the created `SpineInterface.TimeSeries`.
-By default, the created `TimeSeries` are year-aware and repeating.
+By default, the created `TimeSeries` are year-aware and non-repeating.
 The `save_layouts` keyword is used to control whether the layouts used for
 weighting the weather data are saved for diagnostics.
 
-Returns a new `building_weather` object, as well as a dictionary containing
-its parameter values.
+The actual calculations are handled primarily through the
+`aggregate_demand_and_weather` function of `ArBuWe.py`.
 """
 function create_building_weather(
     archetype::Object,
     scope_data::ScopeData,
     envelope_data::EnvelopeData,
-    building_nodes::BuildingNodeNetwork,
-    loads_data::LoadsData;
+    building_nodes::BuildingNodeNetwork;
     ignore_year::Bool=false,
     repeat::Bool=false,
     save_layouts::Bool=true,

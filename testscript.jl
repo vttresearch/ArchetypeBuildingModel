@@ -102,8 +102,7 @@ end
             m.building_archetype__building_scope(building_archetype=archetype),
         )],
         envelope_data[archetype],
-        building_node_network[archetype],
-        loads_data[archetype];
+        building_node_network[archetype];
         mod=m,
     ) for archetype in m.building_archetype(:DH1_LBM)
 )

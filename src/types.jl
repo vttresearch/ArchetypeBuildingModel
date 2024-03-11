@@ -446,25 +446,33 @@ BuildingNodeNetwork = Dict{Object,BuildingNodeData}
 
 """
     WeatherData(
-        weather::Object;
-        mod::Module = @__MODULE__,
-        realization::Symbol = :realization,
+        archetype::Object,
+        scope_data::ScopeData,
+        envelope_data::EnvelopeData,
+        building_nodes::BuildingNodeNetwork;
+        ignore_year::Bool=false,
+        repeat::Bool=false,
+        save_layouts::Bool=true,
+        resampling::Int=5,
+        mod::Module=@__MODULE__,
+        realization::Symbol=:realization
     ) <: BuildingDataType
 
 Process and store the weather data for further calculations.
-
-TODO: Revise documentation!
 
 NOTE! The `mod` keyword changes from which Module data is accessed from
 by the constructor, `@__MODULE__` by default. The `realization` scenario is
 required for effective ground temperature calculations.
 
 This struct contains the following fields:
-- `building_weather::Object`: The `building_weather` object used to construct this `WeatherData`.
-- `ambient_temperature_K::SpineDataType`: Ambient temperature data in [K].
-- `ground_temperature_K::SpineDataType`: Effective ground temperature data in [K].
-- `diffuse_solar_irradiation_W_m2::SpineDataType`: Diffuse solar irradiation data in [W/m2].
-- `direct_solar_irradiation_W_m2::Dict{Symbol,SpineDataType}`: Direct solar irradiation data dictionary, containing irradiation for walls facing in different cardinal directions in [W/m2].
+- `archetype::Object`: The `building_archetype` object used to construct this `WeatherData`.
+- `preliminary_heating_demand_W`: The preliminary aggregated air node heating demand calculated using PyPSA/atlite through ArBuWe.py.
+- `preliminary_cooling_demand_W`: The preliminary aggregated air node cooling demand calculated using PyPSA/atlite through ArBuWe.py.
+- `ambient_temperature_K::SpineDataType`: Average ambient temperature data in [K] for this archetype.
+- `ground_temperature_K::SpineDataType`: Effective ground temperature data in [K] for this archetype.
+- `total_effective_solar_irradiation_W_m2::SpineDataType`: The total effective solar irradiation data in [W/m2] for horizontal and vertical surfaces respectively.
+- `heating_set_point_K`: The `TimeSeries` form indoor air heating set point used for the demand calculations.
+- `cooling_set_point_K`: The `TimeSeries` form indoor air cooling set point used for the demand calculations.
 
 Essentially, the constructor calls the [`process_weather`](@ref) function,
 and checks that the resulting values are sensible.
@@ -487,8 +495,7 @@ struct WeatherData <: BuildingDataType
         archetype::Object,
         scope_data::ScopeData,
         envelope_data::EnvelopeData,
-        building_nodes::BuildingNodeNetwork,
-        loads_data::LoadsData;
+        building_nodes::BuildingNodeNetwork;
         ignore_year::Bool=false,
         repeat::Bool=false,
         save_layouts::Bool=true,
@@ -502,8 +509,7 @@ struct WeatherData <: BuildingDataType
                 archetype,
                 scope_data,
                 envelope_data,
-                building_nodes,
-                loads_data;
+                building_nodes;
                 ignore_year=ignore_year,
                 repeat=repeat,
                 save_layouts=save_layouts,
