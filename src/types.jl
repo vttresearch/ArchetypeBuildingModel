@@ -618,19 +618,21 @@ This struct contains the following fields:
 - `thermal_mass_Wh_K::SpineDataType`: The effective thermal mass of this node in [Wh/K].
 - `self_discharge_coefficient_W_K::SpineDataType`: The self-discharge coefficient in [W/K] from this node.
 - `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
-- `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
 - `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
+- `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
 
 The constructor calls the [`process_abstract_node`](@ref) function.
 """
 struct AbstractNode <: BuildingDataType
     archetype::Object
     building_node::Object
+    heating_set_point_K::Union{Nothing,SpineDataType}
+    cooling_set_point_K::Union{Nothing,SpineDataType}
+    maximum_temperature_deviation_K::SpineDataType
+    minimum_temperature_deviation_K::SpineDataType
     thermal_mass_Wh_K::SpineDataType
     self_discharge_coefficient_W_K::SpineDataType
     heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
-    minimum_temperature_K::SpineDataType
-    maximum_temperature_K::SpineDataType
     external_load_W::SpineDataType
     """
         AbstractNode(

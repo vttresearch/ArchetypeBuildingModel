@@ -108,6 +108,23 @@ end
 )
 
 
+## Test creating `AbstractNodeNetwork` and `AbstractNode`
+
+@info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
+@time abstract_node_network = Dict(
+    archetype => create_abstract_node_network(
+        archetype,
+        scope_data_final[only(
+            m.building_archetype__building_scope(building_archetype=archetype),
+        )],
+        envelope_data[archetype],
+        building_node_network[archetype],
+        weather_data[archetype];
+        mod=m
+    ) for archetype in m.building_archetype()
+)
+
+
 ## Test creating `BuildingProcessData`
 
 @info "Processing the `BuildingProcessData` objects for the test `building_archetype` objects..."
@@ -126,23 +143,6 @@ end
             m.building_archetype__building_systems(building_archetype=archetype),
         ),
     )
-)
-
-
-## Test creating `AbstractNodeNetwork` and `AbstractNode`
-
-@info "Processing `AbstractNodeNetwork` and `AbstractNode`..."
-@time abstract_node_network = Dict(
-    archetype => create_abstract_node_network(
-        archetype,
-        scope_data_final[only(
-            m.building_archetype__building_scope(building_archetype=archetype),
-        )],
-        envelope_data[archetype],
-        building_node_network[archetype],
-        weather_data[archetype],
-        mod=m
-    ) for archetype in m.building_archetype()
 )
 
 

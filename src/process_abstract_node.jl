@@ -8,16 +8,21 @@ large-scale energy system model input.
 
 """
     create_abstract_node_network(
+        archetype::Object,
+        scope::ScopeData,
+        envelope::EnvelopeData,
         building_node_network::BuildingNodeNetwork,
-        weather::WeatherData,
+        weather::WeatherData;
+        mod::Module=@__MODULE__
     )
 
 Process a `BuildingNodeNetwork` into an `AbstractNodeNetwork`.
 
-TODO: Revise documentation, rename AbstractNode to FlexibilityNode?
-
-The `AbstractNodeNetwork` is a useful step for creating model-agnostic input
-for multiple large-scale energy system models.
+The main purpose of this step is to account for weather-dependencies
+contained in the `weather::WeatherData` input. However, the
+`AbstractNodeNetwork` is also computationally useful,
+e.g. for creating model-agnostic input for multiple
+large-scale energy system models.
 """
 function create_abstract_node_network(
     archetype::Object,
@@ -44,14 +49,16 @@ end
 
 """
     process_abstract_node(
+        archetype::Object,
+        scope::ScopeData,
+        envelope::EnvelopeData,
         building_node_network::BuildingNodeNetwork,
         weather::WeatherData,
-        node::Object
+        node::Object;
+        mod::Module=@__MODULE__
     )
 
 Calculate the properties of an [`AbstractNode`](@ref) corresponding to the `node` in the `building_node_network`.
-
-TODO: Revise documentation, rename AbstractNode to FlexibilityNode?
 
 Combines all the individual parameters in [`BuildingNodeData`](@ref)s in [`BuildingNodeNetwork`](@ref)
 into the bare minimum parameters required for modelling lumped-capacitance thermal nodes
@@ -93,11 +100,9 @@ Unfortunately, this has the side-effect of making the energy-system-model-level
 input data quite unintuitive, but avoids the need to implement ambient-temperature-dependent
 interactions in complicated energy system modelling frameworks.
 
-**NOTE!** All heat transfer coefficients are assumed to be symmetrical!
-**NOTE!** All [`AbstractNode`](@ref)s are given `1e-9 Wh/K` thermal mass to avoid
-singularities when solving the temperature dynamics and heat demand later on.
-**NOTE! Currently, radiative internal and solar gains are lost through the windows
-in the building envelope.**
+**NOTE!** All heat transfer coefficients are forced to be symmetrical!
+**NOTE!** Currently, radiative internal and solar gains are lost through the windows
+in the building envelope.
 """
 function process_abstract_node(
     archetype::Object,
@@ -108,8 +113,9 @@ function process_abstract_node(
     node::Object;
     mod::Module=@__MODULE__
 )
-    # Convenience access to the `BuildingNodeData`.
-    node_data = building_node_network[node]
+    # Convenience access to the `BuildingNodeData` and the other nodes, making sure not to alter the original network.
+    building_node_network = copy(building_node_network)
+    node_data = pop!(building_node_network, node)
 
     # Total thermal mass of the node, in Wh/K for better scaling in energy system models.
     thermal_mass_Wh_K =
@@ -118,7 +124,7 @@ function process_abstract_node(
             node_data.thermal_mass_gfa_scaled_J_K +
             node_data.thermal_mass_interior_air_and_furniture_J_K +
             node_data.thermal_mass_structures_J_K
-        ) / 3600 # TODO: is this necessary? + 1e-9 # Token thermal mass always required to avoid singularities in the dynamics matrix
+        ) / 3600
 
     # Total self-discharge coefficient from the node, accounting for ambient heat transfer.
     self_discharge_coefficient_W_K =
@@ -131,47 +137,29 @@ function process_abstract_node(
         node_data.heat_transfer_coefficient_thermal_bridges_W_K
 
     # Heat transfer coefficients from this node to connected nodes.
-    # First, connection to interior air.
-    heat_transfer_coefficients_W_K = Dict(
+    heat_transfer_coefficients_W_K = mergewith(
+        +,
+        Dict( # First, heat transfer to interior air.
         n =>
             node_data.heat_transfer_coefficient_structures_interior_W_K *
-            building_node_network[n].interior_air_and_furniture_weight for
-        n in keys(building_node_network)
-    )
-    # Force symmetry.
-    # TODO: Do we need to do this twice here and later?
-    mergewith!(
-        +,
-        heat_transfer_coefficients_W_K,
-        Dict(
-            n =>
-                building_node_network[n].heat_transfer_coefficient_structures_interior_W_K *
-                node_data.interior_air_and_furniture_weight for
-            n in keys(building_node_network)
+                n_data.interior_air_and_furniture_weight for
+            (n, n_data) in building_node_network
         ),
-    )
-    # Then updated with user-defined heat-transfer coefficients
-    mergewith!(
-        +,
-        heat_transfer_coefficients_W_K,
-        node_data.heat_transfer_coefficients_base_W_K,
-    )
-    mergewith!(
-        +,
-        heat_transfer_coefficients_W_K,
-        node_data.heat_transfer_coefficients_gfa_scaled_W_K,
-    )
-    # Force symmetry.
-    for n in keys(building_node_network)
-        heat_transfer_coefficients_W_K[n] += (
-            get(building_node_network[n].heat_transfer_coefficients_base_W_K, node, 0) +
-            get(
-                building_node_network[n].heat_transfer_coefficients_gfa_scaled_W_K,
-                node,
-                0,
-            )
+        Dict( # Force symmetry to the interior air heat transfer.
+            n =>
+                n_data.heat_transfer_coefficient_structures_interior_W_K *
+                node_data.interior_air_and_furniture_weight for
+            (n, n_data) in building_node_network
+        ),
+        node_data.heat_transfer_coefficients_base_W_K, # User-defined heat transfers
+        node_data.heat_transfer_coefficients_gfa_scaled_W_K, # User-defined heat transfers
+        Dict( # Force symmetry on user-defined heat transfer
+            n => (
+                get(n_data.heat_transfer_coefficients_base_W_K, node, 0.0) +
+                get(n_data.heat_transfer_coefficients_gfa_scaled_W_K, node, 0.0)
+            ) for (n, n_data) in building_node_network
         )
-    end
+    )
     # And filter out zero heat transfer coefficients.
     filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
 
@@ -227,11 +215,13 @@ function process_abstract_node(
         node_data.domestic_hot_water_demand_W
 
     # Return the properties of interest in the correct order for `AbstractNode`.
-    return thermal_mass_Wh_K,
+    return node_data.heating_set_point_K,
+    node_data.cooling_set_point_K,
+    node_data.maximum_temperature_deviation_K,
+    node_data.minimum_temperature_deviation_K,
+    thermal_mass_Wh_K,
     self_discharge_coefficient_W_K,
     heat_transfer_coefficients_W_K,
-    node_data.minimum_temperature_K,
-    node_data.maximum_temperature_K,
     external_load_W
 end
 
