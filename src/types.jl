@@ -556,7 +556,6 @@ This struct contains the following fields:
 - `coefficient_of_performance_mode::Symbol`: The mode of the process, either `:heating` or `:cooling`.
 - `maximum_power_base_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined base maximum power flows in [W] between this process and the nodes.
 - `maximum_power_gfa_scaled_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined gross-floor-area-scaling maximum power flows in [W] between this process and the nodes.
-- `number_of_processes::Float64`: The number of aggregated processes this one depicts for the large-scale energy system models.
 
 The constructor calls the [`process_building_system`](@ref) function.
 """
@@ -568,7 +567,6 @@ struct BuildingProcessData <: BuildingDataType
     coefficient_of_performance_mode::Symbol
     maximum_power_base_W::Dict{Tuple{Object,Object},SpineDataType}
     maximum_power_gfa_scaled_W::Dict{Tuple{Object,Object},SpineDataType}
-    number_of_processes::Float64
     """
         BuildingProcessData(
             archetype::Object,
