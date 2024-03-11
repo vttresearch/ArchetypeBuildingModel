@@ -140,8 +140,8 @@ function process_abstract_node(
     heat_transfer_coefficients_W_K = mergewith(
         +,
         Dict( # First, heat transfer to interior air.
-        n =>
-            node_data.heat_transfer_coefficient_structures_interior_W_K *
+            n =>
+                node_data.heat_transfer_coefficient_structures_interior_W_K *
                 n_data.interior_air_and_furniture_weight for
             (n, n_data) in building_node_network
         ),
@@ -222,7 +222,8 @@ function process_abstract_node(
     thermal_mass_Wh_K,
     self_discharge_coefficient_W_K,
     heat_transfer_coefficients_W_K,
-    external_load_W
+    external_load_W,
+    node_data.interior_air_and_furniture_weight
 end
 
 
