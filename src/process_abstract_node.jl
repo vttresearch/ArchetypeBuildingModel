@@ -224,7 +224,7 @@ function process_abstract_node(
     heat_transfer_coefficients_W_K,
     external_load_W,
     node_data.interior_air_and_furniture_weight > 0,
-    !isnothing(node_data.domestic_hot_water_demand_W)
+    mod.domestic_hot_water_demand_weight(building_node=node) > 0
 end
 
 
