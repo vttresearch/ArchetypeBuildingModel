@@ -827,7 +827,7 @@ struct ArchetypeBuilding
         # Process the data related to the archetype.
         envelope_data = EnvelopeData(archetype, scope_data; mod=mod)
         loads_data =
-            LoadsData(archetype, scope_data, envelope_data; mod=mod)
+            LoadsData(archetype, scope_data; mod=mod)
         building_node_network = create_building_node_network(
             archetype,
             fabrics,
@@ -841,8 +841,7 @@ struct ArchetypeBuilding
             archetype,
             scope_data,
             envelope_data,
-            building_node_network,
-            loads_data;
+            building_node_network;
             mod=mod
         )
         building_processes = Dict(
