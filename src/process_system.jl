@@ -59,13 +59,21 @@ function process_building_system(
             ) for (dir, node) in
         mod.building_process__direction__building_node(building_process=process)
     )
+    # Calculate the total maximum flows for convenience.
+    maximum_flows_W = mergewith(
+        +,
+        maximum_power_basis_W,
+        maximum_power_gfa_scaled_W,
+    )
+    filter!(pair -> pair[2] != 0, maximum_flows_W)
 
     # Return the components of `BuildingProcessData`.
     return system_link_nodes,
     COP,
     COP_mode,
     maximum_power_basis_W,
-    maximum_power_gfa_scaled_W
+    maximum_power_gfa_scaled_W,
+    maximum_flows_W
 end
 
 

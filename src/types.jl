@@ -543,8 +543,6 @@ Aggregate building systems into processes for the lumped-capacitance thermal mod
 The `BuildingProcessData` struct aims to remain as human-readable as possible,
 making it a high-level description of the properties of a process
 in the lumped-capacitance thermal model.
-Ultimately, `BuildingProcessData`s are converted into [`AbstractProcess`](@ref)s
-for exporting into energy-system-model-specific input data formats.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
@@ -556,6 +554,7 @@ This struct contains the following fields:
 - `coefficient_of_performance_mode::Symbol`: The mode of the process, either `:heating` or `:cooling`.
 - `maximum_power_base_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined base maximum power flows in [W] between this process and the nodes.
 - `maximum_power_gfa_scaled_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined gross-floor-area-scaling maximum power flows in [W] between this process and the nodes.
+- `maximum_flows::Dict{Tuple{Object,Object},SpineDataType}`: The total maximum flows to/from this process, for modelling convenience.
 
 The constructor calls the [`process_building_system`](@ref) function.
 """
@@ -567,6 +566,7 @@ struct BuildingProcessData <: BuildingDataType
     coefficient_of_performance_mode::Symbol
     maximum_power_base_W::Dict{Tuple{Object,Object},SpineDataType}
     maximum_power_gfa_scaled_W::Dict{Tuple{Object,Object},SpineDataType}
+    maximum_flows_W::Dict{Tuple{Object,Object},SpineDataType}
     """
         BuildingProcessData(
             archetype::Object,

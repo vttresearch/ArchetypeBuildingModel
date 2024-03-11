@@ -104,12 +104,12 @@ end
         envelope_data[archetype],
         building_node_network[archetype];
         mod=m,
-    ) for archetype in m.building_archetype(:DH1_LBM)
+    ) for archetype in m.building_archetype()
 )
 
 
 ## Test creating `BuildingProcessData`
-#=
+
 @info "Processing the `BuildingProcessData` objects for the test `building_archetype` objects..."
 @time building_process_data = Dict(
     (archetype, process) => BuildingProcessData(
@@ -147,7 +147,7 @@ end
 
 
 ## Test creating `AbstractProcess`es.
-
+#=
 @info "Processing `AbstractProcess`..."
 @time abstract_process_data = Dict(
     (archetype, process) => AbstractProcess(process_data; mod=m)
