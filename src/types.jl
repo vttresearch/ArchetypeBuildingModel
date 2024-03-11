@@ -620,7 +620,8 @@ This struct contains the following fields:
 - `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
 - `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
 - `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
-- `interior_weight::Float64`
+- `is_interior::Bool`: A flag indicating whether this node is the primary interior air node.
+- `is_dhw::Bool`: A flag indicating whether this node is the primary DHW node.
 
 The constructor calls the [`process_abstract_node`](@ref) function.
 """
@@ -635,7 +636,8 @@ struct AbstractNode <: BuildingDataType
     self_discharge_coefficient_W_K::SpineDataType
     heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
     external_load_W::SpineDataType
-    interior_weight::Float64
+    is_interior::Bool
+    is_dhw::Bool
     """
         AbstractNode(
             building_node_network::BuildingNodeNetwork,
