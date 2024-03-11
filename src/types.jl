@@ -246,7 +246,7 @@ struct EnvelopeData <: BuildingDataType
             all(values(arg) .>= 0) ||
                 @warn "`$(fieldnames(EnvelopeData)[i])` for `$(archetype)` shouldn't be negative!"
         end
-        new(archetype, air_node, args...)
+        new(archetype, args...)
     end
 end
 

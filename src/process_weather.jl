@@ -205,9 +205,14 @@ function create_building_weather(
     resampling::Int=5,
     mod::Module=@__MODULE__
 )
-    # Fetch air and dhw node data.
-    air_node = building_nodes[envelope_data.air_node]
-    dhw_node = building_nodes[envelope_data.dhw_node]
+    # Fetch air node data, as well as any other nodes with set points.
+    (air_node, air_node_data) = only(
+        filter(pair -> pair[2].interior_air_and_furniture_weight > 0, building_nodes)
+    )
+    set_nodes = filter(
+        pair -> !isnothing(pair[2].heating_set_point_K), building_nodes
+    )
+    pop!(set_nodes, air_node)
 
     # Import `ArBuWe.py`, doesn't work outside the function for some reason...
     abw = pyimport("ArBuWe")
@@ -220,37 +225,53 @@ function create_building_weather(
 
     # Convert heating and cooling set points to TimeSeries value arrays for python xarray processing.
     hourly_inds = collect(DateTime(w_start):Hour(1):DateTime(w_end)+Day(31)) # Need to play it safe because of atlite time stamps.
-    heating_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
-    cooling_set_point_K = TimeSeries(hourly_inds, zeros(size(hourly_inds))) + mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
+    zero_ts = TimeSeries(hourly_inds, zeros(size(hourly_inds)))
+    heating_set_point_K = zero_ts + mod.indoor_air_heating_set_point_override_K(building_archetype=archetype)
+    cooling_set_point_K = zero_ts + mod.indoor_air_cooling_set_point_override_K(building_archetype=archetype)
 
-    # Calculate total internal heat gains including utilisable DHW losses.
-    # DHW tank heat losses are slightly different for heating and cooling set points...
-    internal_heat_gains_heating_W = (
-        loads_data.internal_heat_gains_W +
-        (dhw_node.minimum_temperature_K - heating_set_point_K) * (
-            dhw_node.heat_transfer_coefficients_base_W_K[air_node.building_node] +
-            dhw_node.heat_transfer_coefficients_gfa_scaled_W_K[air_node.building_node]
+    # Calculate total internal heat gains including connected set point nodes.
+    internal_heat_gains_heating_W =
+        zero_ts + (
+            air_node_data.internal_heat_gains_air_W + sum(
+                (
+                    set_node_data.heat_transfer_coefficient_structures_interior_W_K +
+                    get(set_node_data.heat_transfer_coefficients_base_W_K, air_node, 0.0) +
+                    get(set_node_data.heat_transfer_coefficients_gfa_scaled_W_K, air_node, 0.0)
+                ) * (
+                    set_node_data.heating_set_point_K - heating_set_point_K
+                )
+                for (set_node, set_node_data) in set_nodes
+            )
         )
-    )
-    internal_heat_gains_cooling_W = (
-        loads_data.internal_heat_gains_W +
-        (dhw_node.minimum_temperature_K - cooling_set_point_K) * (
-            dhw_node.heat_transfer_coefficients_base_W_K[air_node.building_node] +
-            dhw_node.heat_transfer_coefficients_gfa_scaled_W_K[air_node.building_node]
+    internal_heat_gains_cooling_W =
+        zero_ts + (
+            air_node_data.internal_heat_gains_air_W + sum(
+                (
+                    set_node_data.heat_transfer_coefficient_structures_interior_W_K +
+                    get(set_node_data.heat_transfer_coefficients_base_W_K, air_node, 0.0) +
+                    get(set_node_data.heat_transfer_coefficients_gfa_scaled_W_K, air_node, 0.0)
+                ) * (
+                    set_node_data.cooling_set_point_K - cooling_set_point_K
+                )
+                for (set_node, set_node_data) in set_nodes
+            )
         )
-    )
 
     # Calculate required node properties.
     self_discharge_coefficient_W_K =
-        air_node.self_discharge_base_W_K + air_node.self_discharge_gfa_scaled_W_K
+        zero_ts +
+        air_node_data.self_discharge_base_W_K +
+        air_node_data.self_discharge_gfa_scaled_W_K
     total_ambient_heat_transfer_coefficient_with_HRU_W_K =
-        air_node.heat_transfer_coefficient_windows_W_K +
-        air_node.heat_transfer_coefficient_ventilation_and_infiltration_W_K +
-        air_node.heat_transfer_coefficient_thermal_bridges_W_K
+        zero_ts +
+        air_node_data.heat_transfer_coefficient_windows_W_K +
+        air_node_data.heat_transfer_coefficient_ventilation_and_infiltration_W_K +
+        air_node_data.heat_transfer_coefficient_thermal_bridges_W_K
     total_ambient_heat_transfer_coefficient_without_HRU_W_K =
-        air_node.heat_transfer_coefficient_windows_W_K +
-        air_node.heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass +
-        air_node.heat_transfer_coefficient_thermal_bridges_W_K
+        zero_ts +
+        air_node_data.heat_transfer_coefficient_windows_W_K +
+        air_node_data.heat_transfer_coefficient_ventilation_and_infiltration_W_K_HRU_bypass +
+        air_node_data.heat_transfer_coefficient_thermal_bridges_W_K
 
     # Calculate horizontal vs vertical window area.
     horizontal_window_surface_area_m2 =
@@ -277,9 +298,9 @@ function create_building_weather(
         values(cooling_set_point_K),
         values(internal_heat_gains_heating_W),
         values(internal_heat_gains_cooling_W),
-        self_discharge_coefficient_W_K,
-        total_ambient_heat_transfer_coefficient_with_HRU_W_K,
-        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        values(self_discharge_coefficient_W_K),
+        values(total_ambient_heat_transfer_coefficient_with_HRU_W_K),
+        values(total_ambient_heat_transfer_coefficient_without_HRU_W_K),
         mod.solar_heat_gain_convective_fraction(building_archetype=archetype),
         mod.window_non_perpendicularity_correction_factor(building_archetype=archetype),
         scope_data.total_normal_solar_energy_transmittance,
@@ -328,7 +349,6 @@ function create_building_weather(
         cooling_set_point_K.ignore_year,
         cooling_set_point_K.repeat
     )
-
     return heating_demand_W,
     cooling_demand_W,
     ambient_temperature_K,

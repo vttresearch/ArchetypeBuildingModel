@@ -592,10 +592,12 @@ def aggregate_demand_and_weather(
         Internal heat gains in W for the heating demand calculations, as a time series.
     internal_heat_gains_cooling_W : array
         Internal heat gains in W for the cooling demand calculations, as a time series.
-    self_discharge_coefficient_W_K : float
-        Self-discharge coefficient in W/K.
-    total_ambient_heat_transfer_coefficient_W_K : float
-        Total heat transfer coefficient to ambient air in W/K.
+    self_discharge_coefficient_W_K : array
+        Self-discharge coefficient in W/K, as a time series.
+    total_ambient_heat_transfer_coefficient_with_HRU_W_K : array
+        Total heat transfer coefficient to ambient air in W/K with ventilation HRU, as a time series.
+    total_ambient_heat_transfer_coefficient_without_HRU_W_K : array
+        Total heat transfer coefficient to ambient air in W/K without ventilation HRU, as a time series.
     solar_heat_gain_convective_fraction : float
         Assumed convective fraction of the solar heat gains.
     window_non_perpendicularity_correction_factor : float
@@ -637,7 +639,7 @@ def aggregate_demand_and_weather(
         cutout, external_shading_coefficient
     )
 
-    # Expand set points and internal heat gains to xarrays
+    # Expand potential time-series inputs to xarrays
     heating_set_point_K = expand_to_xarray(
         heating_set_point_K, ambient_temperature_K, "Heating set point", "K"
     )
@@ -649,6 +651,24 @@ def aggregate_demand_and_weather(
     )
     internal_heat_gains_cooling_W = expand_to_xarray(
         internal_heat_gains_cooling_W, ambient_temperature_K, "Internal heat gains", "W"
+    )
+    self_discharge_coefficient_W_K = expand_to_xarray(
+        self_discharge_coefficient_W_K,
+        ambient_temperature_K,
+        "Self-discharge coefficient",
+        "W/K",
+    )
+    total_ambient_heat_transfer_coefficient_with_HRU_W_K = expand_to_xarray(
+        total_ambient_heat_transfer_coefficient_with_HRU_W_K,
+        ambient_temperature_K,
+        "Ambient heat transfer coefficient with HRU",
+        "W/K",
+    )
+    total_ambient_heat_transfer_coefficient_without_HRU_W_K = expand_to_xarray(
+        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        ambient_temperature_K,
+        "Ambient heat transfer coefficient without HRU",
+        "W/K",
     )
 
     # Process initial heating demand, with HRU!
@@ -684,33 +704,27 @@ def aggregate_demand_and_weather(
         vertical_window_surface_area_m2,
         horizontal_window_surface_area_m2,
     )
-    # If there's a difference between the heat transfer coefficients
-    # we also need to check the case without HRU if it avoids cooling.
-    if (
-        total_ambient_heat_transfer_coefficient_with_HRU_W_K
-        != total_ambient_heat_transfer_coefficient_without_HRU_W_K
-    ):
-        cooling_demand_W_raw = process_initial_heating_demand(
-            cooling_set_point_K,
-            ambient_temperature_K,
-            total_effective_irradiation_W_effm2,
-            internal_heat_gains_cooling_W,
-            self_discharge_coefficient_W_K,
-            total_ambient_heat_transfer_coefficient_without_HRU_W_K,
-            solar_heat_gain_convective_fraction,
-            window_non_perpendicularity_correction_factor,
-            total_normal_solar_energy_transmittance,
-            vertical_window_surface_area_m2,
-            horizontal_window_surface_area_m2,
-        )
-        # Out of these, we'll assume the HRU does it's best to avoid cooling demand.
-        cooling_demand_W = xarray.where(
-            cooling_demand_W_HRU > cooling_demand_W_raw,
-            cooling_demand_W_HRU,
-            cooling_demand_W_raw,
-        )
-    else:
-        cooling_demand_W = cooling_demand_W_HRU
+    # Cooling without HRU.
+    cooling_demand_W_raw = process_initial_heating_demand(
+        cooling_set_point_K,
+        ambient_temperature_K,
+        total_effective_irradiation_W_effm2,
+        internal_heat_gains_cooling_W,
+        self_discharge_coefficient_W_K,
+        total_ambient_heat_transfer_coefficient_without_HRU_W_K,
+        solar_heat_gain_convective_fraction,
+        window_non_perpendicularity_correction_factor,
+        total_normal_solar_energy_transmittance,
+        vertical_window_surface_area_m2,
+        horizontal_window_surface_area_m2,
+    )
+    # Out of these, we'll assume the HRU does it's best to avoid cooling demand.
+    cooling_demand_W = xarray.where(
+        cooling_demand_W_HRU > cooling_demand_W_raw,
+        cooling_demand_W_HRU,
+        cooling_demand_W_raw,
+    )
+
     # Cooling demand is indicated by the negative values of the steady-state solution,
     # cut out heating demand as it likely has its own set point.
     cooling_demand_W = xarray.where(cooling_demand_W > 0.0, 0.0, -cooling_demand_W)

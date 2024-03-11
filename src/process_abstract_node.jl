@@ -139,6 +139,7 @@ function process_abstract_node(
         n in keys(building_node_network)
     )
     # Force symmetry.
+    # TODO: Do we need to do this twice here and later?
     mergewith!(
         +,
         heat_transfer_coefficients_W_K,

@@ -105,7 +105,7 @@ end
         building_node_network[archetype],
         loads_data[archetype];
         mod=m,
-    ) for archetype in m.building_archetype()
+    ) for archetype in m.building_archetype(:DH1_LBM)
 )
 
 
