@@ -133,7 +133,7 @@ function solve_heating_demand(
         delta_t
     )
 
-    # Calculate the heating demand corrections for the indoor air node
+    # Calculate the heating demand for the indoor air node
     heating_demand_kW,
     cooling_demand_kW,
     heating_correction_W,
