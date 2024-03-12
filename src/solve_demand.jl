@@ -139,7 +139,8 @@ function solve_heating_demand(
         archetype,
         heating_temperatures_K,
         cooling_temperatures_K,
-        air_node
+        air_node,
+        free_nodes
     )
 
     # Estimated node temperatures based on heating and cooling demand ratio.
@@ -306,7 +307,8 @@ end
         archetype::ArchetypeBuilding,
         heating_temperatures_K::Dict{Object,SpineDataType},
         cooling_temperatures_K::Dict{Object,SpineDataType},
-        air_node::Object
+        air_node::Object,
+        free_nodes::Dict{Object,AbstractNode}
     )
 
 Calculate the final heating and cooling demands of the interior air node.
@@ -317,20 +319,18 @@ function calculate_final_heating_demand(
     archetype::ArchetypeBuilding,
     heating_temperatures_K::Dict{Object,T} where {T<:SpineDataType},
     cooling_temperatures_K::Dict{Object,T} where {T<:SpineDataType},
-    air_node::Object
+    air_node::Object,
+    free_nodes::Dict{Object,AbstractNode}
 )
-    # Fetch the abstract nodes and omit the indoor air node.
-    abstract_nodes = copy(archetype.abstract_nodes)
-    pop!(abstract_nodes, air_node)
-
-    # Calculate the heating and cooling demand corrections
+    # Calculate the heating and cooling demand corrections from free nodes.
+    # Set nodes already accounted for in `create_building_weather`.
     heating_correction_W = sum(
         abstract_node.heat_transfer_coefficients_W_K[air_node] *
         (
             heating_temperatures_K[node] -
             archetype.weather_data.heating_set_point_K
         )
-        for (node, abstract_node) in abstract_nodes
+        for (node, abstract_node) in free_nodes
     )
     cooling_correction_W = sum(
         abstract_node.heat_transfer_coefficients_W_K[air_node] *
@@ -338,7 +338,7 @@ function calculate_final_heating_demand(
             cooling_temperatures_K[node] -
             archetype.weather_data.cooling_set_point_K
         )
-        for (node, abstract_node) in abstract_nodes
+        for (node, abstract_node) in free_nodes
     )
 
     # Calculate the final heating and cooling demands.
