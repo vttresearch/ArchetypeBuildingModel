@@ -135,7 +135,9 @@ function solve_heating_demand(
 
     # Calculate the heating demand corrections for the indoor air node
     heating_demand_kW,
-    cooling_demand_kW = calculate_final_heating_demand(
+    cooling_demand_kW,
+    heating_correction_W,
+    cooling_correction_W = calculate_final_heating_demand(
         archetype,
         heating_temperatures_K,
         cooling_temperatures_K,
@@ -169,7 +171,9 @@ function solve_heating_demand(
         air_node => heating_demand_kW,
         dhw_node => dhw_demand_kW
     ),
-    Dict(air_node => cooling_demand_kW)
+    Dict(air_node => cooling_demand_kW),
+    heating_correction_W,
+    cooling_correction_W
 end
 
 
@@ -327,8 +331,8 @@ function calculate_final_heating_demand(
     heating_correction_W = sum(
         abstract_node.heat_transfer_coefficients_W_K[air_node] *
         (
-            heating_temperatures_K[node] -
-            archetype.weather_data.heating_set_point_K
+            archetype.weather_data.heating_set_point_K -
+            heating_temperatures_K[node]
         )
         for (node, abstract_node) in free_nodes
     )
@@ -344,7 +348,7 @@ function calculate_final_heating_demand(
     # Calculate the final heating and cooling demands.
     heating_demand_kW = timedata_operation(
         max,
-        archetype.weather_data.preliminary_heating_demand_W - heating_correction_W,
+        archetype.weather_data.preliminary_heating_demand_W + heating_correction_W,
         0.0
     ) / 1e3
     cooling_demand_kW = timedata_operation(
@@ -352,7 +356,10 @@ function calculate_final_heating_demand(
         archetype.weather_data.preliminary_cooling_demand_W + cooling_correction_W,
         0.0
     ) / 1e3
-    return heating_demand_kW, cooling_demand_kW
+    return heating_demand_kW,
+    cooling_demand_kW,
+    heating_correction_W,
+    cooling_correction_W
 end
 
 

@@ -262,3 +262,29 @@ for (p, ts) in results.hvac_consumption_kW
     plot!(process_plt, keys(ts), values(ts), label=string(p))
 end
 display(process_plt)
+
+correction_plt = plot(; title="Preliminary demands and corrections in [W]")
+plot!(
+    correction_plt,
+    keys(results.archetype.weather_data.preliminary_heating_demand_W),
+    values(results.archetype.weather_data.preliminary_heating_demand_W),
+    label="Preliminary heating"
+)
+plot!(
+    correction_plt,
+    keys(results.archetype.weather_data.preliminary_cooling_demand_W),
+    values(results.archetype.weather_data.preliminary_cooling_demand_W),
+    label="Preliminary cooling"
+)
+plot!(
+    correction_plt,
+    keys(results.heating_correction_W),
+    values(results.heating_correction_W),
+    label="Heating correction"
+)
+plot!(
+    correction_plt,
+    keys(results.cooling_correction_W),
+    values(results.cooling_correction_W),
+    label="Cooling correction"
+)
