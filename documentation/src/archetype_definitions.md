@@ -267,7 +267,7 @@ Default value: `nothing`
 
 Value list: `nothing`
 
-### `window_area_distribution_towards_cardinal_directions`
+### `window_area_distribution`
 
 >Assumed distribution of window area towards the cardinal directions. By default, window area is assumed to be distributed equally towards all cardinal directions.
 

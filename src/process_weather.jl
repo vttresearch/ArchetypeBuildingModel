@@ -277,7 +277,7 @@ function create_building_weather(
     # Calculate horizontal vs vertical window area.
     horizontal_window_surface_area_m2 =
         envelope_data.window.surface_area_m2 *
-        mod.window_area_distribution_towards_cardinal_directions(
+        mod.window_area_distribution(
             building_archetype=archetype,
             cardinal_direction=:horizontal
         )
