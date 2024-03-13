@@ -63,9 +63,6 @@ function run_parameter_tests(mod::Module=@__MODULE__; limit::Real=Inf)
         mod.scope_period_start_year => (type=Real, min=0, max=2100),
         mod.building_stock_year => (type=Real, min=1900, max=2050),
         mod.shapefile_path => (type=Symbol,),
-        mod.ambient_temperature_K => (type=SpineDataType,),
-        mod.diffuse_solar_irradiation_W_m2 => (type=SpineDataType,),
-        mod.direct_solar_irradiation_W_m2 => (type=Map,),
         mod.location_name => (type=Symbol,),
         mod.exterior_resistance_m2K_W => (type=Real, min=0),
         mod.interior_resistance_m2K_W => (type=Real, min=0),
@@ -132,8 +129,6 @@ function run_object_class_tests(mod::Module=@__MODULE__; limit::Real=Inf)
             (rel=mod.building_archetype__building_scope, min=1, max=1),
         mod.building_archetype =>
             (rel=mod.building_archetype__building_systems, min=1, max=1),
-        mod.building_archetype =>
-            (rel=mod.building_archetype__building_weather, min=0, max=1),
         mod.building_archetype =>
             (rel=mod.building_archetype__system_link_node, min=1),
         mod.building_fabrics => (rel=mod.building_fabrics__building_node, min=1),

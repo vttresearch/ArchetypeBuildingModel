@@ -754,7 +754,6 @@ This struct contains the following fields:
 - `fabrics::Object`: The defined `building_fabrics` for this archetype.
 - `systems::Object`: The defined `building_systems` for this archetype.
 - `loads::Object`: The defined `building_loads` for this archetype.
-- `weather::Object`: The defined `building_weather` for this archetype.
 - `scope_data::ScopeData`: The processed `building_scope` data for this archetype.
 - `envelope_data::EnvelopeData`: The processed envelope properties of this archetype.
 - `building_nodes::BuildingNodeNetwork`: The temperature node network depicting this archetype.
