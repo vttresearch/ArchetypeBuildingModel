@@ -554,7 +554,7 @@ This struct contains the following fields:
 - `coefficient_of_performance_mode::Symbol`: The mode of the process, either `:heating` or `:cooling`.
 - `maximum_power_base_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined base maximum power flows in [W] between this process and the nodes.
 - `maximum_power_gfa_scaled_W::Dict{Tuple{Object,Object},SpineDataType}`: User-defined gross-floor-area-scaling maximum power flows in [W] between this process and the nodes.
-- `maximum_flows::Dict{Tuple{Object,Object},SpineDataType}`: The total maximum flows to/from this process, for modelling convenience.
+- `maximum_flows_W::Dict{Tuple{Object,Object},SpineDataType}`: The total maximum flows to/from this process [W], for modelling convenience.
 
 The constructor calls the [`process_building_system`](@ref) function.
 """
@@ -681,51 +681,6 @@ AbstractNodeNetwork = Dict{Object,AbstractNode}
 
 
 """
-    AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__) <: BuildingDataType
-
-Contain parameters defining a `process` in a model-agnostic manner.
-
-TODO: Revise documentation.
-
-Essentially, a `process` is a commodity transfer/conversion from one `node` to another.
-For the purposes of the `ArBuMo.jl`,
-`processes` only have two attributes of interest:
-The ratio between total input and total output,
-and the maximum flows to and from the connected `nodes`.
-
-NOTE! The `mod` keyword changes from which Module data is accessed from,
-`@__MODULE__` by default.
-
-This struct contains the following fields:
-- `building_process::Object`: The `building_process` definition this `AbstractProcess` depicts.
-- `number_of_processes::Float64`: The number of aggregated processes this one depicts for the large-scale energy system models.
-- `coefficient_of_performance::SpineDataType`: The coefficient of performance of this process.
-- `maximum_flows::Dict{Tuple{Object,Object},SpineDataType}`: The maximum flows to/from this process.
-
-The constructor calls the [`process_abstract_system`](@ref) function.
-"""
-struct AbstractProcess <: BuildingDataType
-    archetype::Object
-    building_process::Object
-    coefficient_of_performance_mode::Symbol
-    coefficient_of_performance::SpineDataType
-    maximum_flows::Dict{Tuple{Object,Object},SpineDataType}
-    """
-        AbstractProcess(process_data::BuildingProcessData; mod::Module = @__MODULE__)
-
-    Creates a new `AbstractProcess` based on `process_data`.
-    """
-    function AbstractProcess(process_data::BuildingProcessData; mod::Module=@__MODULE__)
-        new(
-            process_data.archetype,
-            process_data.building_process,
-            process_abstract_system(process_data; mod=mod)...,
-        )
-    end
-end
-
-
-"""
     ArchetypeBuilding(
         archetype::Object;
         mod::Module = @__MODULE__,
@@ -739,7 +694,7 @@ TODO: Revise documentation!
 The `ArchetypeBuilding` struct stores the information about the objects
 used in its construction, the aggregated statistical and structural properties,
 as well as the [`BuildingNodeData`](@ref) and [`BuildingProcessData`](@ref).
-Furthermore, the relevant [`AbstractNode`](@ref) and [`AbstractProcess`](@ref)
+Furthermore, the relevant [`AbstractNode`](@ref) and [`BuildingProcessData`](@ref)
 used to create the large-scale energy system model input
 are also stored for convenience. The contents of the `ArchetypeBuilding`
 are intended to be as human-readable as possible to allow for
@@ -761,7 +716,6 @@ This struct contains the following fields:
 - `loads_data::LoadsData`: The loads defined for this archetype.
 - `weather_data::WeatherData`: The processed weather data for this archetype.
 - `abstract_nodes::AbstractNodeNetwork`: The processed [`AbstractNode`](@ref)s depicting this archetype.
-- `abstract_processes::Dict{Object,AbstractProcess}`: The processed [`AbstractProcess`](@ref)es in this archetype.
 
 The constructor performs the following steps:
 1. Fetch and create the corresponding [`WeatherData`](@ref).
@@ -771,8 +725,7 @@ The constructor performs the following steps:
 5. Process the temperature nodes using the [`create_building_node_network`](@ref) function.
 6. Create the [`BuildingProcessData`](@ref) for the HVAC system components.
 7. Process the abstract temperature nodes using the [`create_abstract_node_network`](@ref) function based on the [`BuildingNodeNetwork`](@ref).
-8. Create the [`AbstractProcess`](@ref)es corresponding to the [`BuildingProcessData`](@ref)s.
-9. Construct the final `ArchetypeBuilding`.
+8. Construct the final `ArchetypeBuilding`.
 """
 struct ArchetypeBuilding
     archetype::Object
@@ -787,7 +740,6 @@ struct ArchetypeBuilding
     loads_data::LoadsData
     weather_data::WeatherData
     abstract_nodes::AbstractNodeNetwork
-    abstract_processes::Dict{Object,AbstractProcess}
     """
         ArchetypeBuilding(
             archetype::Object;
@@ -867,10 +819,6 @@ struct ArchetypeBuilding
             weather_data;
             mod=mod
         )
-        abstract_processes = Dict{Object,AbstractProcess}(
-            process => AbstractProcess(process_data; mod=mod) for
-            (process, process_data) in building_processes
-        )
 
         # Create the ArchetypeBuilding
         new(
@@ -885,8 +833,7 @@ struct ArchetypeBuilding
             building_processes,
             loads_data,
             weather_data,
-            abstract_nodes,
-            abstract_processes,
+            abstract_nodes
         )
     end
 end

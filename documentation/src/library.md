@@ -111,7 +111,6 @@ ArBuMo.initialize_temperatures
 ArBuMo.initialize_rhs
 ArBuMo.load_definitions_template
 ArBuMo.process_abstract_node
-ArBuMo.process_abstract_system
 ArBuMo.process_building_envelope
 ArBuMo.process_building_loads
 ArBuMo.process_building_node

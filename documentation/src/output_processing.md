@@ -42,24 +42,6 @@ which is why the [`AbstractNode`](@ref)s are used for the calculations in the
 [`ArBuMo.solve_heating_demand`](@ref) function.
 
 
-### Processing HVAC equipment into `AbstractProcess`es
-
-Similar to [`BuildingNodeData`](@ref), [`BuildingProcessData`](@ref) has been
-designed primarily with human-readability in mind, containing multiple
-parameters related to coefficients of performance, sizing of the systems, etc.
-However, for large-scale energy system model input, these are processed to
-their bare essentials via the [`ArBuMo.process_abstract_system`](@ref) function
-and stored as an [`AbstractProcess`](@ref).
-
-!!! note
-    The `coefficient_of_performance` and `maximum_flows` properties of the [`AbstractProcess`](@ref) account for the `number_of_processes` and W -> MW scaling for the total conversion from energy-system- to archetype-building-scale, making the units of measurement not immediately obvious. If you want to avoid this scaling, the easiest way to bypass it is to model 1,000,000 identical buildings, in which case the W -> MW scaling negates itself.
-
-Again, this abstraction happens to simplify
-[Solving the baseline heating demand and HVAC equipment consumption](@ref),
-thus making use of the [`AbstractProcess`](@ref) in the
-[`ArBuMo.solve_consumption`](@ref) function.
-
-
 ## Backbone input data processing
 
 This section aims to provide an overview of the processing done for
