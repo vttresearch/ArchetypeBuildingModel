@@ -120,8 +120,8 @@
         [
             "building_node",
             "interior_air_and_furniture",
-            "interior_air_and_furniture_weight",
-            1.0,
+            "is_interior",
+            true,
             "Base"
         ],
         [

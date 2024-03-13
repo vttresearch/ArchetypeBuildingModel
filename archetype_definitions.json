@@ -264,6 +264,14 @@
         [
             "COP_modes",
             "heating"
+        ],
+        [
+            "Boolean",
+            true
+        ],
+        [
+            "Boolean",
+            false
         ]
     ],
     "object_parameters": [
@@ -402,7 +410,7 @@
         ],
         [
             "building_archetype",
-            "window_area_distribution_towards_cardinal_directions",
+            "window_area_distribution",
             {
                 "type": "map",
                 "index_type": "str",
@@ -412,26 +420,14 @@
                         0.0
                     ],
                     [
-                        "north",
-                        0.25
-                    ],
-                    [
-                        "east",
-                        0.25
-                    ],
-                    [
-                        "south",
-                        0.25
-                    ],
-                    [
-                        "west",
-                        0.25
+                        "vertical",
+                        1.0
                     ]
                 ],
-                "index_name": "cardinal_direction"
+                "index_name": "direction"
             },
             null,
-            "Assumed distribution of window area towards the cardinal directions. By default, window area is assumed to be distributed equally towards all cardinal directions."
+            "Assumed distribution of window area between horizontal and vertical furfaces."
         ],
         [
             "building_archetype",
@@ -519,10 +515,10 @@
         ],
         [
             "building_node",
-            "interior_air_and_furniture_weight",
-            0.0,
-            null,
-            "Weight for how much of the interior air and furniture is included in this node."
+            "is_interior",
+            false,
+            "Boolean",
+            "A flag indicating whether this node is the primary indoor air and furniture node, driving heating and cooling demand due to comfort limitations."
         ],
         [
             "building_node",
