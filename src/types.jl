@@ -879,9 +879,7 @@ The constructor performs the following steps:
 """
 struct ArchetypeBuildingResults <: BuildingDataType
     archetype::ArchetypeBuilding
-    heating_temperatures_K::Dict{Object,SpineDataType}
-    cooling_temperatures_K::Dict{Object,SpineDataType}
-    estimated_temperatures_K::Dict{Object,SpineDataType}
+    temperatures_K::Dict{Object,SpineDataType}
     heating_demand_kW::Dict{Object,SpineDataType}
     cooling_demand_kW::Dict{Object,SpineDataType}
     hvac_consumption_kW::Dict{Object,SpineDataType}
@@ -901,9 +899,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
         mod::Module=@__MODULE__,
         realization::Symbol=:realization
     )
-        heating_temperatures_K,
-        cooling_temperatures_K,
-        estimated_temperatures_K,
+        temperatures_K,
         heating_demand_kW,
         cooling_demand_kW,
         heating_correction_W,
@@ -919,9 +915,7 @@ struct ArchetypeBuildingResults <: BuildingDataType
         )
         new(
             archetype,
-            heating_temperatures_K,
-            cooling_temperatures_K,
-            estimated_temperatures_K,
+            temperatures_K,
             heating_demand_kW,
             cooling_demand_kW,
             hvac_consumption_kW,

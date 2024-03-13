@@ -182,7 +182,6 @@ results__system_link_node = initialize_result_classes!(m)
     mod=m
 )
 
-
 ## Test creating and writing SpineOpt input
 
 @info "Creating `SpineOptInput`..."
@@ -235,14 +234,8 @@ end
 display(irradiation_plot)
 
 temp_plt = plot(; title="Node temperatures in [C]")
-for (name, temps) in [
-    "heating" => results.heating_temperatures_K,
-    "cooling" => results.cooling_temperatures_K,
-    "estimated" => results.estimated_temperatures_K
-]
-    for (n, ts) in temps
-        plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=name * ": " * string(n))
-    end
+for (n, ts) in results.temperatures_K
+    plot!(temp_plt, keys(ts), values(ts) .- 273.15, label=string(n))
 end
 display(temp_plt)
 
