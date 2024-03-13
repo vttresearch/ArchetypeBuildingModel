@@ -94,7 +94,7 @@ function solve_heating_demand(
     # Categorize nodes based on their role.
     (air_node, air_node_data) = only(
         filter(
-            pair -> pair[2].is_interior, archetype.abstract_nodes
+            pair -> pair[2].is_interior_node, archetype.abstract_nodes
         )
     )
     (dhw_node, dhw_node_data) = only(

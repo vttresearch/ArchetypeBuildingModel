@@ -208,7 +208,7 @@ function create_building_weather(
 )
     # Fetch air node data, as well as any other nodes with set points.
     (air_node, air_node_data) = only(
-        filter(pair -> pair[2].interior_air_and_furniture_weight > 0, building_nodes)
+        filter(pair -> pair[2].is_interior_node, building_nodes)
     )
     set_nodes = filter(
         pair -> !isnothing(pair[2].heating_set_point_K), building_nodes

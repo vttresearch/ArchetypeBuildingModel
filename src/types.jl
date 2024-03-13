@@ -353,7 +353,7 @@ This struct contains the following fields:
 - `internal_heat_gains_air_W::SpineDataType`: Convective part of internal heat gains on this node in [W].
 - `internal_heat_gains_structures_W::SpineDataType`: Radiative part of internal heat gains on this node in [W].
 - `radiative_envelope_sky_losses_W::SpineDataType`: Radiative heat losses to the sky from the exposed parts of the building envelope [W].
-- `interior_air_and_furniture_weight::Float64`: The defined share of interior air and furniture assigned to this node.
+- `is_interior_node::Bool`: Flag indicating whether this node is the primary indoor air node.
 
 The constructor calls the [`process_building_node`](@ref) function,
 and checks the values are sensible.
@@ -383,7 +383,7 @@ struct BuildingNodeData <: BuildingDataType
     domestic_hot_water_demand_W::SpineDataType
     internal_heat_gains_air_W::SpineDataType
     internal_heat_gains_structures_W::SpineDataType
-    interior_air_and_furniture_weight::Float64
+    is_interior_node::Bool
     """
         BuildingNodeData(
             archetype::Object,
@@ -620,7 +620,7 @@ This struct contains the following fields:
 - `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
 - `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
 - `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
-- `is_interior::Bool`: A flag indicating whether this node is the primary interior air node.
+- `is_interior_node::Bool`: A flag indicating whether this node is the primary interior air node.
 - `is_dhw::Bool`: A flag indicating whether this node is the primary DHW node.
 
 The constructor calls the [`process_abstract_node`](@ref) function.
@@ -636,7 +636,7 @@ struct AbstractNode <: BuildingDataType
     self_discharge_coefficient_W_K::SpineDataType
     heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
     external_load_W::SpineDataType
-    is_interior::Bool
+    is_interior_node::Bool
     is_dhw::Bool
     """
         AbstractNode(
