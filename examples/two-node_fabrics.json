@@ -120,7 +120,7 @@
         [
             "building_node",
             "interior_air_and_furniture",
-            "is_interior",
+            "is_interior_node",
             true,
             "Base"
         ],

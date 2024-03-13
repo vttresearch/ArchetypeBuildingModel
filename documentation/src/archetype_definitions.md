@@ -377,7 +377,7 @@ Default value: `0.0`
 
 Value list: `nothing`
 
-### `interior_air_and_furniture_weight`
+### `is_interior_node`
 
 >Weight for how much of the interior air and furniture is included in this node.
 

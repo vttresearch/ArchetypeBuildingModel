@@ -515,7 +515,7 @@
         ],
         [
             "building_node",
-            "is_interior",
+            "is_interior_node",
             false,
             "Boolean",
             "A flag indicating whether this node is the primary indoor air and furniture node, driving heating and cooling demand due to comfort limitations."
