@@ -63,7 +63,7 @@ or their [*Creating a Cutout with ERA5* example](https://atlite.readthedocs.io/e
 
 The `prepare_layout` function takes the given `shapefile`, the optional
 `raster_path`, as well as the `location_id_gfa_weights` produced by the
-[`ArBuMo.process_building_stock_scope`](@ref) function,
+[`ArchetypeBuildingModel.process_building_stock_scope`](@ref) function,
 and produces a `layout` raster for sampling the ERA5 weather data. Again, see the
 [`atlite` documentation](https://atlite.readthedocs.io/en/latest/introduction.html)
 for more information. The `layout` produced here is essentially identical to
@@ -94,7 +94,7 @@ raster resolution to ERA5.
 
 After both the `cutout` and the `layout` have been processed,
 the `process_weather` function is called to calculate the aggregated weather
-parameters required for the `ArBuMo.jl`. Essentially,
+parameters required for the `ArchetypeBuildingModel.jl`. Essentially,
 this means calculating the following:
 1. Ambient temperature in [K].
 2. Diffuse irradiation on a horizontal surface in [W/m2].

@@ -1,7 +1,7 @@
 #=
     export.jl
 
-Functions for exporting `ArBuMo.jl` outputs into different
+Functions for exporting `ArchetypeBuildingModel.jl` outputs into different
 formats, e.g. Spine Datastores and .csv files.
 =#
 
@@ -35,6 +35,6 @@ function write_to_url(url::String, input::ModelInput; alternative::String="")
     @time import_data(
         url,
         data,
-        "Import `$(typeof(input))` from `ArBuMo` output.",
+        "Import `$(typeof(input))` from `ArchetypeBuildingModel` output.",
     )
 end

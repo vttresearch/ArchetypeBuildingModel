@@ -1,9 +1,9 @@
 .vscode/
 Manifest.toml
 data/
-src/ArBuWe/__pycache__/
+src/archetypebuildingweather/__pycache__/
 __pycache__/
-ArBuWe.egg-info/
+ArchetypeBuildingWeather.egg-info/
 figs/
 docs/src/archetype_definitions.md
 src/build/

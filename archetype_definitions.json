@@ -51,6 +51,11 @@
             280375465145887
         ],
         [
+            "building_weather",
+            "Represents weather for the archetype buildings.",
+            280378333984452
+        ],
+        [
             "direction",
             "Direction of process commodity flows, either into or from nodes.",
             280953247691575
@@ -106,6 +111,15 @@
                 "building_systems"
             ],
             "Defines the heating/cooling systems used by the archetype building.",
+            null
+        ],
+        [
+            "building_archetype__building_weather",
+            [
+                "building_archetype",
+                "building_weather"
+            ],
+            "Defines the weather for the archetype building.",
             null
         ],
         [
@@ -250,14 +264,6 @@
         [
             "COP_modes",
             "heating"
-        ],
-        [
-            "Boolean",
-            true
-        ],
-        [
-            "Boolean",
-            false
         ]
     ],
     "object_parameters": [
@@ -396,7 +402,7 @@
         ],
         [
             "building_archetype",
-            "window_area_distribution",
+            "window_area_distribution_towards_cardinal_directions",
             {
                 "type": "map",
                 "index_type": "str",
@@ -406,14 +412,26 @@
                         0.0
                     ],
                     [
-                        "vertical",
-                        1.0
+                        "north",
+                        0.25
+                    ],
+                    [
+                        "east",
+                        0.25
+                    ],
+                    [
+                        "south",
+                        0.25
+                    ],
+                    [
+                        "west",
+                        0.25
                     ]
                 ],
-                "index_name": "direction"
+                "index_name": "cardinal_direction"
             },
             null,
-            "Assumed distribution of window area between horizontal and vertical furfaces."
+            "Assumed distribution of window area towards the cardinal directions. By default, window area is assumed to be distributed equally towards all cardinal directions."
         ],
         [
             "building_archetype",
@@ -466,13 +484,6 @@
         ],
         [
             "building_node",
-            "cooling_set_point_K",
-            null,
-            null,
-            "Cooling set point for the node [K]."
-        ],
-        [
-            "building_node",
             "domestic_hot_water_demand_weight",
             0.0,
             null,
@@ -494,31 +505,24 @@
         ],
         [
             "building_node",
-            "heating_set_point_K",
+            "interior_air_and_furniture_weight",
+            0.0,
             null,
-            null,
-            "Heating set point for the node [K]."
+            "Weight for how much of the interior air and furniture is included in this node."
         ],
         [
             "building_node",
-            "is_interior_node",
-            false,
-            "Boolean",
-            "A flag indicating whether this node is the primary indoor air and furniture node, driving heating and cooling demand due to comfort limitations."
+            "maximum_permitted_temperature_K",
+            400.0,
+            null,
+            "Maximum allowed temperature for the node [K]."
         ],
         [
             "building_node",
-            "permitted_temperature_deviation_negative_K",
-            10.0,
+            "minimum_permitted_temperature_K",
+            200.0,
             null,
-            "Maximum allowed temperature deviation under the set point for the node [K]."
-        ],
-        [
-            "building_node",
-            "permitted_temperature_deviation_positive_K",
-            10.0,
-            null,
-            "Maximum allowed temperature deviation above the set point for the node [K]."
+            "Minimum allowed temperature for the node [K]."
         ],
         [
             "building_node",
@@ -671,6 +675,53 @@
             "The filepath to a shapefile containing the geographical information about the building stock. Required for weather data processing."
         ],
         [
+            "building_weather",
+            "ambient_temperature_K",
+            null,
+            null,
+            "Ambient air temperature [K]."
+        ],
+        [
+            "building_weather",
+            "diffuse_solar_irradiation_W_m2",
+            null,
+            null,
+            "Diffuse solar irradiation [W/m2]."
+        ],
+        [
+            "building_weather",
+            "direct_solar_irradiation_W_m2",
+            {
+                "type": "map",
+                "index_type": "str",
+                "data": [
+                    [
+                        "horizontal",
+                        0.0
+                    ],
+                    [
+                        "north",
+                        0.0
+                    ],
+                    [
+                        "east",
+                        0.0
+                    ],
+                    [
+                        "south",
+                        0.0
+                    ],
+                    [
+                        "west",
+                        0.0
+                    ]
+                ],
+                "index_name": "cardinal_direction"
+            },
+            null,
+            "Direct solar irradiation on walls facing towards the cardinal directions [W/m2]."
+        ],
+        [
             "location_id",
             "location_name",
             null,
@@ -695,14 +746,14 @@
             "structure_type",
             "is_internal",
             null,
-            "Boolean",
+            null,
             "A boolean flag for whether a structure type is internal, meaning inside the building envelope and not directly in contact with ambient conditions."
         ],
         [
             "structure_type",
             "is_load_bearing",
             true,
-            "Boolean",
+            null,
             "A boolean flag for whether a structure type is load-bearing, meaning it is designed to bear the weight of structures on top of it."
         ],
         [

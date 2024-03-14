@@ -1,14 +1,14 @@
 #=
     create_generic_input.jl
 
-Create ArBuMo.jl structure for Spine Datastores,
+Create ArchetypeBuildingModel.jl structure for Spine Datastores,
 mostly for debugging purposes.
 =#
 
 """
     GenericInput
 
-Create and store the ArBuMo.jl structure for Spine Data Stores.
+Create and store the ArchetypeBuildingModel.jl structure for Spine Data Stores.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.

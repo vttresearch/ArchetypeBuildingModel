@@ -11,7 +11,7 @@ Create and store the input data for the SpineOpt energy system model.
 
 Contains the following fields:
 - `node::ObjectClass`: Contains all the `node`s in the building models, created based on [`AbstractNode`](@ref)s.
-- `unit::ObjectClass`: Contains all the `unit`s in the building models, created based on [`BuildingtProcessData`](@ref)es.
+- `unit::ObjectClass`: Contains all the `unit`s in the building models, created based on [`AbstractProcess`](@ref)es.
 - `node__node::RelationshipClass`: Defines the heat transfer coefficients between the `node`s.
 - `unit__from_node::RelationshipClass`: Defines `unit` input flow properties.
 - `unit__to_node::RelationshipClass`: Defines `unit` output flow properties.
@@ -87,13 +87,13 @@ which essentially translates the information contained in the `result` [`Archety
 into the data structure in `spineopt` [`SpineOptInput`](@ref),
 so that it is understood by the SpineOpt energy system model.
 The key steps taken by this function are summarized below:
-1. Map the ArBuMo `building_node` objects to unique SpineOpt `node` objects.
+1. Map the ArchetypeBuildingModel `building_node` objects to unique SpineOpt `node` objects.
 2. Identify the necessary *system link nodes*, and add them into the set of SpineOpt `node` objects with the desired names.
-3. Map the ArBuMo `building_process` objects to unique SpineOpt `unit` objects.
+3. Map the ArchetypeBuildingModel `building_process` objects to unique SpineOpt `unit` objects.
 4. Determine SpineOpt `node` parameters based on the [`AbstractNode`](@ref) properties.
 5. Determine SpineOpt `node__node` parameters based on the [`AbstractNode`](@ref) heat transfer coefficients.
-6. Determine SpineOpt `unit__from_node` and `unit__to_node` parameters based on the [`BuildingProcessData`](@ref) maximum flow parameters.
-7. Determine SpineOpt `unit__node__node` parameters based on the [`BuildingProcessData`](@ref) properties.
+6. Determine SpineOpt `unit__from_node` and `unit__to_node` parameters based on the [`AbstractProcess`](@ref) maximum flow parameters.
+7. Determine SpineOpt `unit__node__node` parameters based on the [`AbstractProcess`](@ref) properties.
 """
 function add_archetype_to_input!(
     spineopt::SpineOptInput,
@@ -195,7 +195,7 @@ function add_archetype_to_input!(
     ufn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
         (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), v) in abs_p.maximum_flows_W if (
+        ((d, n), v) in abs_p.maximum_flows if (
             v >= 0 && d == mod.direction(:from_node) ||
             v < 0 && d == mod.direction(:to_node)
         )
@@ -211,7 +211,7 @@ function add_archetype_to_input!(
     utn_param_dict = Dict(
         (u_map[p], n_map[n]) => Dict(:unit_capacity => parameter_value(abs(v))) for
         (p, abs_p) in result.archetype.abstract_processes for
-        ((d, n), v) in abs_p.maximum_flows_W if (
+        ((d, n), v) in abs_p.maximum_flows if (
             v >= 0 && d == mod.direction(:to_node) ||
             v < 0 && d == mod.direction(:from_node)
         )
@@ -243,8 +243,8 @@ function add_archetype_to_input!(
                 ) : nothing,
             ),
         ) for (p, abs_p) in result.archetype.abstract_processes for
-        ((d1, n1), v1) in abs_p.maximum_flows_W for
-        ((d2, n2), v2) in abs_p.maximum_flows_W if
+        ((d1, n1), v1) in abs_p.maximum_flows for
+        ((d2, n2), v2) in abs_p.maximum_flows if
         (d1 == mod.direction(:from_node) && d2 == mod.direction(:to_node) && n1 != n2)
     )
     add_relationships!(

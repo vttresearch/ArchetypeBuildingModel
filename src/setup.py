@@ -3,9 +3,9 @@ from setuptools import setup
 from meta import __version__, description
 
 setup(
-    name="ArBuWe",
+    name="ArchetypeBuildingWeather",
     python_requires=">=3.6",
-    py_modules=["src/ArBuWe", "meta"],
+    py_modules=["src/archetypebuildingweather", "meta"],
     install_requires=[
         "geopandas",
         "atlite",
@@ -13,8 +13,6 @@ setup(
         "numpy",
         "xarray",
         "matplotlib",
-        "scipy",
-        "pandas",
     ],
     version=__version__,
     description=description,

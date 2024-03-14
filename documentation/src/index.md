@@ -1,4 +1,4 @@
-# ArBuMo.jl
+# ArchetypeBuildingModel.jl
 
 A [SpineInterface.jl](https://github.com/Spine-project/SpineInterface.jl)-based
 Julia module for aggregating building stock data into desired
@@ -65,7 +65,7 @@ data format and the modelling code respectively.
 
 Due to the used simplified modelling approach, there are several key limitations for the model that users should be aware of:
 
-1. **ArBuMo.jl primarily aims to depict the *flexibility* in building stock heating/cooling demand, and *NOT* the demand itself.** While the model produces baseline heating and cooling demand timeseries, it is important to understand that these timeseries are oversimplified compared to the actual demand. Due to the limited number of archetype buildings and the used single-zone approach, there can be relatively long periods where, *on average*, the model requires no heating and cooling at all. In reality, it is all but guaranteed that there will always be some buildings *(or zones therein)* requiring at least some cooling and/or heating at any given time.
+1. **ArchetypeBuildingModel.jl primarily aims to depict the *flexibility* in building stock heating/cooling demand, and *NOT* the demand itself.** While the model produces baseline heating and cooling demand timeseries, it is important to understand that these timeseries are oversimplified compared to the actual demand. Due to the limited number of archetype buildings and the used single-zone approach, there can be relatively long periods where, *on average*, the model requires no heating and cooling at all. In reality, it is all but guaranteed that there will always be some buildings *(or zones therein)* requiring at least some cooling and/or heating at any given time.
 
 2. **Heating and cooling set points can currently only be provided as constants, which can have a major impact on the modelled heating/cooling flexibility.** In some places, it is common to significantly reduce heating when buildings are unoccupied in order to save energy. While such boundaries would pose no problems for the intended use in large-scale energy system optimisation models, the simple rule-based controller currently used for calculating the baseline heating/cooling demand cannot handle changing set points.
 
@@ -78,9 +78,9 @@ Due to the used simplified modelling approach, there are several key limitations
 
 ## Related works
 
-For an up-to-date list of works using [ArBuMo.jl](@ref),
+For an up-to-date list of works using [ArchetypeBuildingModel.jl](@ref),
 please refer to the
-[VTT Research Information System entry on ArBuMo.jl](https://cris.vtt.fi/en/publications/archetypebuildingmodeljl-a-julia-module-for-aggregating-building-).
+[VTT Research Information System entry on ArchetypeBuildingModel.jl](https://cris.vtt.fi/en/publications/archetypebuildingmodeljl-a-julia-module-for-aggregating-building-).
 Regardless, here are a couple of author-curated highlights:
 
 1. [Sensitivity analysis and comparison against dedicated white-box building simulation software (Preprint)](https://zenodo.org/doi/10.5281/zenodo.7623739)
@@ -92,7 +92,7 @@ Regardless, here are a couple of author-curated highlights:
 
 ## Future work?
 
-Overall, I'm beginning to feel that *ArBuMo.jl* is too
+Overall, I'm beginning to feel that *ArchetypeBuildingModel.jl* is too
 complicated to be truly useful, and different simplifications are required.
 Instead, it might be worthwhile to try an approach where the heating
 and cooling demand are separated from the depiction of the *flexibility*,

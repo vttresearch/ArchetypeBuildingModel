@@ -154,7 +154,7 @@ A comperehensive list can be found in the [Object parameters](@ref) section,
 but the most important ones are:
 - [coefficient\_of\_performance\_base](@ref): The base COP of the process.
 - [coefficient\_of\_performance\_mode](@ref): Wherther the [building\_process] is used for `:heating` or `:cooling`.
-See the [`ArBuMo.calculate_cop`](@ref) function for more details on how weather-dependent
+See the [`ArchetypeBuildingModel.calculate_cop`](@ref) function for more details on how weather-dependent
 COPs are modelled.
 
 Ultimately, each [building\_process](@ref) is processed into a [`BuildingProcessData`](@ref)

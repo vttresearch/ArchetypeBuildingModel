@@ -267,7 +267,7 @@ Default value: `nothing`
 
 Value list: `nothing`
 
-### `window_area_distribution`
+### `window_area_distribution_towards_cardinal_directions`
 
 >Assumed distribution of window area towards the cardinal directions. By default, window area is assumed to be distributed equally towards all cardinal directions.
 
@@ -377,7 +377,7 @@ Default value: `0.0`
 
 Value list: `nothing`
 
-### `is_interior_node`
+### `interior_air_and_furniture_weight`
 
 >Weight for how much of the interior air and furniture is included in this node.
 
