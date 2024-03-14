@@ -1,4 +1,4 @@
 [deps]
-ArchetypeBuildingModel = "83d8b715-256d-42a8-83e0-f336dff6771c"
+ArBuMo = "83d8b715-256d-42a8-83e0-f336dff6771c"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"

@@ -34,7 +34,7 @@ function run_parameter_tests(mod::Module=@__MODULE__; limit::Real=Inf)
             (type=Real, min=0, max=10000),
         mod.weather_end => (type=Symbol,),
         mod.weather_start => (type=Symbol,),
-        mod.window_area_distribution_towards_cardinal_directions => (type=Map,),
+        mod.window_area_distribution => (type=Map,),
         mod.window_area_to_external_wall_ratio_m2_m2 => (type=Real, min=0, max=1),
         mod.window_area_thermal_bridge_surcharge_W_m2K => (type=Real,),
         mod.window_non_perpendicularity_correction_factor =>
@@ -46,7 +46,7 @@ function run_parameter_tests(mod::Module=@__MODULE__; limit::Real=Inf)
         mod.domestic_hot_water_demand_weight => (type=Real, min=0, max=1),
         mod.effective_thermal_mass_base_J_K => (type=Real,),
         mod.effective_thermal_mass_gfa_scaling_J_m2K => (type=Real,),
-        mod.interior_air_and_furniture_weight => (type=Real, min=0, max=1),
+        mod.is_interior_node => (type=Bool,),
         mod.maximum_permitted_temperature_K => (type=Real, min=0),
         mod.minimum_permitted_temperature_K => (type=Real, min=0),
         mod.self_discharge_rate_base_W_K => (type=Real, min=0),
@@ -63,9 +63,6 @@ function run_parameter_tests(mod::Module=@__MODULE__; limit::Real=Inf)
         mod.scope_period_start_year => (type=Real, min=0, max=2100),
         mod.building_stock_year => (type=Real, min=1900, max=2050),
         mod.shapefile_path => (type=Symbol,),
-        mod.ambient_temperature_K => (type=SpineDataType,),
-        mod.diffuse_solar_irradiation_W_m2 => (type=SpineDataType,),
-        mod.direct_solar_irradiation_W_m2 => (type=Map,),
         mod.location_name => (type=Symbol,),
         mod.exterior_resistance_m2K_W => (type=Real, min=0),
         mod.interior_resistance_m2K_W => (type=Real, min=0),
@@ -132,8 +129,6 @@ function run_object_class_tests(mod::Module=@__MODULE__; limit::Real=Inf)
             (rel=mod.building_archetype__building_scope, min=1, max=1),
         mod.building_archetype =>
             (rel=mod.building_archetype__building_systems, min=1, max=1),
-        mod.building_archetype =>
-            (rel=mod.building_archetype__building_weather, min=0, max=1),
         mod.building_archetype =>
             (rel=mod.building_archetype__system_link_node, min=1),
         mod.building_fabrics => (rel=mod.building_fabrics__building_node, min=1),

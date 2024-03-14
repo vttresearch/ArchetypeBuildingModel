@@ -20,7 +20,7 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 Essentially performs the following steps:
-1. Fetch the `number_of_processes`, `system_link_nodes`, and `COP_mode` from the definitions.
+1. Fetch the `system_link_nodes`, and `COP_mode` from the definitions.
 2. Calculate the coefficient of performance using the [`calculate_cop`](@ref) function.
 3. Fetch the defined maximum power flows.
 4. Return the components for [`BuildingProcessData`](@ref).
@@ -32,8 +32,7 @@ function process_building_system(
     weather::WeatherData;
     mod::Module=@__MODULE__
 )
-    # Record the number of processes and system link nodes for input/output scaling of AbstractProcess
-    number_of_processes = scope.number_of_buildings
+    # Fetch system link nodes
     system_link_nodes =
         mod.building_archetype__system_link_node(building_archetype=archetype)
 
@@ -60,6 +59,13 @@ function process_building_system(
             ) for (dir, node) in
         mod.building_process__direction__building_node(building_process=process)
     )
+    # Calculate the total maximum flows for convenience.
+    maximum_flows_W = mergewith(
+        +,
+        maximum_power_basis_W,
+        maximum_power_gfa_scaled_W,
+    )
+    filter!(pair -> pair[2] != 0, maximum_flows_W)
 
     # Return the components of `BuildingProcessData`.
     return system_link_nodes,
@@ -67,7 +73,7 @@ function process_building_system(
     COP_mode,
     maximum_power_basis_W,
     maximum_power_gfa_scaled_W,
-    number_of_processes
+    maximum_flows_W
 end
 
 

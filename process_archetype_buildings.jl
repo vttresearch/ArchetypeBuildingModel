@@ -6,9 +6,9 @@ The main program for running the archetype building model via Spine Toolbox.
 
 using Pkg
 Pkg.activate(@__DIR__)
-using ArchetypeBuildingModel
+using ArBuMo
 using Test
-m = ArchetypeBuildingModel
+m = ArBuMo
 
 # Check that the necessary input arguments are provided
 if length(ARGS) < 1
