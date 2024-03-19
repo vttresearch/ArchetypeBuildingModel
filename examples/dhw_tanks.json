@@ -195,36 +195,6 @@
             "heat_transfer_coefficient_gfa_scaling_W_m2K",
             0.019,
             "Base"
-        ],
-        [
-            "building_node__building_node",
-            [
-                "interior_air_and_furniture",
-                "DHWT_daily_EN"
-            ],
-            "heat_transfer_coefficient_gfa_scaling_W_m2K",
-            0.016,
-            "Base"
-        ],
-        [
-            "building_node__building_node",
-            [
-                "interior_air_and_furniture",
-                "DHWT_daily_YM_1000-3000l"
-            ],
-            "heat_transfer_coefficient_gfa_scaling_W_m2K",
-            0.015,
-            "Base"
-        ],
-        [
-            "building_node__building_node",
-            [
-                "interior_air_and_furniture",
-                "DHWT_daily_YM_150-500l"
-            ],
-            "heat_transfer_coefficient_gfa_scaling_W_m2K",
-            0.019,
-            "Base"
         ]
     ]
 }
