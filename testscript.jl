@@ -20,7 +20,7 @@ m = Module()
 # Open database
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
-url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo\\.spinetoolbox\\data_and_definitions.sqlite"
+url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo_fluid\\.spinetoolbox\\data_and_definitions.sqlite"
 
 # Output url
 #output_url = <ADD OUTPUT URL IF DESIRED>
@@ -270,7 +270,7 @@ for (n, ts) in results.temperatures
 end
 display(temp_plt)
 
-hvac_plt = plot(; title="Heating/cooling demand in [W]")
+hvac_plt = plot(; title="Heating/cooling demand in [kW]")
 for (n, ts) in results.hvac_demand
     plot!(hvac_plt, keys(ts), values(ts), label=string(n))
 end

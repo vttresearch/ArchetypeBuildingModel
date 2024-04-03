@@ -153,14 +153,14 @@ function add_archetype_to_input!(
     # Add the necessary `node` objects and their parameters
     node_param_dict = Dict(
         n_map[node] => Dict(
-            :demand => parameter_value(-1 * abs_node.external_load_W),
+            :demand => parameter_value(-1 * abs_node.external_load_kW),
             :initial_node_state => parameter_value(result.initial_temperatures[node]),
             :frac_state_loss =>
-                parameter_value(abs_node.self_discharge_coefficient_W_K),
+                parameter_value(abs_node.self_discharge_coefficient_kW_K),
             :has_state => parameter_value(true),
             :node_state_cap => parameter_value(abs_node.maximum_temperature_K),
             :node_state_min => parameter_value(abs_node.minimum_temperature_K),
-            :state_coeff => parameter_value(abs_node.thermal_mass_Wh_K),
+            :state_coeff => parameter_value(abs_node.thermal_mass_kWh_K),
         ) for (node, abs_node) in result.archetype.abstract_nodes
     )
     add_object_parameter_values!(spineopt.node, node_param_dict)
@@ -182,7 +182,7 @@ function add_archetype_to_input!(
     nn_param_dict = Dict(
         (n_map[n1], n_map[n2]) => Dict(:diff_coeff => parameter_value(v)) for
         (n1, abs_n1) in result.archetype.abstract_nodes for
-        (n2, v) in abs_n1.heat_transfer_coefficients_W_K
+        (n2, v) in abs_n1.heat_transfer_coefficients_kW_K
     )
     add_relationships!(
         spineopt.node__node,

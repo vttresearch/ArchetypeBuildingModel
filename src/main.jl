@@ -189,14 +189,14 @@ function initialize_result_classes!(mod::Module)
         Dict(),
         Dict(
             param => parameter_value(nothing) for
-            param in [:initial_temperature_K, :temperature_K, :hvac_demand_W]
+            param in [:initial_temperature_K, :temperature_K, :hvac_demand_kW]
         ),
     )
     # Create the associated parameters
     initial_temperature_K =
         Parameter(:initial_temperature_K, [results__building_archetype__building_node])
     temperature_K = Parameter(:temperature_K, [results__building_archetype__building_node])
-    hvac_demand_W = Parameter(:hvac_demand_W, [results__building_archetype__building_node])
+    hvac_demand_kW = Parameter(:hvac_demand_kW, [results__building_archetype__building_node])
 
     # Initialize process results
     results__building_archetype__building_process = RelationshipClass(
@@ -229,7 +229,7 @@ function initialize_result_classes!(mod::Module)
         results__system_link_node = $results__system_link_node
         initial_temperature_K = $initial_temperature_K
         temperature_K = $temperature_K
-        hvac_demand_W = $hvac_demand_W
+        hvac_demand_kW = $hvac_demand_kW
         hvac_consumption_MW = $hvac_consumption_MW
         total_consumption_MW = $total_consumption_MW
     end
@@ -272,7 +272,7 @@ function add_results!(
             (building_archetype=r.archetype.archetype, building_node=node) => Dict(
                 :initial_temperature_K => parameter_value(r.initial_temperatures[node]),
                 :temperature_K => parameter_value(r.temperatures[node]),
-                :hvac_demand_W => parameter_value(r.hvac_demand[node]),
+                :hvac_demand_kW => parameter_value(r.hvac_demand[node]),
             ) for r in results for node in keys(r.temperatures)
         ),
     )

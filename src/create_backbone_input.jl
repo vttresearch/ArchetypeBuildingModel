@@ -330,11 +330,11 @@ function add_archetype_to_input!(
     gn_param_dict = Dict(
         (grid=g_map[n], node=n_map[n]) => Dict(
             :boundStart => parameter_value(true),
-            :energyStoredPerUnitOfState => parameter_value(abs_n.thermal_mass_Wh_K),
+            :energyStoredPerUnitOfState => parameter_value(abs_n.thermal_mass_kWh_K),
             :nodeBalance => parameter_value(true),
             :influx =>
-                parameter_value(timeseries_to_backbone_map(abs_n.external_load_W)),
-            :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_W_K),
+                parameter_value(timeseries_to_backbone_map(abs_n.external_load_kW)),
+            :selfDischargeLoss => parameter_value(abs_n.self_discharge_coefficient_kW_K),
             :r_state_gnft_baseline =>
                 parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
         ) for (n, abs_n) in result.archetype.abstract_nodes
@@ -387,7 +387,7 @@ function add_archetype_to_input!(
         (grid=g_map[n1], node1=n_map[n1], node2=n_map[n2]) =>
             Dict(:diffCoeff => parameter_value(val)) for
         (n1, abs_n1) in result.archetype.abstract_nodes for
-        (n2, val) in abs_n1.heat_transfer_coefficients_W_K
+        (n2, val) in abs_n1.heat_transfer_coefficients_kW_K
     )
     add_relationship_parameter_values!(backbone.grid__node__node, gnn_param_dict)
     merge!(
