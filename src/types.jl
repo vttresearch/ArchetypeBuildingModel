@@ -567,17 +567,17 @@ Contain parameters defining a `node` in a large-scale-energy-system-model-agnost
 Essentially, a `node` is a point in a commodity network where commodity balance is observed.
 `nodes` can have a *state*, which represents accumulated commodities at the point.
 The state of a `node` can "bleed" either outside the model scope
-via the `self_discharge_coefficient_W_K`, or into another `nodes`
-via the `heat_transfer_coefficients_W_K`. The `external_load_W` represents
+via the `self_discharge_coefficient_kW_K`, or into another `nodes`
+via the `heat_transfer_coefficients_kW_K`. The `external_load_kW` represents
 uncontrollable external influence affecting the `node`,
 e.g. commodity demand or gains.
 
 This struct contains the following fields:
 - `building_node::Object`: The `building_node` definition this `AbstractNode` depicts.
-- `thermal_mass_Wh_K::SpineDataType`: The effective thermal mass of this node in [Wh/K].
-- `self_discharge_coefficient_W_K::SpineDataType`: The self-discharge coefficient in [W/K] from this node.
-- `heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [W/K].
-- `external_load_W::SpineDataType`: Heat loads/gains on this node due to external influende, e.g. ambient conditions, inhabitants, solar irradiation, etc.
+- `thermal_mass_kWh_K::SpineDataType`: The effective thermal mass of this node in [kWh/K].
+- `self_discharge_coefficient_kW_K::SpineDataType`: The self-discharge coefficient in [kW/K] from this node.
+- `heat_transfer_coefficients_kW_K::Dict{Object,SpineDataType}`: The heat transfer coefficients between this node and other nodes in [kW/K].
+- `external_load_kW::SpineDataType`: Heat loads/gains on this node due to external influende, e.g. ambient conditions, inhabitants, solar irradiation, etc.
 - `minimum_temperature_K::SpineDataType`: Minimum permitted temperature of the node in [K].
 - `maximum_temperature_K::SpineDataType`: Maximum permitted temperature of the node in [K].
 
@@ -585,10 +585,10 @@ The constructor calls the [`process_abstract_node`](@ref) function.
 """
 struct AbstractNode <: BuildingDataType
     building_node::Object
-    thermal_mass_Wh_K::SpineDataType
-    self_discharge_coefficient_W_K::SpineDataType
-    heat_transfer_coefficients_W_K::Dict{Object,SpineDataType}
-    external_load_W::SpineDataType
+    thermal_mass_kWh_K::SpineDataType
+    self_discharge_coefficient_kW_K::SpineDataType
+    heat_transfer_coefficients_kW_K::Dict{Object,SpineDataType}
+    external_load_kW::SpineDataType
     minimum_temperature_K::SpineDataType
     maximum_temperature_K::SpineDataType
     """

@@ -162,7 +162,7 @@ end
         realization::Symbol = :realization,
     )
 
-Check that `external_load_W` timeseries are consistent in the `AbstractNodeNetwork`,
+Check that `external_load_kW` timeseries are consistent in the `AbstractNodeNetwork`,
 and determine the time series indices and the `delta_t`.
 
 Note that the time series need to have a constant `delta_t` in order for the
@@ -174,19 +174,19 @@ function determine_temporal_structure(
     archetype::ArchetypeBuilding;
     realization::Symbol=:realization
 )
-    # Check that all nodes have identical `external_load_W` time series indices.
+    # Check that all nodes have identical `external_load_kW` time series indices.
     indices =
         keys(
-            parameter_value(first(archetype.abstract_nodes)[2].external_load_W)(
+            parameter_value(first(archetype.abstract_nodes)[2].external_load_kW)(
                 scenario=realization,
             )
         )
     if !all(
-        keys(parameter_value(n.external_load_W)(scenario=realization)) == indices for
+        keys(parameter_value(n.external_load_kW)(scenario=realization)) == indices for
         (k, n) in archetype.abstract_nodes
     )
         return @error """
-        `external_load_W` time series are indexed different for `abstract_nodes`
+        `external_load_kW` time series are indexed different for `abstract_nodes`
         of `archetype_building` `$(archetype)`!
         """
     end
@@ -200,7 +200,7 @@ function determine_temporal_structure(
     delta_t = getfield.(Hour.(diff(indices)), :value)
     if !all(delta_t .== first(delta_t))
         return @error """
-        `external_load_W` time series of `archetype` `$(archetype)` must have
+        `external_load_kW` time series of `archetype` `$(archetype)` must have
         a constant time step length!
         """
     end
@@ -240,11 +240,11 @@ function form_and_invert_dynamics_matrix(archetype::ArchetypeBuilding, delta_t::
         for (j, (k2, n2)) in enum_nodes
             if i == j
                 M[i, j] =
-                    n1.thermal_mass_Wh_K / delta_t +
-                    n1.self_discharge_coefficient_W_K +
-                    reduce(+, values(n1.heat_transfer_coefficients_W_K); init=0.0)
+                    n1.thermal_mass_kWh_K / delta_t +
+                    n1.self_discharge_coefficient_kW_K +
+                    reduce(+, values(n1.heat_transfer_coefficients_kW_K); init=0.0)
             else
-                M[i, j] = -get(n1.heat_transfer_coefficients_W_K, k2, 0.0)
+                M[i, j] = -get(n1.heat_transfer_coefficients_kW_K, k2, 0.0)
             end
         end
     end
@@ -352,7 +352,7 @@ end
     )
 
 Initialize the right-hand side of the linear equation system,
-meaning the impact of the `external_load_W` and previous temperatures.
+meaning the impact of the `external_load_kW` and previous temperatures.
 
 The `realization` keyword is used to indicate the true data from potentially
 stochastic input.
@@ -372,17 +372,17 @@ function initialize_rhs(
     delta_t::Int64;
     realization::Symbol=:realization
 )
-    # Process the nodal `external_load_W`s into a nested vector for easy access.
+    # Process the nodal `external_load_kW`s into a nested vector for easy access.
     external_load_vector = [
         [
-            parameter_value(n.external_load_W)(scenario=realization, t=t) for
+            parameter_value(n.external_load_kW)(scenario=realization, t=t) for
             (k, n) in archetype.abstract_nodes
         ] for (i, t) in enumerate(indices)
     ]
 
     # Calculate the thermal mass vector to account for previous temperatures.
     thermal_mass_vector =
-        [n.thermal_mass_Wh_K / delta_t for (k, n) in archetype.abstract_nodes]
+        [n.thermal_mass_kWh_K / delta_t for (k, n) in archetype.abstract_nodes]
 
     return external_load_vector, thermal_mass_vector
 end

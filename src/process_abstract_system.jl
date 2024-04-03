@@ -45,7 +45,7 @@ function process_abstract_system(process::BuildingProcessData; mod::Module=@__MO
             Ref(process.system_link_nodes),
         ),
     )
-        coefficient_of_performance *= 1e6 / process.number_of_processes
+        coefficient_of_performance *= 1e3 / process.number_of_processes
     elseif any( # Produces output to the system link node.
         in.(
             mod.building_process__direction__building_node(
@@ -55,7 +55,7 @@ function process_abstract_system(process::BuildingProcessData; mod::Module=@__MO
             Ref(process.system_link_nodes),
         ),
     )
-        coefficient_of_performance *= process.number_of_processes / 1e6
+        coefficient_of_performance *= process.number_of_processes * 1e-3
     end
 
     # Maximum flows scaled using number of processes, sign used to indicate heating (positive) or cooling (negative).
@@ -65,9 +65,9 @@ function process_abstract_system(process::BuildingProcessData; mod::Module=@__MO
                 dir == mod.direction(:to_node) &&
                 process.coefficient_of_performance_mode == :cooling ? -1 : 1
             ) *
-            ( # Scaling W -> MW
-                !in(node, process.system_link_nodes) ? 1.0 :
-                process.number_of_processes / 1e6
+            ( # Scaling W -> kW -> MW
+                !in(node, process.system_link_nodes) ? 1e-3 :
+                process.number_of_processes * 1e-3
             ) *
             (
                 process.maximum_power_base_W[(dir, node)] +

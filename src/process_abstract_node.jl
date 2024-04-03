@@ -50,8 +50,8 @@ Essentially, this function performs the following steps:
 5. Sum together the internal heat gains, solar gains, radiative sky heat losses, DHW demand, as well as the impact of ambient temperatures.
 6. Return the components required for constructing an [`AbstractNode`](@ref).
 
-**NOTE!** The ambient temperatures are accounted for via a combination of `self_discharge_coefficient_W_K`
-and `external_load_W`, instead of  `heat_transfer_coefficients_W_K` on any ambient temperature nodes,
+**NOTE!** The ambient temperatures are accounted for via a combination of `self_discharge_coefficient_kW_K`
+and `external_load_kW`, instead of  `heat_transfer_coefficients_kW_K` on any ambient temperature nodes,
 as illustrated by the equations below.
 Typically, the heat balance equation in simplified lumped-capacitance thermal
 models is cast as
@@ -91,16 +91,16 @@ function process_abstract_node(
     node_data = building_node_network[node]
 
     # Total thermal mass of the node, in Wh/K for better scaling in energy system models.
-    thermal_mass_Wh_K =
+    thermal_mass_kWh_K =
         (
             node_data.thermal_mass_base_J_K +
             node_data.thermal_mass_gfa_scaled_J_K +
             node_data.thermal_mass_interior_air_and_furniture_J_K +
             node_data.thermal_mass_structures_J_K
-        ) / 3600 + 1e-9 # Token thermal mass always required to avoid singularities in the dynamics matrix
+        ) / 3.6e3 * 1e-3 + 1e-9 # Token thermal mass always required to avoid singularities in the dynamics matrix
 
     # Total self-discharge coefficient from the node, accounting for ambient heat transfer.
-    self_discharge_coefficient_W_K =
+    self_discharge_coefficient_kW_K = (
         node_data.self_discharge_base_W_K +
         node_data.self_discharge_gfa_scaled_W_K +
         node_data.heat_transfer_coefficient_structures_exterior_W_K +
@@ -108,9 +108,10 @@ function process_abstract_node(
         node_data.heat_transfer_coefficient_windows_W_K +
         node_data.heat_transfer_coefficient_ventilation_and_infiltration_W_K +
         node_data.heat_transfer_coefficient_thermal_bridges_W_K
+    ) * 1e-3
 
     # Heat transfer coefficients from this node to connected nodes.
-    heat_transfer_coefficients_W_K = merge(
+    heat_transfer_coefficients_kW_K = merge(
         +,
         merge(
             max,
@@ -140,11 +141,12 @@ function process_abstract_node(
             )
         )
     )
-    # And filter out zero heat transfer coefficients.
-    filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
+    # Filter out zero heat transfer coefficients and scale to kW
+    filter!(pair -> pair[2] != 0, heat_transfer_coefficients_kW_K)
+    map!(x -> x * 1e-3, values(heat_transfer_coefficients_kW_K))
 
     # External load accounting for heat transfer with ambient conditions.
-    external_load_W =
+    external_load_kW = (
         (
             node_data.heat_transfer_coefficient_structures_exterior_W_K +
             node_data.heat_transfer_coefficient_windows_W_K +
@@ -159,12 +161,13 @@ function process_abstract_node(
         node_data.solar_heat_gains_structures_W +
         node_data.solar_heat_gains_envelope_W - node_data.radiative_envelope_sky_losses_W -
         node_data.domestic_hot_water_demand_W
+    ) * 1e-3
 
     # Return the properties of interest in the correct order for `AbstractNode`.
-    return thermal_mass_Wh_K,
-    self_discharge_coefficient_W_K,
-    heat_transfer_coefficients_W_K,
-    external_load_W,
+    return thermal_mass_kWh_K,
+    self_discharge_coefficient_kW_K,
+    heat_transfer_coefficients_kW_K,
+    external_load_kW,
     node_data.minimum_temperature_K,
     node_data.maximum_temperature_K
 end
