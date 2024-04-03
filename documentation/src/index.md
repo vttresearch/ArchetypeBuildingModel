@@ -76,6 +76,13 @@ Due to the used simplified modelling approach, there are several key limitations
     - Potential change in inhabitant behaviour to increase/reduce internal heat gains depending on indoor air temperature.
 
 
+## Known bugs
+
+1. **`ArchetypeBuildingWeather.py` currently miscalculates the solar irradiation on the vertical surfaces.** This is due to the diffuse irradiation being calculated only for a horizontal surface, which is larger than what the diffuse irradiation is for a vertical surface. However, ground-reflected irradiation is also currently neglected, which compensates for the overestimated diffuse irradiation on vertical surfaces to some degree. Regardless, the solar irradiation on vertical surfaces isn't calculated correctly.
+    - Fixing this wouldn't be terribly difficult, but would require turning the diffused irradiation into a `Map` similar to the direct irradiation quantities and duplicate the data for all cardinal directions.
+    - I haven't bothered with this so far because [`ArBuMo.jl`](https://github.com/vttresearch/ArBuMo) fixes this due to overall better weather data processing _(which is incidentally how I realized this bug)_. 
+
+
 ## Related works
 
 For an up-to-date list of works using [ArchetypeBuildingModel.jl](@ref),
