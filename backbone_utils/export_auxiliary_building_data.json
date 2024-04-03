@@ -5,7 +5,7 @@
     "description": "Exports auxiliary building model data into a gdx for ease of processing.",
     "mappings": {
         "ts_influx_building_baseline": {
-            "type": "relationship_parameter_values",
+            "type": "entity_parameter_values",
             "mapping": [
                 {
                     "map_type": "FixedValue",
@@ -13,16 +13,16 @@
                     "value": "ts_influx_building_baseline"
                 },
                 {
-                    "map_type": "RelationshipClass",
+                    "map_type": "EntityClass",
                     "position": "hidden",
                     "filter_re": "^grid__node$"
                 },
                 {
-                    "map_type": "RelationshipClassObjectClass",
+                    "map_type": "Dimension",
                     "position": "hidden"
                 },
                 {
-                    "map_type": "RelationshipClassObjectClass",
+                    "map_type": "Dimension",
                     "position": "hidden"
                 },
                 {
@@ -36,16 +36,16 @@
                     "ignorable": true
                 },
                 {
-                    "map_type": "Relationship",
+                    "map_type": "Entity",
                     "position": "hidden"
                 },
                 {
-                    "map_type": "RelationshipObject",
+                    "map_type": "Element",
                     "position": 0,
                     "header": "grid"
                 },
                 {
-                    "map_type": "RelationshipObject",
+                    "map_type": "Element",
                     "position": 1,
                     "header": "node"
                 },
@@ -87,7 +87,7 @@
             "use_fixed_table_name": true
         },
         "ambient_temperature_K": {
-            "type": "object_parameter_values",
+            "type": "entity_parameter_values",
             "mapping": [
                 {
                     "map_type": "FixedValue",
@@ -95,7 +95,7 @@
                     "value": "ambient_temperature_K"
                 },
                 {
-                    "map_type": "ObjectClass",
+                    "map_type": "EntityClass",
                     "position": "hidden",
                     "filter_re": "^grid$"
                 },
@@ -110,7 +110,7 @@
                     "ignorable": true
                 },
                 {
-                    "map_type": "Object",
+                    "map_type": "Entity",
                     "position": 0,
                     "header": "grid"
                 },
@@ -152,7 +152,7 @@
             "use_fixed_table_name": true
         },
         "ground_temperature_K": {
-            "type": "object_parameter_values",
+            "type": "entity_parameter_values",
             "mapping": [
                 {
                     "map_type": "FixedValue",
@@ -160,7 +160,7 @@
                     "value": "ground_temperature_K"
                 },
                 {
-                    "map_type": "ObjectClass",
+                    "map_type": "EntityClass",
                     "position": "hidden",
                     "filter_re": "^grid$"
                 },
@@ -175,7 +175,7 @@
                     "ignorable": true
                 },
                 {
-                    "map_type": "Object",
+                    "map_type": "Entity",
                     "position": 0,
                     "header": "grid"
                 },
@@ -217,7 +217,7 @@
             "use_fixed_table_name": true
         },
         "grid_params": {
-            "type": "object_parameter_values",
+            "type": "entity_parameter_values",
             "mapping": [
                 {
                     "map_type": "FixedValue",
@@ -225,7 +225,7 @@
                     "value": "grid_params"
                 },
                 {
-                    "map_type": "ObjectClass",
+                    "map_type": "EntityClass",
                     "position": "hidden",
                     "filter_re": "^grid$"
                 },
@@ -240,7 +240,7 @@
                     "ignorable": true
                 },
                 {
-                    "map_type": "Object",
+                    "map_type": "Entity",
                     "position": 0,
                     "header": "grid"
                 },
@@ -264,7 +264,7 @@
             "use_fixed_table_name": true
         },
         "r_state_gnft_baseline_K": {
-            "type": "relationship_parameter_values",
+            "type": "entity_parameter_values",
             "mapping": [
                 {
                     "map_type": "FixedValue",
@@ -272,17 +272,17 @@
                     "value": "r_state_gnft_baseline_K"
                 },
                 {
-                    "map_type": "RelationshipClass",
+                    "map_type": "EntityClass",
                     "position": "hidden",
                     "filter_re": "^grid__node$"
                 },
                 {
-                    "map_type": "RelationshipClassObjectClass",
+                    "map_type": "Dimension",
                     "position": "hidden",
                     "filter_re": "^grid$"
                 },
                 {
-                    "map_type": "RelationshipClassObjectClass",
+                    "map_type": "Dimension",
                     "position": "hidden",
                     "filter_re": "^node$"
                 },
@@ -297,16 +297,16 @@
                     "ignorable": true
                 },
                 {
-                    "map_type": "Relationship",
+                    "map_type": "Entity",
                     "position": "hidden"
                 },
                 {
-                    "map_type": "RelationshipObject",
+                    "map_type": "Element",
                     "position": 0,
                     "header": "grid"
                 },
                 {
-                    "map_type": "RelationshipObject",
+                    "map_type": "Element",
                     "position": 1,
                     "header": "node"
                 },

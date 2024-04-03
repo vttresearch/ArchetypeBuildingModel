@@ -110,46 +110,36 @@ function process_abstract_node(
         node_data.heat_transfer_coefficient_thermal_bridges_W_K
 
     # Heat transfer coefficients from this node to connected nodes.
-    # First, connection to interior air.
-    heat_transfer_coefficients_W_K = Dict(
-        n =>
-            node_data.heat_transfer_coefficient_structures_interior_W_K *
-            building_node_network[n].interior_air_and_furniture_weight for
-        n in keys(building_node_network)
-    )
-    # Force symmetry.
-    mergewith!(
+    heat_transfer_coefficients_W_K = merge(
         +,
-        heat_transfer_coefficients_W_K,
-        Dict(
-            n =>
-                building_node_network[n].heat_transfer_coefficient_structures_interior_W_K *
-                node_data.interior_air_and_furniture_weight for
-            n in keys(building_node_network)
+        merge(
+            max,
+            Dict( # First, heat transfer to interior air.
+                n => node_data.heat_transfer_coefficient_structures_interior_W_K *
+                     n_data.interior_air_and_furniture_weight for
+                (n, n_data) in building_node_network
+            ),
+            Dict( # Force symmetry to the interior air heat transfer.
+                n => n_data.heat_transfer_coefficient_structures_interior_W_K *
+                     node_data.interior_air_and_furniture_weight for
+                (n, n_data) in building_node_network
+            )
         ),
-    )
-    # Then updated with user-defined heat-transfer coefficients
-    mergewith!(
-        +,
-        heat_transfer_coefficients_W_K,
-        node_data.heat_transfer_coefficients_base_W_K,
-    )
-    mergewith!(
-        +,
-        heat_transfer_coefficients_W_K,
-        node_data.heat_transfer_coefficients_gfa_scaled_W_K,
-    )
-    # Force symmetry.
-    for n in keys(building_node_network)
-        heat_transfer_coefficients_W_K[n] += (
-            get(building_node_network[n].heat_transfer_coefficients_base_W_K, node, 0) +
-            get(
-                building_node_network[n].heat_transfer_coefficients_gfa_scaled_W_K,
-                node,
-                0,
+        merge(
+            max,
+            merge( # User-defined heat transfers
+                +,
+                node_data.heat_transfer_coefficients_base_W_K,
+                node_data.heat_transfer_coefficients_gfa_scaled_W_K,
+            ),
+            Dict( # Force symmetry on user-defined heat transfer
+                n => (
+                    get(n_data.heat_transfer_coefficients_base_W_K, node, 0.0) +
+                    get(n_data.heat_transfer_coefficients_gfa_scaled_W_K, node, 0.0)
+                ) for (n, n_data) in building_node_network
             )
         )
-    end
+    )
     # And filter out zero heat transfer coefficients.
     filter!(pair -> pair[2] != 0, heat_transfer_coefficients_W_K)
 
