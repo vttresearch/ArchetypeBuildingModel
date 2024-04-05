@@ -400,7 +400,7 @@ function add_archetype_to_input!(
         (grid=g_map[n], node=n_map[n], unit=u_map[p], io=io_map[d]) => Dict(
             :capacity => parameter_value(abs(val)),
             :conversionCoeff => parameter_value(val / abs(val)),
-            :unitSize => parameter_value(abs(val)),
+            :unitSize => parameter_value(abs(val) / abs_p.number_of_processes),
         ) for (p, abs_p) in result.archetype.abstract_processes for
         ((d, n), val) in abs_p.maximum_flows
     )

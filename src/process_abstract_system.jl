@@ -67,7 +67,7 @@ function process_abstract_system(process::BuildingProcessData; mod::Module=@__MO
             ) *
             ( # Scaling W -> kW -> MW
                 !in(node, process.system_link_nodes) ? 1e-3 :
-                process.number_of_processes * 1e-3
+                process.number_of_processes * 1e-6
             ) *
             (
                 process.maximum_power_base_W[(dir, node)] +
