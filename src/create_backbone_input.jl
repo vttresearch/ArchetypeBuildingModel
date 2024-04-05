@@ -5,9 +5,9 @@ Functions for creating Backbone input data from the archetype buildings.
 =#
 
 """
-    BackboneInput
+    BackboneInput(url::{String,Dict})
 
-Create and store the input data for the Backbone energy system model.
+Link to the input data store for the Backbone energy system model.
 
 Contains the following fields:
 - `boundary::ObjectClass`: Contains the `upwardLimit` and `downwardLimit` settings.
@@ -40,65 +40,24 @@ struct BackboneInput <: ModelInput
     grid__node__node::RelationshipClass
     grid__node__unit__io::RelationshipClass
     unit__unittype::RelationshipClass
-    function BackboneInput() # Initialize an input struct.
-        boundary = ObjectClass(
-            :boundary,
-            [
-                Object(:downwardLimit, :boundary),
-                Object(:upwardLimit, :boundary),
-                Object(:reference, :boundary),
-            ],
-        )
-        effLevel =
-            ObjectClass(:effLevel, [Object(Symbol("level$(i)"), :effLevel) for i = 1:9])
-        effSelector = ObjectClass(:effSelector, [Object(:directOff, :effSelector)])
-        grid = ObjectClass(:grid, Array{ObjectLike,1}())
-        io = ObjectClass(:io, [Object(:input, :io), Object(:output, :io)])
-        node = ObjectClass(:node, Array{ObjectLike,1}())
-        unit = ObjectClass(:unit, Array{ObjectLike,1}())
-        unittype = ObjectClass(:unittype, [Object(:HVAC, :unittype)])
-        effLevel__effSelector__unit = RelationshipClass(
-            :effLevel__effSelector__unit,
-            [:effLevel, :effSelector, :unit],
-            Array{RelationshipLike,1}(),
-        )
-        grid__node =
-            RelationshipClass(:grid__node, [:grid, :node], Array{RelationshipLike,1}())
-        grid__node__boundary = RelationshipClass(
-            :grid__node__boundary,
-            [:grid, :node],
-            Array{RelationshipLike,1}(),
-        )
-        grid__node__node = RelationshipClass(
-            :grid__node__node,
-            [:grid, :node, :node],
-            Array{RelationshipLike,1}(),
-        )
-        grid__node__unit__io = RelationshipClass(
-            :grid__node__unit__io,
-            [:grid, :node, :unit, :io],
-            Array{RelationshipLike,1}(),
-        )
-        unit__unittype = RelationshipClass(
-            :unit__unittype,
-            [:unit, :unittype],
-            Array{RelationshipLike,1}(),
-        )
+    function BackboneInput(url::Union{String,Dict}) # Fetch and link the database structure from url.
+        m = Module() # Create a separate module to load Backbone data store structure into.
+        using_spinedb(url, m)
         new(
-            boundary,
-            effLevel,
-            effSelector,
-            grid,
-            io,
-            node,
-            unit,
-            unittype,
-            effLevel__effSelector__unit,
-            grid__node,
-            grid__node__boundary,
-            grid__node__node,
-            grid__node__unit__io,
-            unit__unittype,
+            m.boundary,
+            m.effLevel,
+            m.effSelector,
+            m.grid,
+            m.io,
+            m.node,
+            m.unit,
+            m.unittype,
+            m.effLevel__effSelector__unit,
+            m.grid__node,
+            m.grid__node__boundary,
+            m.grid__node__node,
+            m.grid__node__unit__io,
+            m.unit__unittype,
         )
     end
 end
@@ -106,6 +65,7 @@ end
 
 """
     BackboneInput(
+        url::Union{String,Dict},
         results::Dict{Object,ArchetypeBuildingResults};
         mod::Module = @__MODULE__
     )
@@ -116,15 +76,16 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 Essentially, performs the following steps:
-1. Initialize an empty [`BackboneInput`](@ref).
+1. Link to [`BackboneInput`](@ref) at `url`.
 2. Loop over the given `results`, and [`add_archetype_to_input!`](@ref) one by one.
 3. Calculate and [`add_system_link_node_parameters!`](@ref).
 """
 function BackboneInput(
+    url::Union{String,Dict},
     results::Dict{Object,ArchetypeBuildingResults};
     mod::Module=@__MODULE__
 )
-    backbone = BackboneInput()
+    backbone = BackboneInput(url)
     for result in values(results)
         add_archetype_to_input!(backbone, result; mod=mod)
     end
@@ -413,6 +374,7 @@ function add_archetype_to_input!(
     )
 
     # `unit__unittype` simply attaching `HVAC` to every unit.
+    add_object!(backbone.unittype, Object(:HVAC, :unittype)) # First we need to create the new unittype.
     add_relationships!(
         backbone.unit__unittype,
         [(unit=u, unittype=backbone.unittype(:HVAC)) for u in values(u_map)],

@@ -14,16 +14,27 @@ Pkg.activate("test")
 using Revise
 using Test
 using Plots
+using JSON
 using ArchetypeBuildingModel
 m = Module()
 
-# Open database
+# Some config
+
+# Backbone path, required for input data creation tests.
+bb_path = "C:\\backbone"
+bb_template_path = bb_path * "\\tools\\bb_data_template.json"
+
+# SpineOpt path, required for input data creation tests.
+so_path = "C:\\SpineOpt.jl"
+so_template_path = so_path * "\\templates\\spineopt_template.json"
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
 url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo_fluid\\.spinetoolbox\\data_and_definitions.sqlite"
 
 # Output url
-#output_url = <ADD OUTPUT URL IF DESIRED>
+output_url = "sqlite:///" # In-memory db for testing.
+
+## Open database
 
 @info "Opening database..."
 @time using_spinedb(url, m)
@@ -225,24 +236,24 @@ results__system_link_node = initialize_result_classes!(m)
 
 
 ## Test creating and writing SpineOpt input
-
+#=
 @info "Creating `SpineOptInput`..."
-@time spineopt = SpineOptInput(archetype_results; mod=m)
-#write_to_url(output_url, spineopt)
-
+@time spineopt = SpineOptInput(JSON.parsefile(so_template_path), archetype_results; mod=m)
+@time write_to_url(output_url, spineopt)
+=#
 
 ## Test creating and writing Backbone input
 
 @info "Creating `BackboneInput`..."
-@time backbone = BackboneInput(archetype_results; mod=m)
-#write_to_url(output_url, backbone)
+@time backbone = BackboneInput(JSON.parsefile(bb_template_path), archetype_results; mod=m)
+@time write_to_url(output_url, backbone)
 
 
 ## Test creating generic input
 
 @info "Creating `GenericInput`..."
-@time generic = GenericInput(archetype_results; mod=m)
-#@time write_to_url(output_url, generic)
+@time generic = GenericInput(output_url, archetype_results; mod=m)
+@time write_to_url(output_url, generic)
 
 
 ## Plot diagnostics.

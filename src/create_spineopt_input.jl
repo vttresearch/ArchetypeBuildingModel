@@ -5,9 +5,9 @@ Functions and structs for handling input data for SpineOpt based on the archetyp
 =#
 
 """
-    SpineOptInput
+    SpineOptInput(url::Union{String,Dict})
 
-Create and store the input data for the SpineOpt energy system model.
+Link to the input data store for the SpineOpt energy system model.
 
 Contains the following fields:
 - `node::ObjectClass`: Contains all the `node`s in the building models, created based on [`AbstractNode`](@ref)s.
@@ -24,27 +24,24 @@ struct SpineOptInput <: ModelInput
     unit__from_node::RelationshipClass
     unit__to_node::RelationshipClass
     unit__node__node::RelationshipClass
-    function SpineOptInput()
-        node = ObjectClass(:node, Array{ObjectLike,1}())
-        unit = ObjectClass(:unit, Array{ObjectLike,1}())
-        node__node =
-            RelationshipClass(:node__node, [:node, :node], Array{RelationshipLike,1}())
-        unit__from_node =
-            RelationshipClass(:unit__from_node, [:unit, :node], Array{RelationshipLike,1}())
-        unit__to_node =
-            RelationshipClass(:unit__to_node, [:unit, :node], Array{RelationshipLike,1}())
-        unit__node__node = RelationshipClass(
-            :unit__node__node,
-            [:unit, :node, :node],
-            Array{RelationshipLike,1}(),
+    function SpineOptInput(url::Union{String,Dict}) # Fetch and link the database structure from url.
+        m = Module() # Create a separate module to load SpineOpt data store structure into.
+        using_spinedb(url, m)
+        new(
+            m.node,
+            m.unit,
+            m.node__node,
+            m.unit__from_node,
+            m.unit__to_node,
+            m.unit__node__node
         )
-        new(node, unit, node__node, unit__from_node, unit__to_node, unit__node__node)
     end
 end
 
 
 """
     SpineOptInput(
+        url::Union{String,Dict},
         results::Dict{Object,ArchetypeBuildingResults};
         mod::Module = @__MODULE__,
     )
@@ -55,14 +52,15 @@ NOTE! The `mod` keyword changes from which Module data is accessed from,
 `@__MODULE__` by default.
 
 Essentially, performs the following steps:
-1. Initialize an empty [`SpineOptInput`](@ref).
+1. Link to [`SpineOptInput`](@ref) at `url`.
 2. Loop over the given `results`, and [`add_archetype_to_input!`](@ref) one by one.
 """
 function SpineOptInput(
+    url::Union{String,Dict},
     results::Dict{Object,ArchetypeBuildingResults};
     mod::Module=@__MODULE__
 )
-    spineopt = SpineOptInput()
+    spineopt = SpineOptInput(url)
     for result in values(results)
         add_archetype_to_input!(spineopt, result; mod=mod)
     end
