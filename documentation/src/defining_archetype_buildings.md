@@ -146,7 +146,7 @@ The [building\_process](@ref) objects are used to define energy transfer/transfo
 processes in the [building\_systems](@ref), e.g. direct electric resistance heaters
 or heat pumps. The important relationship classes for the definitions are:
 - [building\_process\_\_direction\_\_building\_node](@ref): Defines how [building\_process](@ref)es interact with the [building\_node](@ref)s, and houses their maximum power flow parameters.
-- [building\_systems\_\_building\_process](@ref): Defines [building\_process](@ref)s parts of this [building\_systems](@ref). Also houses the maximum power flow parameters for the process.
+- [building\_systems\_\_building\_process](@ref): Defines [building\_process](@ref)s parts of this [building\_systems](@ref).
 
 The [building\_process](@ref) object class also contains a few important parameters,
 mostly due to the potential complexity of different heat pump systems.

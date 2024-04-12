@@ -6,12 +6,14 @@ mostly for debugging purposes.
 =#
 
 """
-    GenericInput
+    GenericInput(url::Union{String,Dict}; mod::Module=@__MODULE__)
 
 Create and store the ArchetypeBuildingModel.jl structure for Spine Data Stores.
 
 NOTE! The `mod` keyword changes from which Module data is accessed from,
-`@__MODULE__` by default.
+`@__MODULE__` by default. The `url` needs to be given to be consistent with
+[`BackboneInput`](@ref) and [`SpineOptInput`](@ref), but isn't actually used
+for anything.
 
 Contains the following fields:
  - `building_archetype::ObjectClass`: Stores [`ArchetypeBuilding`](@ref) information and definitions.
@@ -26,7 +28,7 @@ struct GenericInput <: ModelInput
     building_weather::ObjectClass
     building_archetype__building_scope::RelationshipClass
     building_archetype__building_weather::RelationshipClass
-    function GenericInput(; mod=@__MODULE__)
+    function GenericInput(url::Union{String,Dict}; mod::Module=@__MODULE__)
         building_archetype = deepcopy(mod.building_archetype)
         building_scope = deepcopy(mod.building_scope)
         building_weather = deepcopy(mod.building_weather)
@@ -45,6 +47,7 @@ end
 
 """
     GenericInput(
+        url::Union{String,Dict},
         results::Dict{Object,ArchetypeBuildingResults};
         mod::Module=@__MODULE__
     )
@@ -59,10 +62,11 @@ Essentially, performs the following steps:
 2. Loop over the given `archetypes`, and [`add_archetype_to_input!`](@ref) one by one.
 """
 function GenericInput(
+    url::Union{String,Dict},
     results::Dict{Object,ArchetypeBuildingResults};
     mod::Module=@__MODULE__
 )
-    generic = GenericInput(; mod=mod)
+    generic = GenericInput(url; mod=mod)
     for result in values(results)
         add_archetype_to_input!(generic, result)
     end
