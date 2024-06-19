@@ -26,12 +26,14 @@ Essentially, performs the following steps:
 """
 function process_building_stock_scope(scope::Object; mod::Module=@__MODULE__)
     # Find the relevant building stock statistics with all `building_periods`.
-    relevant_building_stock_statistics = mod.building_stock_statistics(
-        building_stock=mod.building_scope__building_stock(building_scope=scope),
-        building_type=mod.building_scope__building_type(building_scope=scope),
-        location_id=mod.building_scope__location_id(building_scope=scope),
-        heat_source=mod.building_scope__heat_source(building_scope=scope);
-        _compact=false
+    relevant_building_stock_statistics = unique(
+        mod.building_stock_statistics(
+            building_stock=mod.building_scope__building_stock(building_scope=scope),
+            building_type=mod.building_scope__building_type(building_scope=scope),
+            location_id=mod.building_scope__location_id(building_scope=scope),
+            heat_source=mod.building_scope__heat_source(building_scope=scope);
+            _compact=false
+        )
     )
 
     # Find the relevant `building_period` weights as limited by `scope_period_start_year` and `scope_period_end_year`

@@ -1,8 +1,8 @@
 name = "ArchetypeBuildingModel"
 uuid = "83d8b715-256d-42a8-83e0-f336dff6771c"
 authors = ["Topi Rasku <topi.rasku@vtt.fi>"]
-version = "2.7.1"
-version_note = "kW scaling and v0.8 backbone datastore interface fixes"
+version = "2.7.2"
+version_note = "Accommodate new SpineInterface changes"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -13,4 +13,4 @@ SpineInterface = "0cda1612-498a-11e9-3c92-77fa82595a4f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-SpineInterface = ">= 0.11.0"
+SpineInterface = ">= 0.14.3"
