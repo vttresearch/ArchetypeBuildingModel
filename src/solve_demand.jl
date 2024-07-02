@@ -360,7 +360,7 @@ stochastic input.
 See the [`solve_heating_demand`](@ref) function for the overall formulation.
 This function returns the right-hand side components separately
 ```math
-\\hat{\\Phi} = \\hat{\\Phi'} + \\frac{C}{\\Delta t} \\hat{T_{t-\\Delta t}},
+\\hat{\\Phi} = \\hat{\\Phi'} + \\frac{C}{\\Delta t} \\hat{T}_{t-\\Delta t},
 ```
 where `Φ'` is the component of external loads,
 and the rest is the component of the impact of previous temperatures.
