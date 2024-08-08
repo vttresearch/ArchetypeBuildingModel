@@ -11,7 +11,6 @@ hood.
 using Pkg
 Pkg.activate("test")
 
-using Revise
 using Test
 using Plots
 using JSON
@@ -236,11 +235,11 @@ results__system_link_node = initialize_result_classes!(m)
 
 
 ## Test creating and writing SpineOpt input
-#=
+
 @info "Creating `SpineOptInput`..."
 @time spineopt = SpineOptInput(JSON.parsefile(so_template_path), archetype_results; mod=m)
 @time write_to_url(output_url, spineopt)
-=#
+
 
 ## Test creating and writing Backbone input
 
