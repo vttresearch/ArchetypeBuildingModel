@@ -161,19 +161,7 @@ function add_archetype_to_input!(
             :state_coeff => parameter_value(abs_node.thermal_mass_kWh_K),
         ) for (node, abs_node) in result.archetype.abstract_nodes
     )
-    add_object_parameter_values!(spineopt.node, node_param_dict)
-    merge!(
-        spineopt.node.parameter_defaults,
-        Dict(
-            :demand => parameter_value(0.0),
-            :fix_node_state => parameter_value(nothing),
-            :frac_state_loss => parameter_value(0.0),
-            :has_state => parameter_value(false),
-            :node_state_cap => parameter_value(nothing),
-            :node_state_min => parameter_value(0.0),
-            :state_coeff => parameter_value(1.0),
-        ),
-    )
+    add_object_parameter_values!(spineopt.node, node_param_dict; merge_values=true)
 
     # Add the necessary relationships and their parameters
     # `node__node` based on heat transfer coefficients
@@ -182,12 +170,7 @@ function add_archetype_to_input!(
         (n1, abs_n1) in result.archetype.abstract_nodes for
         (n2, v) in abs_n1.heat_transfer_coefficients_kW_K
     )
-    add_relationships!(
-        spineopt.node__node,
-        [(node1=n1, node2=n2) for (n1, n2) in keys(nn_param_dict)],
-    )
-    merge!(spineopt.node__node.parameter_values, nn_param_dict)
-    spineopt.node__node.parameter_defaults[:diff_coeff] = parameter_value(0.0)
+    add_relationship_parameter_values!(spineopt.node__node, nn_param_dict; merge_values=true)
 
     # `unit__from_node` based on maximum flow parameters.
     ufn_param_dict = Dict(
@@ -198,12 +181,7 @@ function add_archetype_to_input!(
             v < 0 && d == mod.direction(:to_node)
         )
     )
-    add_relationships!(
-        spineopt.unit__from_node,
-        [(unit=u, from_node=n) for (u, n) in keys(ufn_param_dict)],
-    )
-    merge!(spineopt.unit__from_node.parameter_values, ufn_param_dict)
-    spineopt.unit__from_node.parameter_defaults[:unit_capacity] = parameter_value(nothing)
+    add_relationship_parameter_values!(spineopt.unit__from_node, ufn_param_dict; merge_values=true)
 
     # `unit__to_node` based on maximum flow parameters.
     utn_param_dict = Dict(
@@ -214,12 +192,7 @@ function add_archetype_to_input!(
             v < 0 && d == mod.direction(:from_node)
         )
     )
-    add_relationships!(
-        spineopt.unit__to_node,
-        [(unit=u, to_node=n) for (u, n) in keys(utn_param_dict)],
-    )
-    merge!(spineopt.unit__to_node.parameter_values, utn_param_dict)
-    spineopt.unit__to_node.parameter_defaults[:unit_capacity] = parameter_value(nothing)
+    add_relationship_parameter_values!(spineopt.unit__to_node, utn_param_dict; merge_values=true)
 
     # `unit__node__node` based on maximum flow parameters as well.
     unn_param_dict = Dict(
@@ -245,13 +218,5 @@ function add_archetype_to_input!(
         ((d2, n2), v2) in abs_p.maximum_flows if
         (d1 == mod.direction(:from_node) && d2 == mod.direction(:to_node) && n1 != n2)
     )
-    add_relationships!(
-        spineopt.unit__node__node,
-        [(unit=u, node1=n1, node2=n2) for (u, n1, n2) in keys(unn_param_dict)],
-    )
-    merge!(spineopt.unit__node__node.parameter_values, unn_param_dict)
-    spineopt.unit__node__node.parameter_defaults[:fix_ratio_in_out_unit_flow] =
-        parameter_value(nothing)
-    spineopt.unit__node__node.parameter_defaults[:fix_ratio_in_in_unit_flow] =
-        parameter_value(nothing)
+    add_relationship_parameter_values!(spineopt.unit__node__node, unn_param_dict; merge_values=true)
 end
