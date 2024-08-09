@@ -90,11 +90,11 @@ please refer to the
 [VTT Research Information System entry on ArchetypeBuildingModel.jl](https://cris.vtt.fi/en/publications/archetypebuildingmodeljl-a-julia-module-for-aggregating-building-).
 Regardless, here are a couple of author-curated highlights:
 
-1. [Sensitivity analysis and comparison against dedicated white-box building simulation software (Preprint)](https://zenodo.org/doi/10.5281/zenodo.7623739)
-2. [Building-level optimal energy management (Preprint)](https://zenodo.org/doi/10.5281/zenodo.7767363)
-3. [Stochastic district-level energy management (Accepted and presented at the BS2023 conference, yet to be published)](https://cris.vtt.fi/en/publications/stochastic-model-predictive-control-of-district-scale-building-en)
+1. [Sensitivity analysis and comparison against dedicated white-box building simulation software](https://doi.org/10.3390/buildings14061614)
+2. [Building-level optimal energy management](https://doi.org/10.3390/buildings13123089)
+3. [Stochastic district-level energy management](https://doi.org/10.26868/25222708.2023.1262)
 4. [Demo for generating EU-level flexible building stock heating/cooling models for SpineOpt](https://zenodo.org/doi/10.5281/zenodo.8238141)
-5. [Analysing the impacts of flexible residential electric heating for Finland (MSc thesis)](https://cris.vtt.fi/en/publications/heating-demand-response-in-detached-houses-comparing-cost-savings)
+5. [Analysing the impacts of flexible residential electric heating for Finland (MSc thesis)](https://aaltodoc.aalto.fi/handle/123456789/120964)
 
 
 ## Future work?
