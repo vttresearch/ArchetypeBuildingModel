@@ -239,11 +239,7 @@ function add_archetype_to_input!(
             Symbol("weather.", result.archetype.weather.name) => parameter_value(1),
         ),
     )
-    add_object_parameter_values!(backbone.grid, g_param_dict)
-    merge!(
-        backbone.grid.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(g_param_dict)[2])),
-    )
+    add_object_parameter_values!(backbone.grid, g_param_dict; merge_values=true)
 
     # Create the necessary objects and their parameters
     # Add the `grid` and `node` objects.
@@ -271,11 +267,7 @@ function add_archetype_to_input!(
             ),
         ) for (p, abs_p) in result.archetype.abstract_processes
     )
-    add_object_parameter_values!(backbone.unit, u_param_dict)
-    merge!(
-        backbone.unit.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(u_param_dict)[2])),
-    )
+    add_object_parameter_values!(backbone.unit, u_param_dict; merge_values=true)
 
     # Create and add the necessary relationships
     # `effLevel__effSelector__unit` assumed static `directOff`.
@@ -300,11 +292,7 @@ function add_archetype_to_input!(
                 parameter_value(timeseries_to_backbone_map(result.temperatures[n])),
         ) for (n, abs_n) in result.archetype.abstract_nodes
     )
-    add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
-    merge!(
-        backbone.grid__node.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(gn_param_dict)[2])),
-    )
+    add_relationship_parameter_values!(backbone.grid__node, gn_param_dict; merge_values=true)
     # NOTE! System link nodes handled separately via `add_system_link_node_parameters`.
 
     # `grid__node__boundary` based on the maximum and minimum temperatures.
@@ -337,11 +325,7 @@ function add_archetype_to_input!(
                 ) for (n, abs_n) in result.archetype.abstract_nodes
         ),
     )
-    add_relationship_parameter_values!(backbone.grid__node__boundary, gnb_param_dict)
-    merge!(
-        backbone.grid__node__boundary.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(gnb_param_dict)[2])),
-    )
+    add_relationship_parameter_values!(backbone.grid__node__boundary, gnb_param_dict; merge_values=true)
 
     # `grid__node__node` based on the heat transfer coefficients
     gnn_param_dict = Dict(
@@ -350,11 +334,7 @@ function add_archetype_to_input!(
         (n1, abs_n1) in result.archetype.abstract_nodes for
         (n2, val) in abs_n1.heat_transfer_coefficients_kW_K
     )
-    add_relationship_parameter_values!(backbone.grid__node__node, gnn_param_dict)
-    merge!(
-        backbone.grid__node__node.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(gnn_param_dict)[2])),
-    )
+    add_relationship_parameter_values!(backbone.grid__node__node, gnn_param_dict; merge_values=true)
 
     # `grid__node__unit__io` based on maximum flows
     gnuio_param_dict = Dict(
@@ -365,13 +345,7 @@ function add_archetype_to_input!(
         ) for (p, abs_p) in result.archetype.abstract_processes for
         ((d, n), val) in abs_p.maximum_flows
     )
-    add_relationship_parameter_values!(backbone.grid__node__unit__io, gnuio_param_dict)
-    merge!(
-        backbone.grid__node__unit__io.parameter_defaults,
-        Dict(
-            param => parameter_value(nothing) for param in [:capacity, :conversionCoeff, :unitSize]
-        ),
-    )
+    add_relationship_parameter_values!(backbone.grid__node__unit__io, gnuio_param_dict; merge_values=true)
 
     # `unit__unittype` simply attaching `HVAC` to every unit.
     add_object!(backbone.unittype, Object(:HVAC, :unittype)) # First we need to create the new unittype.
@@ -456,11 +430,7 @@ function add_system_link_node_parameters!(
             ),
         ) for k in keys(node_balance_dict)
     )
-    add_relationship_parameter_values!(backbone.grid__node, gn_param_dict)
-    merge!(
-        backbone.grid__node.parameter_defaults,
-        Dict(param => parameter_value(nothing) for param in keys(first(gn_param_dict)[2])),
-    )
+    add_relationship_parameter_values!(backbone.grid__node, gn_param_dict; merge_values=true)
 end
 
 

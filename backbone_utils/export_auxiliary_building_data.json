@@ -251,7 +251,7 @@
                 {
                     "map_type": "ParameterValueType",
                     "position": "hidden",
-                    "filter_re": "single_value"
+                    "filter_re": "float|str|bool"
                 },
                 {
                     "map_type": "ParameterValue",

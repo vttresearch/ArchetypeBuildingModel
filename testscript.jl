@@ -11,7 +11,6 @@ hood.
 using Pkg
 Pkg.activate("test")
 
-using Revise
 using Test
 using Plots
 using JSON
@@ -26,7 +25,7 @@ bb_template_path = bb_path * "\\tools\\bb_data_template.json"
 
 # SpineOpt path, required for input data creation tests.
 so_path = "C:\\SpineOpt.jl"
-so_template_path = so_path * "\\templates\\spineopt_template.json"
+so_template_path = so_path * "\\templates\\spineopt_template_v08.json" # THE OLD TEMPLATE DOESN'T WORK FOR THIS!
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
 url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo_fluid\\.spinetoolbox\\data_and_definitions.sqlite"
@@ -236,11 +235,11 @@ results__system_link_node = initialize_result_classes!(m)
 
 
 ## Test creating and writing SpineOpt input
-#=
+
 @info "Creating `SpineOptInput`..."
 @time spineopt = SpineOptInput(JSON.parsefile(so_template_path), archetype_results; mod=m)
 @time write_to_url(output_url, spineopt)
-=#
+
 
 ## Test creating and writing Backbone input
 

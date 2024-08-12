@@ -58,8 +58,8 @@ where `Δt` is the length of the discretized time step.
 Since we always know the temperatures on the previous time step `t-Δt`,
 the above can be expressed in matrix form and solved as
 ```math
-\\bm{A} \\hat{T} = \\hat{\\Phi}, \\\\
-\\hat{T} = \\bm{A}^{-1} \\hat{\\Phi},
+\\boldsymbol{A} \\hat{T} = \\hat{\\Phi}, \\\\
+\\hat{T} = \\boldsymbol{A}^{-1} \\hat{\\Phi},
 ```
 where `A` is the so-called *dynamics matrix*, 
 `T` is the current temperature vector,
@@ -73,7 +73,7 @@ fixed to the violated boundary, moved to the right-hand side,
 and replaced with a heating/cooling demand variable `ϕ_m` instead.
 This results in a slightly modified problem to be solved
 ```math
-\\hat{\\phi} = \\left( \\bm{A} - \\sum_{m \\in M}[\\bm{A}_{m} + \\bm{I}_{m}] \\right)^{-1} \\left( \\hat{\\Phi} - \\sum_{m \\in M}[\\hat{A}_{m} T'_m] \\right),
+\\hat{\\phi} = \\left( \\boldsymbol{A} - \\sum_{m \\in M}[\\boldsymbol{A}_{m} + \\boldsymbol{I}_{m}] \\right)^{-1} \\left( \\hat{\\Phi} - \\sum_{m \\in M}[\\hat{A}_{m} T'_m] \\right),
 ```
 where `ϕ` is the modified temperature vector with the fixed temperature replaced
 with the heating/cooling demand variable,
@@ -217,7 +217,7 @@ Forms and inverts the implicit Euler discretized dynamics matrix for the
 
 The implicit Euler discretized dynamics matrix `A` is formed as follows:
 ```math
-\\bm{A}_{n,m} = \\begin{cases}
+\\boldsymbol{A}_{n,m} = \\begin{cases}
 \\frac{C_m}{\\Delta t} + \\rho_m + \\sum_{n' \\in N} H_{n,m}, \\qquad n = m, \\\\
 - H_{n,m}, \\qquad n \\neq m,
 \\end{cases}, \\quad \\text{where } n, m \\in N
@@ -360,7 +360,7 @@ stochastic input.
 See the [`solve_heating_demand`](@ref) function for the overall formulation.
 This function returns the right-hand side components separately
 ```math
-\\hat{\\Phi} = \\hat{\\Phi'} + \\hat{\\frac{C}{\\Delta t} T_{t-\\Delta t}},
+\\hat{\\Phi} = \\hat{\\Phi'} + \\frac{C}{\\Delta t} \\hat{T}_{t-\\Delta t},
 ```
 where `Φ'` is the component of external loads,
 and the rest is the component of the impact of previous temperatures.
@@ -516,7 +516,7 @@ Forms and inverts the matrix for solving HVAC demand in different situations.
 
 Essentially, this function performs the
 ```math
-\\left( \\bm{A} - \\sum_{m \\in M}[\\bm{A}_{m} + \\bm{I}_{m}] \\right)^{-1}
+\\left( \\boldsymbol{A} - \\sum_{m \\in M}[\\boldsymbol{A}_{m} + \\boldsymbol{I}_{m}] \\right)^{-1}
 ```
 transformation of the dynamics matrix `A`,
 where the otherwise violated temperature variables `m ∈ M` are fixed

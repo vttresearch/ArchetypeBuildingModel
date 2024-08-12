@@ -130,9 +130,9 @@ demonstrating `ArchetypeBuildingModel.jl` on the level of individual buildings.
 <table width=500px frame="none">
 <tr>
 <td valign="middle" width=100px>
-<img src=https://www.aka.fi/globalassets/vanhat/y_kuvat/aka_logo_en.svg alt="AKA emblem" width=100%></td>
+<img src=https://www.aka.fi/globalassets/aka_en_vaaka_valkoinen.svg alt="AKA emblem" width=100%></td>
 <td valign="middle">
-This module was built for the Academy of Finland project "Integration of building flexibility into future energy systems (FlexiB)" under grant agreement No 332421.
+This module was built for the Research Council of Finland project "Integration of building flexibility into future energy systems (FlexiB)" under grant agreement No 332421.
 </td>
 </table>
 </center>
