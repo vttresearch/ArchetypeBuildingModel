@@ -16,6 +16,8 @@ as well as archetype building definitions according to the template provided in 
 For automatic weather data processing, this module uses the Python sub-module `archetypebuildingweather`.
 
 >[!IMPORTANT]
+>2024-08-16: The *FlexiB* project funding this research is ending, making it unlikely that this module will receive see further active development.
+>
 >2024-02-06: Enabling investment modelling options for the aggregated building stock heating/cooling demand modelling requires revising the modelling approach,
 >making it less suitable for modelling individual buildings. Future developments *(and breaking changes)* will take place in the forked
 >[ArBuMo](https://github.com/vttresearch/ArBuMo) repository for now, making this repository less likely to receive further updates.
