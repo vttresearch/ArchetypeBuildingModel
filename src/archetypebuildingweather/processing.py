@@ -9,6 +9,7 @@ import rioxarray
 import numpy as np
 import xarray
 import matplotlib.pyplot as plt
+from pandas import to_datetime
 
 
 class Shapefile:
@@ -87,6 +88,7 @@ def prepare_cutout(
     weather_end,
     module="era5",
     features=["influx", "temperature"],
+    skip_prepare=False,
 ):
     """
     Prepares the `atlite` cutout for the weather data.
@@ -98,6 +100,7 @@ def prepare_cutout(
     weather_end: String defining the end of the cutout in `yyyy-mm-dd`, month and day can be skipped.
     module : Module for the weather data, ERA5 by default.
     features : Climate data features to be fetched, `influx` and `temperature` by default.
+    skip_prepare : Flag to skip preparing the cutout for debugging purposes.
 
     Returns
     -------
@@ -106,17 +109,31 @@ def prepare_cutout(
     # Load the shapefile and define the bounds for the cutout.
     x1, y1, x2, y2 = shapefile.loose_bounds
 
-    # Define and prepare the cutout.
+    # Define the cutout
+    timeslice = slice(weather_start, weather_end)
     cutout = atlite.Cutout(
-        path=Path(
-            "data/" + shapefile.name + "_" + weather_start + "_" + weather_end
-        ).with_suffix(".nc"),
+        path=Path("data/" + shapefile.name).with_suffix(".nc"),
         module=module,
         x=slice(x1, x2),
         y=slice(y1, y2),
-        time=slice(weather_start, weather_end),
+        time=timeslice,
     )
-    cutout.prepare(features=features)
+    # Check if cutout covers the desired timeslice
+    cond1 = min(cutout.data.time) <= to_datetime(timeslice.start)
+    cond2 = max(cutout.data.time) >= to_datetime(timeslice.stop)
+    if not cond1 * cond2:
+        raise ValueError(
+            f"""
+            The existing cutout doesn't cover the desired time range of {timeslice}!
+            You'll need to download new data for {shapefile.name}.
+            Current coverage:
+            {slice(cutout.data.time[0], cutout.data.time[-1])}
+            """
+        )
+    # Limit and prepare cutout data
+    cutout.data = cutout.data.loc[dict(time=timeslice)]
+    if not skip_prepare:
+        cutout.prepare(features=features)
 
     # Check that cutout and shapefile have the same coordinate reference system
     if shapefile.data.crs != cutout.crs:
