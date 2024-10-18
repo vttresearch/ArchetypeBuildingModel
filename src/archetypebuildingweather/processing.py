@@ -77,7 +77,7 @@ class Shapefile:
         xar = xarray.DataArray(
             np.ones((y.size, x.size)), coords=[y, x], dims=["y", "x"]
         )
-        xar.rio.set_crs(self.data.crs)
+        xar.rio.write_crs(self.data.crs, inplace=True)
         xar = xar.rio.clip(self.data.geometry)
         return xar
 
@@ -89,6 +89,7 @@ def prepare_cutout(
     module="era5",
     features=["influx", "temperature"],
     skip_prepare=False,
+    dask_kwargs=None,
 ):
     """
     Prepares the `atlite` cutout for the weather data.
@@ -101,6 +102,7 @@ def prepare_cutout(
     module : Module for the weather data, ERA5 by default.
     features : Climate data features to be fetched, `influx` and `temperature` by default.
     skip_prepare : Flag to skip preparing the cutout for debugging purposes.
+    dask_kwargs : An optional dictionary for dask keyword arguments.
 
     Returns
     -------
@@ -133,7 +135,7 @@ def prepare_cutout(
     # Limit and prepare cutout data
     cutout.data = cutout.data.loc[dict(time=timeslice)]
     if not skip_prepare:
-        cutout.prepare(features=features)
+        cutout.prepare(features=features, dask_kwargs=dask_kwargs)
 
     # Check that cutout and shapefile have the same coordinate reference system
     if shapefile.data.crs != cutout.crs:
