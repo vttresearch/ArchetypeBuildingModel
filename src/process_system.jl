@@ -94,6 +94,8 @@ using the Carnot COP.
 \\text{where } \\text{COP}_\\text{base} = \\frac{\\text{COP}_\\text{ref}}{\\text{COP}_\\text{carnot,ref}}
 ```
 
+NOTE! Setting `COP_mode` to `cooling` simply flips the temperatures for the Carnot cop calculation!
+
 If the source and sink temperatures are undefined, returns
 the defined base COP as the COP is assumed to be weather independent.
 See the `archetype_definitions.json` default values for `sink_temperature_K`
@@ -177,7 +179,16 @@ function calculate_cop(
         end
 
         # Carnot COP calculated with assumed minimum temperature delta.
-        denom = temperature_K[:sink] - temperature_K[:source]
+        if COP_mode == :heating
+            denom = temperature_K[:sink] - temperature_K[:source]
+        elseif COP_mode == :cooling
+            denom = temperature_K[:source] - temperature_K[:sink]
+        else
+            @error """
+            Unrecognized `coefficient_of_performance_mode`!
+            Only `:heating` and `:cooling` are recognized modes!
+            """
+        end
         if denom isa Union{TimePattern,TimeSeries}
             denom = timedata_operation(
                 max,
