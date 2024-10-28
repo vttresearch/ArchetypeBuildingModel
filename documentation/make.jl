@@ -73,7 +73,7 @@ end
 
 makedocs(
     sitename="ArchetypeBuildingModel",
-    format=Documenter.HTML(),
+    format=Documenter.HTML(size_threshold=300000),
     modules=[ArchetypeBuildingModel],
     pages=[
         "index.md",
