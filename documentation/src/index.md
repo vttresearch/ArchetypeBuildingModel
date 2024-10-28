@@ -63,13 +63,11 @@ data format and the modelling code respectively.
 
 ## Key limitations
 
-Due to the used simplified modelling approach, there are several key limitations for the model that users should be aware of:
+Due to the used simplified modelling approach, there are some key limitations for the model that users should be aware of:
 
 1. **ArchetypeBuildingModel.jl primarily aims to depict the *flexibility* in building stock heating/cooling demand, and *NOT* the demand itself.** While the model produces baseline heating and cooling demand timeseries, it is important to understand that these timeseries are oversimplified compared to the actual demand. Due to the limited number of archetype buildings and the used single-zone approach, there can be relatively long periods where, *on average*, the model requires no heating and cooling at all. In reality, it is all but guaranteed that there will always be some buildings *(or zones therein)* requiring at least some cooling and/or heating at any given time.
 
-2. **Heating and cooling set points can currently only be provided as constants, which can have a major impact on the modelled heating/cooling flexibility.** In some places, it is common to significantly reduce heating when buildings are unoccupied in order to save energy. While such boundaries would pose no problems for the intended use in large-scale energy system optimisation models, the simple rule-based controller currently used for calculating the baseline heating/cooling demand cannot handle changing set points.
-
-3. **Several real-life phenomena affecting the heating/cooling demand are neglected for simplicity:**
+2. **Several real-life phenomena affecting the heating/cooling demand are neglected for simplicity:**
     - Temperature-dependent bypass of ventilation heat recovery units (HRUs). In reality, HRUs can be bypassed in summer to reduce cooling loads, but implementing these types of controls compatible with mixed-integer linear programming frameworks is not straightforward. Likely results in overestimated cooling flexibility.
     - Potential opening of doors/windows for additional ventilation or cooling by the inhabitants, likely resulting in overestimated cooling demand flexibility.
     - Potential use of active solar shading elements in buildings, e.g. blinds, for reducing solar heat gains in summer to reduce cooling loads. Likely results in overestimated cooling demand.
