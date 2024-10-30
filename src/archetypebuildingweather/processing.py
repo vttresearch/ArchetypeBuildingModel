@@ -184,7 +184,7 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     if raster_path is not None:
         raster = (
             rioxarray.open_rasterio(raster_path, masked=True)
-            .rio.clip(shapefile.data.geometry, from_disk=True)
+            .rio.clip_box(*shapefile.loose_bounds)
             .squeeze()
         )
     else:  # Else, use the default uniform raster created based on the `Shapefile`
