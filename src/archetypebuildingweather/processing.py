@@ -200,6 +200,8 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
             """
         )
 
+    # Initialize layout bounds, note that min and max are flipped initially!
+    lmaxx, lmaxy, lminx, lminy = shapefile.loose_bounds
     # Take the given weights into account and normalize the rasters.
     # Reprojection to layout resolution is done on sub-raster basis to avoid memory issues.
     rasters = []
@@ -210,6 +212,12 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
         miny -= shapefile.loose_bound_offset
         maxx += shapefile.loose_bound_offset
         maxy += shapefile.loose_bound_offset
+
+        # Update layout bounds
+        lminx = min(lminx, minx)
+        lminy = min(lminy, miny)
+        lmaxx = max(lmaxx, maxx)
+        lmaxy = max(lmaxy, maxy)
 
         # Clip the loose box from the original raster and drop the rest for computational efficiency
         rst = raster.rio.clip_box(minx, miny, maxx, maxy)
@@ -234,6 +242,10 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     # Combine the weighted and normalized rasters into one.
     layout = sum(rasters)
     layout = layout / layout.sum()  # Finally, normalize the whole layout
+
+    # Clip raster and layout to size
+    raster = raster.rio.clip_box(lminx, lminy, lmaxx, lmaxy)
+    layout = layout.rio.clip_box(lminx, lminy, lmaxx, lmaxy)
 
     return raster, layout
 
@@ -266,6 +278,13 @@ def process_weather(cutout, layout):
         "south": (90.0, 180.0),
         "west": (90.0, 270.0),
     }
+
+    # Cut data based on the layout for processing efficiency.
+    bounds = dict(
+        x=slice(min(layout.x.values), max(layout.x.values)),
+        y=slice(min(layout.y.values), max(layout.y.values)),
+    )
+    cutout.data = cutout.data.loc[bounds]
 
     # Calculate the aggregated weather using the `atlite` cutout.
     ambient_temperature = (
