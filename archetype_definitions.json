@@ -562,9 +562,9 @@
         [
             "building_process",
             "coefficient_of_performance_minimum_temperature_delta",
-            5.0,
+            15.0,
             null,
-            "The minimum assumed temperature raise/decrease in the heat pump process, limiting the maximum Carnot COP of the process. This parameter matters only if source and sink temperatures are defined."
+            "The minimum assumed temperature raise/decrease in the heat pump process, limiting the maximum Carnot COP of the process. This parameter matters only if source and sink temperatures are defined. Default value based on presented manufacturer data in `Time series of heat demand and heat pump efficiency for energy system modeling` by Ruhnau et al. 2019."
         ],
         [
             "building_process",
