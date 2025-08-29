@@ -5,7 +5,7 @@ from meta import __version__, description
 setup(
     name="ArchetypeBuildingWeather",
     python_requires=">=3.6",
-    py_modules=["src/archetypebuildingweather", "meta"],
+    py_modules=["ArchetypeBuildingWeather", "meta"],
     install_requires=[
         "geopandas",
         "atlite",
