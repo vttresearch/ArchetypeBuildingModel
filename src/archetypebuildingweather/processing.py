@@ -204,7 +204,8 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
     lmaxx, lmaxy, lminx, lminy = shapefile.loose_bounds
     # Take the given weights into account and normalize the rasters.
     # Reprojection to layout resolution is done on sub-raster basis to avoid memory issues.
-    rasters = []
+    rasters = []  # Collect raw sub-rasters per location.
+    layouts = []  # Collect reprojected and normalized sub-rasters per location.
     for lid in locations:
         # Define a loose bounding box based on shapefile settings
         minx, miny, maxx, maxy = gdf.geometry.loc[lid].bounds
@@ -222,25 +223,24 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
         # Clip the loose box from the original raster and drop the rest for computational efficiency
         rst = raster.rio.clip_box(minx, miny, maxx, maxy)
         # Clip the municipality tightly, but don't `drop` to avoid issues with resampling.
-        rst = (
-            rst.rio.clip(
-                [gdf.geometry.loc[lid]], all_touched=True, drop=False, from_disk=True
-            )
-            .fillna(0.0)
-            .rio.reproject(
-                cutout.crs,
-                shape=cutout.shape,
-                transform=cutout.transform,
-                resampling=resampling,
-                from_disk=True,
-                nodata=0.0,
-            )
+        rst = rst.rio.clip(
+            [gdf.geometry.loc[lid]], all_touched=True, drop=False, from_disk=True
         )
-        rst = rst / rst.sum() * weights[lid]  # Normalize and weigh the sub-shape.
-        rasters.append(rst)  # Collect the weighted sub-raster into the list.
+        lout = rst.fillna(0.0).rio.reproject(
+            cutout.crs,
+            shape=cutout.shape,
+            transform=cutout.transform,
+            resampling=resampling,
+            from_disk=True,
+            nodata=0.0,
+        )
+        lout = lout / lout.sum() * weights[lid]  # Normalize and weigh the sub-shape.
+        rasters.append(rst)
+        layouts.append(lout)  # Collect the weighted sub-raster into the list.
 
     # Combine the weighted and normalized rasters into one.
-    layout = sum(rasters)
+    raster = sum(rasters)
+    layout = sum(layouts)
     layout = layout / layout.sum()  # Finally, normalize the whole layout
 
     # Clip raster and layout to size
