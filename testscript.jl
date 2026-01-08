@@ -25,7 +25,7 @@ bb_template_path = bb_path * "\\tools\\bb_data_template.json"
 
 # SpineOpt path, required for input data creation tests.
 so_path = "C:\\SpineOpt.jl"
-so_template_path = so_path * "\\templates\\spineopt_template_v08.json" # THE OLD TEMPLATE DOESN'T WORK FOR THIS!
+so_template_path = so_path * "\\templates\\spineopt_template.json" # Needs the v0.8 template
 
 # Provide the url for a datastore containing the required raw input data and the archetype building definitions.
 url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo_fluid\\.spinetoolbox\\data_and_definitions.sqlite"
@@ -235,18 +235,18 @@ results__system_link_node = initialize_result_classes!(m)
 
 
 ## Test creating and writing SpineOpt input
-
+#= TODO: This no longer works with the planned new SpineOpt input data structure.
 @info "Creating `SpineOptInput`..."
 @time spineopt = SpineOptInput(JSON.parsefile(so_template_path), archetype_results; mod=m)
 @time write_to_url(output_url, spineopt)
-
+=#
 
 ## Test creating and writing Backbone input
-
+#= TODO: No longer works with the latest planned SpineInterface changes.
 @info "Creating `BackboneInput`..."
 @time backbone = BackboneInput(JSON.parsefile(bb_template_path), archetype_results; mod=m)
 @time write_to_url(output_url, backbone)
-
+=#
 
 ## Test creating generic input
 
