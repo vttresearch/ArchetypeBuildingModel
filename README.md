@@ -132,20 +132,20 @@ demonstrating `ArchetypeBuildingModel.jl` on the level of individual buildings.
 <table width=500px frame="none">
 <tr>
 <td valign="middle" width=100px>
-<img src=https://www.aka.fi/globalassets/aka_en_vaaka_valkoinen.svg alt="AKA emblem" width=100%></td>
+<img src=https://www.aka.fi/globalassets/etusivujen-kuvat/aka_en_vaaka_sininen.svg alt="AKA emblem" width=100%></td>
 <td valign="middle">
 This module was built for the Research Council of Finland project "Integration of building flexibility into future energy systems (FlexiB)" under grant agreement No 332421.
 </td>
-</table>
-</center>
-
-<center>
-<table width=500px frame="none">
 <tr>
 <td valign="middle" width=100px>
 <img src=https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg alt="EU emblem" width=100%></td>
 <td valign="middle">
-This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 774629.
+This project has received funding from the European Union’s Horizon 2020 research and innovation project Spine under grant agreement No 774629.
+</td>
+<tr>
+<td valign="middle" width=100px>
+<img src=https://european-union.europa.eu/themes/contrib/oe_theme/dist/eu/images/logo/standard-version/positive/logo-eu--en.svg alt="EU emblem" width=100%></td>
+<td valign="middle">This work has been partially supported by EU project Mopo (2023-2026), which has received funding from European Climate, Infrastructure and Environment Executive Agency under the European Union’s HORIZON Research and Innovation Actions under grant agreement N°101095998.
 </td>
 </table>
 </center>
