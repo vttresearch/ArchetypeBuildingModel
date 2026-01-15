@@ -1,6 +1,6 @@
 # ArchetypeBuildingModel.jl
 
-[![DOI](https://zenodo.org/badge/569661698.svg)](https://zenodo.org/badge/latestdoi/569661698)
+[![DOI](https://zenodo.org/badge/569661698.svg)](https://doi.org/10.5281/zenodo.18253406)
 [![documentation](https://img.shields.io/badge/documentation-latest-blue)](https://vttresearch.github.io/ArchetypeBuildingModel/)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://mit-license.org/)
 
