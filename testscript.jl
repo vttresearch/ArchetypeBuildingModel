@@ -31,7 +31,7 @@ so_template_path = so_path * "\\templates\\spineopt_template.json" # Needs the v
 url = "sqlite:///C:\\_SPINEPROJECTS\\SpineOpt_PED_demo_fluid\\.spinetoolbox\\data_and_definitions.sqlite"
 
 # Output url
-output_url = "sqlite:///" # In-memory db for testing.
+output_url = "sqlite://" # In-memory db for testing.
 
 ## Open database
 

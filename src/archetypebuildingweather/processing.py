@@ -6,6 +6,7 @@ from pathlib import Path
 import geopandas
 import atlite
 import rioxarray
+import rioxarray.merge
 import numpy as np
 import xarray
 import matplotlib.pyplot as plt
@@ -224,14 +225,13 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
         rst = raster.rio.clip_box(minx, miny, maxx, maxy)
         # Clip the municipality tightly, but don't `drop` to avoid issues with resampling.
         rst = rst.rio.clip(
-            [gdf.geometry.loc[lid]], all_touched=True, drop=False, from_disk=True
+            [gdf.geometry.loc[lid]], all_touched=True,
         )
-        lout = rst.fillna(0.0).rio.reproject(
+        lout = rst.rio.reproject(
             cutout.crs,
             shape=cutout.shape,
             transform=cutout.transform,
             resampling=resampling,
-            from_disk=True,
             nodata=0.0,
         )
         lout = lout / lout.sum() * weights[lid]  # Normalize and weigh the sub-shape.
@@ -239,7 +239,7 @@ def prepare_layout(shapefile, cutout, weights, raster_path=None, resampling=5):
         layouts.append(lout)  # Collect the weighted sub-raster into the list.
 
     # Combine the weighted and normalized rasters into one.
-    raster = sum(rasters)
+    raster = rioxarray.merge.merge_arrays(rasters)
     layout = sum(layouts)
     layout = layout / layout.sum()  # Finally, normalize the whole layout
 
